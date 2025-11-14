@@ -54,6 +54,7 @@ const config = {
         '@segment/analytics-node',
         'express',
         'isomorphic-ws',
+        'sharp',
         ...builtinModules.flatMap(p => [p, `node:${p}`]),
       ],
       output: {
