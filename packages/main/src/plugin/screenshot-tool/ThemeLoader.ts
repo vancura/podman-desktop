@@ -16,47 +16,37 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
+import defaultTheme from './themes/default.json';
+import halloweenTheme from './themes/halloween.json';
+import minimalTheme from './themes/minimal.json';
+import redHatSummitTheme from './themes/red-hat-summit.json';
 import type { Platform, PlatformConfig, Theme } from './types.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import platformsData from './platforms.json';
 
 export class ThemeLoader {
   private themes: Map<string, Theme> = new Map();
   private platforms: Map<string, Platform> = new Map();
-  private themesDir: string;
-  private platformsFile: string;
 
   constructor() {
-    this.themesDir = path.join(__dirname, 'themes');
-    this.platformsFile = path.join(__dirname, 'platforms.json');
     this.loadThemes();
     this.loadPlatforms();
   }
 
   private loadThemes(): void {
-    const themeFiles = ['default.json', 'minimal.json', 'halloween.json', 'red-hat-summit.json'];
+    const themes = [defaultTheme, minimalTheme, halloweenTheme, redHatSummitTheme];
 
-    for (const file of themeFiles) {
+    for (const theme of themes) {
       try {
-        const themePath = path.join(this.themesDir, file);
-        const themeData = fs.readFileSync(themePath, 'utf-8');
-        const theme = JSON.parse(themeData) as Theme;
-        this.themes.set(theme.id, theme);
+        this.themes.set(theme.id, theme as Theme);
       } catch (error) {
-        console.error(`Failed to load theme ${file}:`, error);
+        console.error(`Failed to load theme ${theme.id}:`, error);
       }
     }
   }
 
   private loadPlatforms(): void {
     try {
-      const platformData = fs.readFileSync(this.platformsFile, 'utf-8');
-      const config = JSON.parse(platformData) as PlatformConfig;
+      const config = platformsData as PlatformConfig;
 
       for (const platform of config.platforms) {
         this.platforms.set(platform.id, platform);
