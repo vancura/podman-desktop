@@ -28,29 +28,38 @@ export class ThemeLoader {
   private platforms: Map<string, Platform> = new Map();
 
   constructor() {
+    console.log('[ThemeLoader] Starting initialization...');
     this.loadThemes();
     this.loadPlatforms();
+    console.log('[ThemeLoader] Initialization complete. Themes:', this.themes.size, 'Platforms:', this.platforms.size);
   }
 
   private loadThemes(): void {
+    console.log('[ThemeLoader] Loading themes...');
     const themes = [defaultTheme, minimalTheme, halloweenTheme, redHatSummitTheme];
+    console.log('[ThemeLoader] Theme data loaded:', themes.length, 'themes');
 
     for (const theme of themes) {
       try {
+        console.log('[ThemeLoader] Loading theme:', theme.id);
         this.themes.set(theme.id, theme as Theme);
       } catch (error) {
         console.error(`Failed to load theme ${theme.id}:`, error);
       }
     }
+    console.log('[ThemeLoader] Themes loaded:', this.themes.size);
   }
 
   private loadPlatforms(): void {
     try {
+      console.log('[ThemeLoader] Loading platforms...');
       const config = platformsData as PlatformConfig;
+      console.log('[ThemeLoader] Platform data loaded:', config.platforms?.length, 'platforms');
 
       for (const platform of config.platforms) {
         this.platforms.set(platform.id, platform);
       }
+      console.log('[ThemeLoader] Platforms loaded:', this.platforms.size);
     } catch (error) {
       console.error('Failed to load platforms:', error);
     }

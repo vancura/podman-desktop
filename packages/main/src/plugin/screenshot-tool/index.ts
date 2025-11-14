@@ -27,11 +27,15 @@ export class ScreenshotTool {
   private screenshotManager: ScreenshotManager | undefined;
 
   constructor() {
+    console.log('[ScreenshotTool] Constructor called');
     this.themeLoader = new ThemeLoader();
+    console.log('[ScreenshotTool] ThemeLoader created');
   }
 
   init(mainWindow: BrowserWindow): void {
+    console.log('[ScreenshotTool] init() called');
     this.screenshotManager = new ScreenshotManager(mainWindow, this.themeLoader);
+    console.log('[ScreenshotTool] ScreenshotManager created');
   }
 
   async captureScreenshot(options: ScreenshotOptions): Promise<Buffer> {
@@ -43,11 +47,15 @@ export class ScreenshotTool {
   }
 
   getAllThemes(): Theme[] {
-    return this.themeLoader.getAllThemes();
+    const themes = this.themeLoader.getAllThemes();
+    console.log('[ScreenshotTool] getAllThemes() returning:', themes.length, 'themes');
+    return themes;
   }
 
   getAllPlatforms(): Platform[] {
-    return this.themeLoader.getAllPlatforms();
+    const platforms = this.themeLoader.getAllPlatforms();
+    console.log('[ScreenshotTool] getAllPlatforms() returning:', platforms.length, 'platforms');
+    return platforms;
   }
 
   getPlatformsByCategory(): Map<string, Platform[]> {

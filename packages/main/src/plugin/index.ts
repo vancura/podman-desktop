@@ -3226,21 +3226,27 @@ export class PluginSystem {
     });
 
     // Initialize screenshot tool
+    console.log('[PluginSystem] Initializing screenshot tool...');
     const screenshotTool = new ScreenshotTool();
     const mainWindow = await this.mainWindowDeferred.promise;
     screenshotTool.init(mainWindow);
+    console.log('[PluginSystem] Screenshot tool initialized');
 
     this.ipcHandle(
       'screenshot-tool:get-platforms',
       async (): Promise<unknown[]> => {
-        return screenshotTool.getAllPlatforms();
+        const platforms = screenshotTool.getAllPlatforms();
+        console.log('[IPC] screenshot-tool:get-platforms returning:', platforms.length, 'platforms');
+        return platforms;
       },
     );
 
     this.ipcHandle(
       'screenshot-tool:get-themes',
       async (): Promise<unknown[]> => {
-        return screenshotTool.getAllThemes();
+        const themes = screenshotTool.getAllThemes();
+        console.log('[IPC] screenshot-tool:get-themes returning:', themes.length, 'themes');
+        return themes;
       },
     );
 
