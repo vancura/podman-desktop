@@ -1,0 +1,36 @@
+{
+  "id": "halloween",
+  "name": "Halloween",
+  "description": "Spooky season vibes",
+  "thumbnail": "./backgrounds/halloween-thumb.png",
+  "background": {
+    "type": "gradient",
+    "gradient": {
+      "type": "linear",
+      "colors": ["#1a0a2e", "#ff6600", "#1a0a2e"],
+      "angle": 135
+    }
+  },
+  "window": {
+    "shadow": {
+      "x": 0,
+      "y": 25,
+      "blur": 70,
+      "spread": 0,
+      "opacity": 0.7,
+      "color": "#ff6600"
+    },
+    "border": {
+      "radius": 16,
+      "width": 3,
+      "color": "#ff8800"
+    },
+    "chrome": "frameless"
+  },
+  "padding": {
+    "top": 100,
+    "right": 100,
+    "bottom": 100,
+    "left": 100
+  }
+}

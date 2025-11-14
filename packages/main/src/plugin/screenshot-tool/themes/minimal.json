@@ -1,0 +1,31 @@
+{
+  "id": "minimal",
+  "name": "Minimal",
+  "description": "Ultra-clean with minimal shadow",
+  "background": {
+    "type": "solid",
+    "color": "#ffffff"
+  },
+  "window": {
+    "shadow": {
+      "x": 0,
+      "y": 10,
+      "blur": 30,
+      "spread": 0,
+      "opacity": 0.15,
+      "color": "#000000"
+    },
+    "border": {
+      "radius": 8,
+      "width": 1,
+      "color": "#e0e0e0"
+    },
+    "chrome": "frameless"
+  },
+  "padding": {
+    "top": 60,
+    "right": 60,
+    "bottom": 60,
+    "left": 60
+  }
+}

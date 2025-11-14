@@ -42,9 +42,26 @@ export class ApplicationMenuBuilder {
           const aboutMenuSubItem = aboutMenuItem({});
           aboutMenuSubItem.label = 'About';
 
+          // Add Take Branded Screenshot menu item
+          const screenshotMenuItem: MenuItemConstructorOptions = {
+            label: 'Take Branded Screenshot...',
+            accelerator: 'CommandOrControl+Shift+Alt+S',
+            click: () => {
+              // This will be handled by a global keyboard shortcut in the renderer
+              // For now, just log that the menu item was clicked
+              console.log('Take Branded Screenshot menu item clicked');
+            },
+          };
+
           // create new submenu
           // also add a separator before the About entry
-          const newSubMenu = Menu.buildFromTemplate([...i.submenu.items, { type: 'separator' }, aboutMenuSubItem]);
+          const newSubMenu = Menu.buildFromTemplate([
+            ...i.submenu.items,
+            { type: 'separator' },
+            screenshotMenuItem,
+            { type: 'separator' },
+            aboutMenuSubItem,
+          ]);
           return { ...i, submenu: newSubMenu };
         } else if (i.role?.toLocaleLowerCase() === 'viewmenu' && i.submenu) {
           // replace the Zoom In item by a new custom item

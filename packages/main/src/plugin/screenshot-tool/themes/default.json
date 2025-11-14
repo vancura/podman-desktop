@@ -1,0 +1,31 @@
+{
+  "id": "default",
+  "name": "Default",
+  "description": "Clean default style with subtle shadow",
+  "background": {
+    "type": "solid",
+    "color": "#1a1d29"
+  },
+  "window": {
+    "shadow": {
+      "x": 0,
+      "y": 20,
+      "blur": 60,
+      "spread": 0,
+      "opacity": 0.5,
+      "color": "#000000"
+    },
+    "border": {
+      "radius": 12,
+      "width": 0,
+      "color": "transparent"
+    },
+    "chrome": "frameless"
+  },
+  "padding": {
+    "top": 80,
+    "right": 80,
+    "bottom": 80,
+    "left": 80
+  }
+}

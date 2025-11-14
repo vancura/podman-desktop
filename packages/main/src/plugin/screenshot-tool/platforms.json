@@ -1,0 +1,140 @@
+{
+  "platforms": [
+    {
+      "id": "any",
+      "name": "Current Size",
+      "category": "Custom",
+      "width": null,
+      "height": null,
+      "description": "Use current window size"
+    },
+    {
+      "id": "linkedin-post",
+      "name": "LinkedIn Post",
+      "category": "Social Media",
+      "width": 1200,
+      "height": 1200,
+      "description": "Square format for LinkedIn posts"
+    },
+    {
+      "id": "linkedin-article",
+      "name": "LinkedIn Article Header",
+      "category": "Social Media",
+      "width": 1200,
+      "height": 627,
+      "description": "Header image for LinkedIn articles"
+    },
+    {
+      "id": "twitter-post",
+      "name": "X/Twitter Post",
+      "category": "Social Media",
+      "width": 1200,
+      "height": 675,
+      "description": "Optimal size for X/Twitter posts"
+    },
+    {
+      "id": "mastodon",
+      "name": "Mastodon",
+      "category": "Social Media",
+      "width": 1200,
+      "height": 630,
+      "description": "Mastodon post image"
+    },
+    {
+      "id": "facebook-post",
+      "name": "Facebook Post",
+      "category": "Social Media",
+      "width": 1200,
+      "height": 630,
+      "description": "Facebook post image"
+    },
+    {
+      "id": "reddit",
+      "name": "Reddit",
+      "category": "Social Media",
+      "width": 1200,
+      "height": 630,
+      "description": "Reddit post image"
+    },
+    {
+      "id": "youtube-thumbnail",
+      "name": "YouTube Thumbnail",
+      "category": "Video",
+      "width": 1280,
+      "height": 720,
+      "description": "YouTube video thumbnail (16:9)"
+    },
+    {
+      "id": "instagram-post",
+      "name": "Instagram Post",
+      "category": "Social Media",
+      "width": 1080,
+      "height": 1080,
+      "description": "Square Instagram post"
+    },
+    {
+      "id": "instagram-story",
+      "name": "Instagram Story",
+      "category": "Video",
+      "width": 1080,
+      "height": 1920,
+      "description": "Vertical Instagram story (9:16)"
+    },
+    {
+      "id": "blog-hero",
+      "name": "Blog Hero",
+      "category": "Publishing",
+      "width": 1920,
+      "height": 1080,
+      "description": "Hero image for blog posts"
+    },
+    {
+      "id": "newsletter",
+      "name": "Newsletter Header",
+      "category": "Publishing",
+      "width": 600,
+      "height": 300,
+      "description": "Email newsletter header"
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "category": "Publishing",
+      "width": 1600,
+      "height": 900,
+      "description": "Technical documentation screenshot"
+    },
+    {
+      "id": "github-social",
+      "name": "GitHub Social Preview",
+      "category": "Publishing",
+      "width": 1280,
+      "height": 640,
+      "description": "GitHub repository social preview"
+    },
+    {
+      "id": "slide-16-9",
+      "name": "Presentation Slide (16:9)",
+      "category": "Presentation",
+      "width": 1920,
+      "height": 1080,
+      "description": "Widescreen presentation slide"
+    },
+    {
+      "id": "slide-4-3",
+      "name": "Presentation Slide (4:3)",
+      "category": "Presentation",
+      "width": 1024,
+      "height": 768,
+      "description": "Standard presentation slide"
+    },
+    {
+      "id": "product-hunt",
+      "name": "Product Hunt",
+      "category": "Social Media",
+      "width": 1270,
+      "height": 760,
+      "description": "Product Hunt gallery image"
+    }
+  ]
+}

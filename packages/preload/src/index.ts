@@ -2659,6 +2659,30 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('unpinStatusBar', async (optionId: string): Promise<void> => {
     return ipcInvoke('statusbar:unpin', optionId);
   });
+
+  // Screenshot tool API
+  contextBridge.exposeInMainWorld('getScreenshotPlatforms', async (): Promise<unknown[]> => {
+    return ipcInvoke('screenshot-tool:get-platforms');
+  });
+
+  contextBridge.exposeInMainWorld('getScreenshotThemes', async (): Promise<unknown[]> => {
+    return ipcInvoke('screenshot-tool:get-themes');
+  });
+
+  contextBridge.exposeInMainWorld(
+    'validateScreenshotPlatformSize',
+    async (platformId: string): Promise<{ valid: boolean; warning?: string }> => {
+      return ipcInvoke('screenshot-tool:validate-platform-size', platformId);
+    },
+  );
+
+  contextBridge.exposeInMainWorld('generateScreenshotFilename', async (options: unknown): Promise<string> => {
+    return ipcInvoke('screenshot-tool:generate-filename', options);
+  });
+
+  contextBridge.exposeInMainWorld('captureScreenshot', async (options: unknown): Promise<Buffer> => {
+    return ipcInvoke('screenshot-tool:capture', options);
+  });
 }
 
 // expose methods

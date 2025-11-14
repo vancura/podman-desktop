@@ -1,0 +1,35 @@
+{
+  "id": "red-hat-summit",
+  "name": "Red Hat Summit",
+  "description": "Red Hat Summit branding",
+  "background": {
+    "type": "gradient",
+    "gradient": {
+      "type": "linear",
+      "colors": ["#ee0000", "#cc0000"],
+      "angle": 135
+    }
+  },
+  "window": {
+    "shadow": {
+      "x": 0,
+      "y": 30,
+      "blur": 80,
+      "spread": 0,
+      "opacity": 0.6,
+      "color": "#000000"
+    },
+    "border": {
+      "radius": 12,
+      "width": 0,
+      "color": "transparent"
+    },
+    "chrome": "frameless"
+  },
+  "padding": {
+    "top": 90,
+    "right": 90,
+    "bottom": 90,
+    "left": 90
+  }
+}

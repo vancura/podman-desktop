@@ -202,6 +202,7 @@ import { Proxy } from './proxy.js';
 import { RecommendationsRegistry } from './recommendations/recommendations-registry.js';
 import { ReleaseNotesBannerInit } from './release-notes-banner-init.js';
 import { SafeStorageRegistry } from './safe-storage/safe-storage-registry.js';
+import { ScreenshotTool } from './screenshot-tool/index.js';
 import { PinRegistry } from './statusbar/pin-registry.js';
 import { StatusbarProvidersInit } from './statusbar/statusbar-providers-init.js';
 import { StatusBarRegistry } from './statusbar/statusbar-registry.js';
@@ -3223,6 +3224,46 @@ export class PluginSystem {
     this.ipcHandle('statusbar:unpin', async (_listener, optionId: string): Promise<void> => {
       return pinRegistry.unpin(optionId);
     });
+
+    // Initialize screenshot tool
+    const screenshotTool = new ScreenshotTool();
+    const mainWindow = await this.mainWindowDeferred.promise;
+    screenshotTool.init(mainWindow);
+
+    this.ipcHandle(
+      'screenshot-tool:get-platforms',
+      async (): Promise<unknown[]> => {
+        return screenshotTool.getAllPlatforms();
+      },
+    );
+
+    this.ipcHandle(
+      'screenshot-tool:get-themes',
+      async (): Promise<unknown[]> => {
+        return screenshotTool.getAllThemes();
+      },
+    );
+
+    this.ipcHandle(
+      'screenshot-tool:validate-platform-size',
+      async (_listener, platformId: string): Promise<{ valid: boolean; warning?: string }> => {
+        return screenshotTool.validatePlatformSize(platformId);
+      },
+    );
+
+    this.ipcHandle(
+      'screenshot-tool:generate-filename',
+      async (_listener, options: unknown): Promise<string> => {
+        return screenshotTool.generateFilename(options as containerDesktopAPI.ScreenshotOptions);
+      },
+    );
+
+    this.ipcHandle(
+      'screenshot-tool:capture',
+      async (_listener, options: unknown): Promise<Buffer> => {
+        return screenshotTool.captureScreenshot(options as containerDesktopAPI.ScreenshotOptions);
+      },
+    );
 
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
