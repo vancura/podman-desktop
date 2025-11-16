@@ -3271,6 +3271,30 @@ export class PluginSystem {
       },
     );
 
+    this.ipcHandle(
+      'screenshot-tool:save',
+      async (_listener, buffer: Buffer, filename: string): Promise<string | undefined> => {
+        const { dialog } = await import('electron');
+        const { writeFile } = await import('node:fs/promises');
+
+        const result = await dialog.showSaveDialog({
+          title: 'Save Screenshot',
+          defaultPath: filename,
+          filters: [
+            { name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'avif'] },
+            { name: 'All Files', extensions: ['*'] },
+          ],
+        });
+
+        if (result.canceled || !result.filePath) {
+          return undefined;
+        }
+
+        await writeFile(result.filePath, buffer);
+        return result.filePath;
+      },
+    );
+
     const dockerDesktopInstallation = new DockerDesktopInstallation(
       apiSender,
       containerProviderRegistry,

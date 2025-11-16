@@ -2683,6 +2683,10 @@ export function initExposure(): void {
   contextBridge.exposeInMainWorld('captureScreenshot', async (options: unknown): Promise<Buffer> => {
     return ipcInvoke('screenshot-tool:capture', options);
   });
+
+  contextBridge.exposeInMainWorld('saveScreenshot', async (buffer: Buffer, filename: string): Promise<string | undefined> => {
+    return ipcInvoke('screenshot-tool:save', buffer, filename);
+  });
 }
 
 // expose methods
