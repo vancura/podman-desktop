@@ -30,8 +30,110 @@ import { AppearanceSettings } from './appearance-settings.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Disposable } from './types/disposable.js';
 
+export { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper } from './color-builder.js';
+
 const { amber, black, charcoal, dustypurple, fuschia, gray, green, purple, red, sky, stone, white, transparent } =
   tailwindColorPalette;
+
+/**
+ * Callback type for registering a color definition.
+ */
+type RegisterColorCallback = (colorId: string, definition: ColorDefinition) => void;
+
+/**
+ * Callback type for registering a color with opacity.
+ */
+type RegisterColorWithOpacityCallback = (
+  colorId: string,
+  colors: ColorDefinition,
+  alpha: { light: number; dark: number },
+) => void;
+
+/**
+ * Builder class for fluent color registration directly with a ColorRegistry.
+ * Automatically registers the color when both light and dark values are set.
+ * Supports optional alpha (opacity) values for each theme variant.
+ *
+ * @example
+ * this.color('my-color').withLight('#ffffff').withDark('#000000');
+ *
+ * @example
+ * this.color('my-transparent-color').withLight('#ffffff', 0.5).withDark('#000000', 0.8);
+ */
+export class ColorBuilder {
+  #colorId: string;
+  #lightColor?: string;
+  #lightAlpha = 1;
+  #darkColor?: string;
+  #darkAlpha = 1;
+  #registerColor: RegisterColorCallback;
+  #registerColorWithOpacity: RegisterColorWithOpacityCallback;
+
+  constructor(
+    colorId: string,
+    registerColor: RegisterColorCallback,
+    registerColorWithOpacity: RegisterColorWithOpacityCallback,
+  ) {
+    this.#colorId = colorId;
+    this.#registerColor = registerColor;
+    this.#registerColorWithOpacity = registerColorWithOpacity;
+  }
+
+  /**
+   * Set the light theme color and optional opacity.
+   * If the dark color is already set, this will trigger registration.
+   * @param color - The color string for light theme
+   * @param alpha - The alpha value (0-1), defaults to 1 (fully opaque)
+   * @returns This builder for method chaining
+   */
+  withLight(color: string, alpha = 1): this {
+    this.#lightColor = color;
+    this.#lightAlpha = alpha;
+
+    this.#tryRegister();
+
+    return this;
+  }
+
+  /**
+   * Set the dark theme color and optional opacity.
+   * If the light color is already set, this will trigger registration.
+   * @param color - The color string for dark theme
+   * @param alpha - The alpha value (0-1), defaults to 1 (fully opaque)
+   * @returns This builder for method chaining
+   */
+  withDark(color: string, alpha = 1): this {
+    this.#darkColor = color;
+    this.#darkAlpha = alpha;
+
+    this.#tryRegister();
+
+    return this;
+  }
+
+  /**
+   * Attempts to register the color if both light and dark colors are set.
+   * Uses registerColorWithOpacity if any alpha value is not 1, otherwise uses registerColor.
+   */
+  #tryRegister(): void {
+    if (this.#lightColor && this.#darkColor) {
+      if (this.#lightAlpha === 1 && this.#darkAlpha === 1) {
+        // No opacity needed, use simple registerColor
+        this.#registerColor(this.#colorId, {
+          light: this.#lightColor,
+          dark: this.#darkColor,
+        });
+      } else {
+        // Opacity needed, use registerColorWithOpacity
+        this.#registerColorWithOpacity(
+          this.#colorId,
+          { light: this.#lightColor, dark: this.#darkColor },
+          { light: this.#lightAlpha, dark: this.#darkAlpha },
+        );
+      }
+    }
+  }
+}
 
 export class ColorRegistry {
   #apiSender: ApiSenderType;
@@ -147,6 +249,56 @@ export class ColorRegistry {
     this.#themes.get('light')?.set(colorId, definition.light);
     this.#themes.get('dark')?.set(colorId, definition.dark);
     this.notifyUpdate();
+  }
+
+  /**
+   * Register a color with separate alpha (opacity) values for light and dark themes.
+   * The alpha values are applied to the colors before registration.
+   * @param colorId - The unique color identifier
+   * @param colors - Object with light and dark color values
+   * @param alpha - Object with light and dark alpha values (0-1)
+   */
+  protected registerColorWithOpacity(
+    colorId: string,
+    colors: ColorDefinition,
+    alpha: { light: number; dark: number },
+  ): void {
+    /**
+     * Apply alpha to a color string and return the formatted CSS color.
+     */
+    const applyAlpha = (color: string, alphaValue: number): string => {
+      const parsed = parse(color);
+
+      if (!parsed) throw new Error(`Failed to parse color ${color}`);
+
+      parsed.alpha = alphaValue;
+
+      return formatCss(parsed) ?? '';
+    };
+
+    this.registerColor(colorId, {
+      light: applyAlpha(colors.light, alpha.light),
+      dark: applyAlpha(colors.dark, alpha.dark),
+    });
+  }
+
+  /**
+   * Create a ColorBuilder for fluent color registration.
+   * The color is automatically registered when both light and dark values are set.
+   *
+   * @example
+   * this.color('my-color').withLight('#ffffff').withDark('#000000');
+   * this.color('transparent-color').withLight('#ffffff', 0.5).withDark('#000000', 0.8);
+   *
+   * @param colorId - The unique color identifier
+   * @returns A ColorBuilder instance for method chaining
+   */
+  protected color(colorId: string): ColorBuilder {
+    return new ColorBuilder(
+      colorId,
+      (id, def) => this.registerColor(id, def),
+      (id, colors, alpha) => this.registerColorWithOpacity(id, colors, alpha),
+    );
   }
 
   // check if the given theme is dark

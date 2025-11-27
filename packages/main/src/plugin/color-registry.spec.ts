@@ -30,7 +30,7 @@ import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import tailwindColorPalette from '../../../../tailwind-color-palette.json' with { type: 'json' };
 import * as util from '../util.js';
-import { ColorRegistry } from './color-registry.js';
+import { ColorBuilder, ColorRegistry } from './color-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 
 class TestColorRegistry extends ColorRegistry {
@@ -51,6 +51,18 @@ class TestColorRegistry extends ColorRegistry {
 
   override registerColor(colorId: string, definition: ColorDefinition): void {
     super.registerColor(colorId, definition);
+  }
+
+  override registerColorWithOpacity(
+    colorId: string,
+    colors: ColorDefinition,
+    alpha: { light: number; dark: number },
+  ): void {
+    super.registerColorWithOpacity(colorId, colors, alpha);
+  }
+
+  override color(colorId: string): ColorBuilder {
+    return super.color(colorId);
   }
 
   override initTitlebar(): void {
@@ -710,5 +722,173 @@ describe('initCommon', () => {
     // Check that alpha is present (either rgba format or oklch with alpha)
     expect(darkColor).toMatch(/rgba|oklch.*\/\s*0\.4|40%|alpha/i);
     expect(lightColor).toMatch(/rgba|oklch.*\/\s*0\.4|40%|alpha/i);
+  });
+});
+
+describe('registerColorWithOpacity', () => {
+  test('registers color with alpha values applied', () => {
+    const spyOnNotifyUpdate = vi.spyOn(colorRegistry, 'notifyUpdate');
+    spyOnNotifyUpdate.mockReturnValue(undefined);
+
+    colorRegistry.registerColorWithOpacity(
+      'test-opacity-color',
+      { light: '#ffffff', dark: '#000000' },
+      { light: 0.5, dark: 0.8 },
+    );
+
+    // Check color was registered
+    const lightColors = colorRegistry.listColors('light');
+    const darkColors = colorRegistry.listColors('dark');
+
+    const lightColor = lightColors.find(c => c.id === 'test-opacity-color');
+    const darkColor = darkColors.find(c => c.id === 'test-opacity-color');
+
+    expect(lightColor).toBeDefined();
+    expect(darkColor).toBeDefined();
+
+    // Verify alpha is embedded in the color value
+    expect(lightColor?.value).toContain('0.5');
+    expect(darkColor?.value).toContain('0.8');
+  });
+
+  test('throws error for invalid color', () => {
+    expect(() =>
+      colorRegistry.registerColorWithOpacity(
+        'invalid-color',
+        { light: 'not-a-color', dark: '#000000' },
+        { light: 0.5, dark: 0.8 },
+      ),
+    ).toThrow('Failed to parse color not-a-color');
+  });
+});
+
+describe('color() fluent API', () => {
+  test('returns a ColorBuilder instance', () => {
+    const builder = colorRegistry.color('fluent-test');
+    expect(builder).toBeInstanceOf(ColorBuilder);
+  });
+
+  test('registers color when both light and dark are set', () => {
+    const spyOnNotifyUpdate = vi.spyOn(colorRegistry, 'notifyUpdate');
+    spyOnNotifyUpdate.mockReturnValue(undefined);
+
+    colorRegistry.color('fluent-color').withLight('#ffffff').withDark('#000000');
+
+    // Verify color was registered
+    const lightColors = colorRegistry.listColors('light');
+    const darkColors = colorRegistry.listColors('dark');
+
+    const lightColor = lightColors.find(c => c.id === 'fluent-color');
+    const darkColor = darkColors.find(c => c.id === 'fluent-color');
+
+    expect(lightColor).toBeDefined();
+    expect(darkColor).toBeDefined();
+  });
+
+  test('registers color with alpha when opacity is specified', () => {
+    const spyOnNotifyUpdate = vi.spyOn(colorRegistry, 'notifyUpdate');
+    spyOnNotifyUpdate.mockReturnValue(undefined);
+
+    colorRegistry.color('fluent-alpha-color').withLight('#ffffff', 0.5).withDark('#000000', 0.8);
+
+    // Verify color was registered with alpha
+    const lightColors = colorRegistry.listColors('light');
+    const darkColors = colorRegistry.listColors('dark');
+
+    const lightColor = lightColors.find(c => c.id === 'fluent-alpha-color');
+    const darkColor = darkColors.find(c => c.id === 'fluent-alpha-color');
+
+    expect(lightColor).toBeDefined();
+    expect(darkColor).toBeDefined();
+    expect(lightColor?.value).toContain('0.5');
+    expect(darkColor?.value).toContain('0.8');
+  });
+
+  test('does not register until both colors are set', () => {
+    const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
+
+    // Only set light color
+    colorRegistry.color('partial-color').withLight('#ffffff');
+
+    // Should not have registered yet
+    expect(spyOnRegisterColor).not.toHaveBeenCalled();
+  });
+
+  test('supports reverse order (dark first, then light)', () => {
+    const spyOnNotifyUpdate = vi.spyOn(colorRegistry, 'notifyUpdate');
+    spyOnNotifyUpdate.mockReturnValue(undefined);
+
+    colorRegistry.color('reverse-order-color').withDark('#000000').withLight('#ffffff');
+
+    // Verify color was registered
+    const lightColors = colorRegistry.listColors('light');
+    const lightColor = lightColors.find(c => c.id === 'reverse-order-color');
+
+    expect(lightColor).toBeDefined();
+  });
+});
+
+describe('ColorBuilder', () => {
+  test('withLight returns this for chaining', () => {
+    const builder = colorRegistry.color('chain-test');
+    const result = builder.withLight('#fff');
+    expect(result).toBe(builder);
+  });
+
+  test('withDark returns this for chaining', () => {
+    const builder = colorRegistry.color('chain-test-2');
+    const result = builder.withDark('#000');
+    expect(result).toBe(builder);
+  });
+
+  test('uses registerColor when no alpha is specified', () => {
+    const spyOnRegisterColor = vi.spyOn(colorRegistry, 'registerColor');
+    spyOnRegisterColor.mockReturnValue(undefined);
+
+    colorRegistry.color('no-alpha-color').withLight('#ffffff').withDark('#000000');
+
+    expect(spyOnRegisterColor).toHaveBeenCalledWith('no-alpha-color', {
+      light: '#ffffff',
+      dark: '#000000',
+    });
+  });
+
+  test('uses registerColorWithOpacity when alpha is specified', () => {
+    const spyOnRegisterColorWithOpacity = vi.spyOn(colorRegistry, 'registerColorWithOpacity');
+    spyOnRegisterColorWithOpacity.mockReturnValue(undefined);
+
+    colorRegistry.color('alpha-color').withLight('#ffffff', 0.5).withDark('#000000', 0.8);
+
+    expect(spyOnRegisterColorWithOpacity).toHaveBeenCalledWith(
+      'alpha-color',
+      { light: '#ffffff', dark: '#000000' },
+      { light: 0.5, dark: 0.8 },
+    );
+  });
+
+  test('uses registerColorWithOpacity when only light has alpha', () => {
+    const spyOnRegisterColorWithOpacity = vi.spyOn(colorRegistry, 'registerColorWithOpacity');
+    spyOnRegisterColorWithOpacity.mockReturnValue(undefined);
+
+    colorRegistry.color('light-alpha-only').withLight('#ffffff', 0.5).withDark('#000000');
+
+    expect(spyOnRegisterColorWithOpacity).toHaveBeenCalledWith(
+      'light-alpha-only',
+      { light: '#ffffff', dark: '#000000' },
+      { light: 0.5, dark: 1 },
+    );
+  });
+
+  test('uses registerColorWithOpacity when only dark has alpha', () => {
+    const spyOnRegisterColorWithOpacity = vi.spyOn(colorRegistry, 'registerColorWithOpacity');
+    spyOnRegisterColorWithOpacity.mockReturnValue(undefined);
+
+    colorRegistry.color('dark-alpha-only').withLight('#ffffff').withDark('#000000', 0.8);
+
+    expect(spyOnRegisterColorWithOpacity).toHaveBeenCalledWith(
+      'dark-alpha-only',
+      { light: '#ffffff', dark: '#000000' },
+      { light: 1, dark: 0.8 },
+    );
   });
 });
