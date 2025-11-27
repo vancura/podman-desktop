@@ -27,10 +27,11 @@ import tailwindColorPalette from '../../../../tailwind-color-palette.json' with 
 import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
+import { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper } from './color-builder.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Disposable } from './types/disposable.js';
 
-export { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper } from './color-builder.js';
+export { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper };
 
 const { amber, black, charcoal, dustypurple, fuschia, gray, green, purple, red, sky, stone, white, transparent } =
   tailwindColorPalette;
@@ -249,6 +250,27 @@ export class ColorRegistry {
     this.#themes.get('light')?.set(colorId, definition.light);
     this.#themes.get('dark')?.set(colorId, definition.dark);
     this.notifyUpdate();
+  }
+
+  /**
+   * Register a color using a built color definition that includes the id.
+   * This is a convenience method for use with the colorDefinition() builder.
+   *
+   * @example
+   * this.registerColorDefinition(
+   *   colorDefinition('my-color')
+   *     .withLight(colorPalette('#ffffff').withAlpha(0.5))
+   *     .withDark(colorPalette('#000000').withAlpha(0.8))
+   *     .build()
+   * );
+   *
+   * @param definition - The color definition with id, light, and dark values
+   */
+  protected registerColorDefinition(definition: ColorDefinition & { id: string }): void {
+    this.registerColor(definition.id, {
+      light: definition.light,
+      dark: definition.dark,
+    });
   }
 
   /**
