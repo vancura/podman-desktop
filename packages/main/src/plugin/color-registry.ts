@@ -1092,10 +1092,12 @@ export class ColorRegistry {
       dark: purple[400],
       light: purple[700],
     });
-    this.registerColor(`${link}-hover-bg`, {
-      dark: white + '2',
-      light: black + '2',
-    });
+    this.registerColorDefinition(
+      colorDefinition(`${link}-hover-bg`)
+        .withLight(colorPalette(black).withAlpha(0.13))
+        .withDark(colorPalette(white).withAlpha(0.13))
+        .build(),
+    );
   }
 
   // button
@@ -1182,18 +1184,22 @@ export class ColorRegistry {
       dark: white,
       light: black,
     });
-    this.registerColor(`${button}close-hover-bg`, {
-      dark: white + '2',
-      light: black + '2',
-    });
+    this.registerColorDefinition(
+      colorDefinition(`${button}close-hover-bg`)
+        .withLight(colorPalette(black).withAlpha(0.13))
+        .withDark(colorPalette(white).withAlpha(0.13))
+        .build(),
+    );
     this.registerColor(`${button}link-text`, {
       dark: purple[400],
       light: purple[700],
     });
-    this.registerColor(`${button}link-hover-bg`, {
-      dark: white + '2',
-      light: black + '2',
-    });
+    this.registerColorDefinition(
+      colorDefinition(`${button}link-hover-bg`)
+        .withLight(colorPalette(black).withAlpha(0.13))
+        .withDark(colorPalette(white).withAlpha(0.13))
+        .build(),
+    );
     this.registerColor(`${button}help-link-text`, {
       dark: gray[100],
       light: charcoal[900],
@@ -1727,20 +1733,11 @@ export class ColorRegistry {
   }
 
   protected initCommon(): void {
-    const darkParsed = parse(stone[300]);
-    const lightParsed = parse(stone[600]);
-
-    if (!darkParsed || !lightParsed) {
-      throw new Error('Failed to parse stone palette colors');
-    }
-
-    darkParsed.alpha = 0.4;
-    lightParsed.alpha = 0.4;
-
-    this.registerColor(`item-disabled`, {
-      dark: formatCss(darkParsed),
-      light: formatCss(lightParsed),
-      // TODO: light HC + dark HC
-    });
+    this.registerColorDefinition(
+      colorDefinition('item-disabled')
+        .withLight(colorPalette(stone[600]).withAlpha(0.4))
+        .withDark(colorPalette(stone[300]).withAlpha(0.4))
+        .build(),
+    );
   }
 }
