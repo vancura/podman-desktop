@@ -27,11 +27,9 @@ import tailwindColorPalette from '../../../../tailwind-color-palette.json' with 
 import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
-import { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper } from './color-builder.js';
+import { colorDefinition, colorPalette } from './color-builder.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Disposable } from './types/disposable.js';
-
-export { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper };
 
 const { amber, black, charcoal, dustypurple, fuschia, gray, green, purple, red, sky, stone, white, transparent } =
   tailwindColorPalette;
