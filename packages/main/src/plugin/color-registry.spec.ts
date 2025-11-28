@@ -808,9 +808,9 @@ describe('registerColorWithOpacity', () => {
     expect(lightColor).toBeDefined();
     expect(darkColor).toBeDefined();
 
-    // Verify alpha is embedded in the color value
-    expect(lightColor?.value).toContain('0.5');
-    expect(darkColor?.value).toContain('0.8');
+    // Verify alpha is embedded in the color value (culori uses color(srgb ... / alpha) format)
+    expect(lightColor?.value).toMatch(/\/ 0\.5\)?$/);
+    expect(darkColor?.value).toMatch(/\/ 0\.8\)?$/);
   });
 
   test('throws error for invalid color', () => {
@@ -866,8 +866,9 @@ describe('color() fluent API', () => {
 
     expect(lightColor).toBeDefined();
     expect(darkColor).toBeDefined();
-    expect(lightColor?.value).toContain('0.5');
-    expect(darkColor?.value).toContain('0.8');
+    // Verify alpha is embedded in the color value (culori uses color(srgb ... / alpha) format)
+    expect(lightColor?.value).toMatch(/\/ 0\.5\)?$/);
+    expect(darkColor?.value).toMatch(/\/ 0\.8\)?$/);
   });
 
   test('does not register until build() is called and passed to registerColorDefinition', () => {
@@ -923,15 +924,16 @@ describe('ColorBuilder', () => {
     const result = colorRegistry.color('alpha-color').withLight('#ffffff', 0.5).withDark('#000000', 0.8).build();
 
     expect(result.id).toBe('alpha-color');
-    expect(result.light).toContain('0.5');
-    expect(result.dark).toContain('0.8');
+    // Verify alpha is embedded in the color value (culori uses color(srgb ... / alpha) format)
+    expect(result.light).toMatch(/\/ 0\.5\)?$/);
+    expect(result.dark).toMatch(/\/ 0\.8\)?$/);
   });
 
   test('build applies alpha when only light has alpha', () => {
     const result = colorRegistry.color('light-alpha-only').withLight('#ffffff', 0.5).withDark('#000000').build();
 
     expect(result.id).toBe('light-alpha-only');
-    expect(result.light).toContain('0.5');
+    expect(result.light).toMatch(/\/ 0\.5\)?$/);
     expect(result.dark).toBe('#000000');
   });
 
@@ -940,7 +942,7 @@ describe('ColorBuilder', () => {
 
     expect(result.id).toBe('dark-alpha-only');
     expect(result.light).toBe('#ffffff');
-    expect(result.dark).toContain('0.8');
+    expect(result.dark).toMatch(/\/ 0\.8\)?$/);
   });
 
   test('build throws error when light color is missing', () => {

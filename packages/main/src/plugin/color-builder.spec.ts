@@ -90,9 +90,9 @@ describe('ColorDefinitionBuilder', () => {
     expect(result.id).toBe('transparent-color');
     expect(result.light).toBeDefined();
     expect(result.dark).toBeDefined();
-    // Check that alpha is applied (culori uses color(srgb ...) format with alpha)
-    expect(result.light).toContain('0.5');
-    expect(result.dark).toContain('0.8');
+    // Check that alpha is applied (culori uses color(srgb ... / alpha) format)
+    expect(result.light).toMatch(/\/ 0\.5\)?$/);
+    expect(result.dark).toMatch(/\/ 0\.8\)?$/);
   });
 
   test('should support mixed string and ColorPaletteHelper', () => {
