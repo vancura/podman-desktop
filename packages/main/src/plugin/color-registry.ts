@@ -37,6 +37,27 @@ const { amber, black, charcoal, dustypurple, fuschia, gray, green, purple, red, 
   tailwindColorPalette;
 
 /**
+ * Apply alpha to a color string and return the formatted CSS color.
+ * @param color - The color string to apply alpha to
+ * @param alphaValue - The alpha value (0-1)
+ * @returns The formatted CSS color string
+ * @throws Error if the color cannot be parsed or formatted
+ */
+function applyAlpha(color: string, alphaValue: number): string {
+  if (alphaValue === 1) {
+    return color;
+  }
+
+  const parsed = parse(color);
+  if (!parsed) throw new Error(`Failed to parse color ${color}`);
+  parsed.alpha = alphaValue;
+
+  const formatted = formatCss(parsed);
+  if (!formatted) throw new Error(`Failed to format color ${color}`);
+  return formatted;
+}
+
+/**
  * Builder class for fluent color definition creation.
  * Does not register colors directly - call build() to get the color definition object,
  * then pass it to registerColorDefinition().
@@ -99,24 +120,6 @@ export class ColorBuilder {
     if (!this.#lightColor || !this.#darkColor) {
       throw new Error(`Color definition for ${this.#colorId} is incomplete.`);
     }
-
-    /**
-     * Apply alpha to a color string and return the formatted CSS color.
-     * @throws Error if color cannot be parsed or formatted
-     */
-    const applyAlpha = (color: string, alphaValue: number): string => {
-      if (alphaValue === 1) {
-        return color;
-      }
-
-      const parsed = parse(color);
-      if (!parsed) throw new Error(`Failed to parse color ${color}`);
-      parsed.alpha = alphaValue;
-
-      const formatted = formatCss(parsed);
-      if (!formatted) throw new Error(`Failed to format color ${color}`);
-      return formatted;
-    };
 
     return {
       id: this.#colorId,
@@ -275,19 +278,6 @@ export class ColorRegistry {
     colors: ColorDefinition,
     alpha: { light: number; dark: number },
   ): void {
-    /**
-     * Apply alpha to a color string and return the formatted CSS color.
-     */
-    const applyAlpha = (color: string, alphaValue: number): string => {
-      const parsed = parse(color);
-
-      if (!parsed) throw new Error(`Failed to parse color ${color}`);
-
-      parsed.alpha = alphaValue;
-
-      return formatCss(parsed) ?? '';
-    };
-
     this.registerColor(colorId, {
       light: applyAlpha(colors.light, alpha.light),
       dark: applyAlpha(colors.dark, alpha.dark),
