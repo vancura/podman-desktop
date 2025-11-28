@@ -102,6 +102,7 @@ export class ColorBuilder {
 
     /**
      * Apply alpha to a color string and return the formatted CSS color.
+     * @throws Error if color cannot be parsed or formatted
      */
     const applyAlpha = (color: string, alphaValue: number): string => {
       if (alphaValue === 1) {
@@ -112,7 +113,9 @@ export class ColorBuilder {
       if (!parsed) throw new Error(`Failed to parse color ${color}`);
       parsed.alpha = alphaValue;
 
-      return formatCss(parsed) ?? '';
+      const formatted = formatCss(parsed);
+      if (!formatted) throw new Error(`Failed to format color ${color}`);
+      return formatted;
     };
 
     return {
