@@ -45,8 +45,13 @@ export class ColorPaletteHelper {
    * Set the alpha value for the color.
    * @param alpha - The alpha value (0-1), defaults to 1 (fully opaque)
    * @returns This builder for method chaining
+   * @throws Error if alpha is not between 0 and 1
    */
   withAlpha(alpha: number): this {
+    if (alpha < 0 || alpha > 1) {
+      throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+    }
+
     this.#alpha = alpha;
 
     return this;
@@ -155,6 +160,7 @@ export class ColorDefinitionBuilder {
      * Formats the color with opacity.
      * @param c - The color object with color and alpha values
      * @returns The formatted color string
+     * @throws Error if color cannot be parsed or formatted
      */
     const formatColor = (c: { color: string; alpha: number }): string => {
       const parsed = parse(c.color);
@@ -163,7 +169,11 @@ export class ColorDefinitionBuilder {
 
       parsed.alpha = c.alpha;
 
-      return formatCss(parsed) ?? '';
+      const formatted = formatCss(parsed);
+
+      if (!formatted) throw new Error(`Failed to format color ${c.color}`);
+
+      return formatted;
     };
 
     return {

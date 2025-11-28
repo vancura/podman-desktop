@@ -47,6 +47,24 @@ describe('ColorPaletteHelper', () => {
 
     expect(helper.alpha).toBe(0);
   });
+
+  test('should handle alpha value of 1', () => {
+    const helper = new ColorPaletteHelper('#0000ff').withAlpha(1);
+
+    expect(helper.alpha).toBe(1);
+  });
+
+  test('should throw error for alpha value below 0', () => {
+    const helper = new ColorPaletteHelper('#0000ff');
+
+    expect(() => helper.withAlpha(-0.1)).toThrow('Alpha value must be between 0 and 1, got -0.1');
+  });
+
+  test('should throw error for alpha value above 1', () => {
+    const helper = new ColorPaletteHelper('#0000ff');
+
+    expect(() => helper.withAlpha(1.5)).toThrow('Alpha value must be between 0 and 1, got 1.5');
+  });
 });
 
 describe('colorPalette', () => {
