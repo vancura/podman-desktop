@@ -142,8 +142,10 @@ describe('ColorDefinitionBuilder', () => {
     expect(() => builder.build()).toThrow('Color definition for empty-color is incomplete.');
   });
 
-  test('should throw error for invalid color string', () => {
-    const builder = new ColorDefinitionBuilder('invalid-color').withLight('not-a-color').withDark('#000000');
+  test('should throw error for invalid color string with alpha', () => {
+    const builder = new ColorDefinitionBuilder('invalid-color')
+      .withLight(colorPalette('not-a-color').withAlpha(0.5))
+      .withDark('#000000');
 
     expect(() => builder.build()).toThrow('Failed to parse color not-a-color');
   });

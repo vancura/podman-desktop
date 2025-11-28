@@ -163,6 +163,10 @@ export class ColorDefinitionBuilder {
      * @throws Error if color cannot be parsed or formatted
      */
     const formatColor = (c: { color: string; alpha: number }): string => {
+      if (c.alpha === 1) {
+        return c.color;
+      }
+
       const parsed = parse(c.color);
 
       if (!parsed) throw new Error(`Failed to parse color ${c.color}`);
