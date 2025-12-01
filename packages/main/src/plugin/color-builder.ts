@@ -111,9 +111,14 @@ export function colorDefinition(id: string): ColorDefinitionBuilder {
  * @param color - The color string to apply alpha to
  * @param alphaValue - The alpha value (0-1)
  * @returns The formatted CSS color string
+ * @throws Error if alpha is not between 0 and 1
  * @throws Error if the color cannot be parsed or formatted
  */
 export function applyAlpha(color: string, alphaValue: number): string {
+  if (alphaValue < 0 || alphaValue > 1) {
+    throw new Error(`Alpha value must be between 0 and 1, got ${alphaValue}`);
+  }
+
   if (alphaValue === 1) {
     return color;
   }
@@ -159,8 +164,13 @@ export class ColorBuilder {
    * @param color - The color string for light theme
    * @param alpha - The alpha value (0-1), defaults to 1 (fully opaque)
    * @returns This builder for method chaining
+   * @throws Error if alpha is not between 0 and 1
    */
   withLight(color: string, alpha = 1): this {
+    if (alpha < 0 || alpha > 1) {
+      throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+    }
+
     this.#lightColor = color;
     this.#lightAlpha = alpha;
 
@@ -172,8 +182,13 @@ export class ColorBuilder {
    * @param color - The color string for dark theme
    * @param alpha - The alpha value (0-1), defaults to 1 (fully opaque)
    * @returns This builder for method chaining
+   * @throws Error if alpha is not between 0 and 1
    */
   withDark(color: string, alpha = 1): this {
+    if (alpha < 0 || alpha > 1) {
+      throw new Error(`Alpha value must be between 0 and 1, got ${alpha}`);
+    }
+
     this.#darkColor = color;
     this.#darkAlpha = alpha;
 
