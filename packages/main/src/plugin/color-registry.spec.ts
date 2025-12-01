@@ -30,7 +30,8 @@ import type { RawThemeContribution } from '/@api/theme-info.js';
 
 import tailwindColorPalette from '../../../../tailwind-color-palette.json' with { type: 'json' };
 import * as util from '../util.js';
-import { ColorBuilder, ColorRegistry } from './color-registry.js';
+import { ColorBuilder } from './color-builder.js';
+import { ColorRegistry } from './color-registry.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 
 type ColorDefinitionWithId = ColorDefinition & { id: string };
