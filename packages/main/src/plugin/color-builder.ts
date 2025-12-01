@@ -83,28 +83,11 @@ export class ColorDefinitionBuilder {
     const dark = this.#darkColor;
 
     /**
-     * Formats the color with opacity.
+     * Formats the color with opacity using applyAlpha.
      * @param c - The ColorPaletteHelper instance
      * @returns The formatted color string
-     * @throws Error if color cannot be parsed or formatted
      */
-    const formatColor = (c: ColorPaletteHelper): string => {
-      if (c.alpha === 1) {
-        return c.color;
-      }
-
-      const parsed = parse(c.color);
-
-      if (!parsed) throw new Error(`Failed to parse color ${c.color}`);
-
-      parsed.alpha = c.alpha;
-
-      const formatted = formatCss(parsed);
-
-      if (!formatted) throw new Error(`Failed to format color ${c.color}`);
-
-      return formatted;
-    };
+    const formatColor = (c: ColorPaletteHelper): string => applyAlpha(c.color, c.alpha);
 
     return {
       id: this.#id,
