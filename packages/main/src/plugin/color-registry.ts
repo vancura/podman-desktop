@@ -26,8 +26,7 @@ import tailwindColorPalette from '../../../../tailwind-color-palette.json' with 
 import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
-import { ColorBuilder, colorDefinition } from './color-builder.js';
-import { colorPalette } from './color-palette-helper.js';
+import { ColorBuilder } from './color-builder.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Disposable } from './types/disposable.js';
 
@@ -152,14 +151,11 @@ export class ColorRegistry {
 
   /**
    * Register a color using a built color definition that includes the id.
-   * This is a convenience method for use with the colorDefinition() builder.
+   * This is a convenience method for use with the this.color() builder.
    *
    * @example
    * this.registerColorDefinition(
-   *   colorDefinition('my-color')
-   *     .withLight(colorPalette('#ffffff').withAlpha(0.5))
-   *     .withDark(colorPalette('#000000').withAlpha(0.8))
-   *     .build()
+   *   this.color('my-color').withLight('#ffffff', 0.5).withDark('#000000', 0.8).build()
    * );
    *
    * @param definition - The color definition with id, light, and dark values
@@ -961,12 +957,7 @@ export class ColorRegistry {
       dark: purple[400],
       light: purple[700],
     });
-    this.registerColorDefinition(
-      colorDefinition(`${link}-hover-bg`)
-        .withLight(colorPalette(black).withAlpha(0.13))
-        .withDark(colorPalette(white).withAlpha(0.13))
-        .build(),
-    );
+    this.registerColorDefinition(this.color(`${link}-hover-bg`).withLight(black, 0.13).withDark(white, 0.13).build());
   }
 
   // button
@@ -1054,20 +1045,14 @@ export class ColorRegistry {
       light: black,
     });
     this.registerColorDefinition(
-      colorDefinition(`${button}close-hover-bg`)
-        .withLight(colorPalette(black).withAlpha(0.13))
-        .withDark(colorPalette(white).withAlpha(0.13))
-        .build(),
+      this.color(`${button}close-hover-bg`).withLight(black, 0.13).withDark(white, 0.13).build(),
     );
     this.registerColor(`${button}link-text`, {
       dark: purple[400],
       light: purple[700],
     });
     this.registerColorDefinition(
-      colorDefinition(`${button}link-hover-bg`)
-        .withLight(colorPalette(black).withAlpha(0.13))
-        .withDark(colorPalette(white).withAlpha(0.13))
-        .build(),
+      this.color(`${button}link-hover-bg`).withLight(black, 0.13).withDark(white, 0.13).build(),
     );
     this.registerColor(`${button}help-link-text`, {
       dark: gray[100],
@@ -1603,10 +1588,7 @@ export class ColorRegistry {
 
   protected initCommon(): void {
     this.registerColorDefinition(
-      colorDefinition('item-disabled')
-        .withLight(colorPalette(stone[600]).withAlpha(0.4))
-        .withDark(colorPalette(stone[300]).withAlpha(0.4))
-        .build(),
+      this.color('item-disabled').withLight(stone[600], 0.4).withDark(stone[300], 0.4).build(),
     );
   }
 }
