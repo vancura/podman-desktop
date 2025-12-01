@@ -18,7 +18,8 @@
 
 import { describe, expect, test } from 'vitest';
 
-import { colorDefinition, ColorDefinitionBuilder, colorPalette, ColorPaletteHelper } from './color-builder.js';
+import { colorDefinition, ColorDefinitionBuilder } from './color-builder.js';
+import { colorPalette, ColorPaletteHelper } from './color-palette-helper.js';
 
 describe('ColorPaletteHelper', () => {
   test('should create with default alpha of 1', () => {

@@ -27,7 +27,8 @@ import tailwindColorPalette from '../../../../tailwind-color-palette.json' with 
 import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
-import { colorDefinition, colorPalette } from './color-builder.js';
+import { colorDefinition } from './color-builder.js';
+import { colorPalette } from './color-palette-helper.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Disposable } from './types/disposable.js';
 
