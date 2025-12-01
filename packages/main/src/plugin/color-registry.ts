@@ -26,7 +26,7 @@ import tailwindColorPalette from '../../../../tailwind-color-palette.json' with 
 import { isWindows } from '../util.js';
 import type { ApiSenderType } from './api.js';
 import { AppearanceSettings } from './appearance-settings.js';
-import { applyAlpha, ColorBuilder, colorDefinition } from './color-builder.js';
+import { ColorBuilder, colorDefinition } from './color-builder.js';
 import { colorPalette } from './color-palette-helper.js';
 import type { ConfigurationRegistry } from './configuration-registry.js';
 import { Disposable } from './types/disposable.js';
@@ -168,24 +168,6 @@ export class ColorRegistry {
     this.registerColor(definition.id, {
       light: definition.light,
       dark: definition.dark,
-    });
-  }
-
-  /**
-   * Register a color with separate alpha (opacity) values for light and dark themes.
-   * The alpha values are applied to the colors before registration.
-   * @param colorId - The unique color identifier
-   * @param colors - Object with light and dark color values
-   * @param alpha - Object with light and dark alpha values (0-1)
-   */
-  protected registerColorWithOpacity(
-    colorId: string,
-    colors: ColorDefinition,
-    alpha: { light: number; dark: number },
-  ): void {
-    this.registerColor(colorId, {
-      light: applyAlpha(colors.light, alpha.light),
-      dark: applyAlpha(colors.dark, alpha.dark),
     });
   }
 

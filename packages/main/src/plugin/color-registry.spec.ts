@@ -56,14 +56,6 @@ class TestColorRegistry extends ColorRegistry {
     super.registerColor(colorId, definition);
   }
 
-  override registerColorWithOpacity(
-    colorId: string,
-    colors: ColorDefinition,
-    alpha: { light: number; dark: number },
-  ): void {
-    super.registerColorWithOpacity(colorId, colors, alpha);
-  }
-
   override registerColorDefinition(definition: ColorDefinitionWithId): void {
     super.registerColorDefinition(definition);
   }
@@ -785,43 +777,6 @@ describe('registerColorDefinition', () => {
         dark: '#bbb',
       }),
     ).toThrow('Color duplicate-color already registered');
-  });
-});
-
-describe('registerColorWithOpacity', () => {
-  test('registers color with alpha values applied', () => {
-    const spyOnNotifyUpdate = vi.spyOn(colorRegistry, 'notifyUpdate');
-    spyOnNotifyUpdate.mockReturnValue(undefined);
-
-    colorRegistry.registerColorWithOpacity(
-      'test-opacity-color',
-      { light: '#ffffff', dark: '#000000' },
-      { light: 0.5, dark: 0.8 },
-    );
-
-    // Check color was registered
-    const lightColors = colorRegistry.listColors('light');
-    const darkColors = colorRegistry.listColors('dark');
-
-    const lightColor = lightColors.find(c => c.id === 'test-opacity-color');
-    const darkColor = darkColors.find(c => c.id === 'test-opacity-color');
-
-    expect(lightColor).toBeDefined();
-    expect(darkColor).toBeDefined();
-
-    // Verify alpha is embedded in the color value (culori uses color(srgb ... / alpha) format)
-    expect(lightColor?.value).toMatch(/\/ 0\.5\)?$/);
-    expect(darkColor?.value).toMatch(/\/ 0\.8\)?$/);
-  });
-
-  test('throws error for invalid color', () => {
-    expect(() =>
-      colorRegistry.registerColorWithOpacity(
-        'invalid-color',
-        { light: 'not-a-color', dark: '#000000' },
-        { light: 0.5, dark: 0.8 },
-      ),
-    ).toThrow('Failed to parse color not-a-color');
   });
 });
 
