@@ -92,15 +92,18 @@ describe('ColorDefinitionBuilder', () => {
     expect(builder).toBeInstanceOf(ColorDefinitionBuilder);
   });
 
-  test('should build color definition with string colors', () => {
-    const result = new ColorDefinitionBuilder('test-color').withLight('#ffffff').withDark('#000000').build();
+  test('should build color definition with ColorPaletteHelper', () => {
+    const result = new ColorDefinitionBuilder('test-color')
+      .withLight(colorPalette('#ffffff'))
+      .withDark(colorPalette('#000000'))
+      .build();
 
     expect(result.id).toBe('test-color');
     expect(result.light).toBeDefined();
     expect(result.dark).toBeDefined();
   });
 
-  test('should build color definition with ColorPaletteHelper', () => {
+  test('should build color definition with ColorPaletteHelper and alpha', () => {
     const result = new ColorDefinitionBuilder('transparent-color')
       .withLight(colorPalette('#ffffff').withAlpha(0.5))
       .withDark(colorPalette('#000000').withAlpha(0.8))
@@ -114,25 +117,14 @@ describe('ColorDefinitionBuilder', () => {
     expect(result.dark).toMatch(/\/ 0\.8\)?$/);
   });
 
-  test('should support mixed string and ColorPaletteHelper', () => {
-    const result = new ColorDefinitionBuilder('mixed-color')
-      .withLight('#ffffff')
-      .withDark(colorPalette('#000000').withAlpha(0.5))
-      .build();
-
-    expect(result.id).toBe('mixed-color');
-    expect(result.light).toBeDefined();
-    expect(result.dark).toBeDefined();
-  });
-
   test('should throw error when light color is missing', () => {
-    const builder = new ColorDefinitionBuilder('incomplete-color').withDark('#000000');
+    const builder = new ColorDefinitionBuilder('incomplete-color').withDark(colorPalette('#000000'));
 
     expect(() => builder.build()).toThrow('Color definition for incomplete-color is incomplete.');
   });
 
   test('should throw error when dark color is missing', () => {
-    const builder = new ColorDefinitionBuilder('incomplete-color').withLight('#ffffff');
+    const builder = new ColorDefinitionBuilder('incomplete-color').withLight(colorPalette('#ffffff'));
 
     expect(() => builder.build()).toThrow('Color definition for incomplete-color is incomplete.');
   });
@@ -146,22 +138,25 @@ describe('ColorDefinitionBuilder', () => {
   test('should throw error for invalid color string with alpha', () => {
     const builder = new ColorDefinitionBuilder('invalid-color')
       .withLight(colorPalette('not-a-color').withAlpha(0.5))
-      .withDark('#000000');
+      .withDark(colorPalette('#000000'));
 
     expect(() => builder.build()).toThrow('Failed to parse color not-a-color');
   });
 
   test('should support method chaining', () => {
     const builder = new ColorDefinitionBuilder('chain-test');
-    const afterLight = builder.withLight('#fff');
-    const afterDark = afterLight.withDark('#000');
+    const afterLight = builder.withLight(colorPalette('#fff'));
+    const afterDark = afterLight.withDark(colorPalette('#000'));
 
     expect(afterLight).toBe(builder);
     expect(afterDark).toBe(builder);
   });
 
   test('should handle hex colors correctly', () => {
-    const result = new ColorDefinitionBuilder('hex-color').withLight('#f9fafb').withDark('#0f0f11').build();
+    const result = new ColorDefinitionBuilder('hex-color')
+      .withLight(colorPalette('#f9fafb'))
+      .withDark(colorPalette('#0f0f11'))
+      .build();
 
     expect(result.id).toBe('hex-color');
     expect(result.light).toBeDefined();
@@ -170,8 +165,8 @@ describe('ColorDefinitionBuilder', () => {
 
   test('should handle rgb colors correctly', () => {
     const result = new ColorDefinitionBuilder('rgb-color')
-      .withLight('rgb(255, 255, 255)')
-      .withDark('rgb(0, 0, 0)')
+      .withLight(colorPalette('rgb(255, 255, 255)'))
+      .withDark(colorPalette('rgb(0, 0, 0)'))
       .build();
 
     expect(result.id).toBe('rgb-color');
@@ -188,7 +183,10 @@ describe('colorDefinition', () => {
   });
 
   test('should support full fluent API', () => {
-    const result = colorDefinition('fluent-color').withLight('#ffffff').withDark('#000000').build();
+    const result = colorDefinition('fluent-color')
+      .withLight(colorPalette('#ffffff'))
+      .withDark(colorPalette('#000000'))
+      .build();
 
     expect(result.id).toBe('fluent-color');
     expect(result.light).toBeDefined();

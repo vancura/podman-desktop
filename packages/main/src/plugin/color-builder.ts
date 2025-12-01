@@ -20,17 +20,17 @@ import { formatCss, parse } from 'culori';
 
 import type { ColorDefinition } from '/@api/color-info.js';
 
-import { ColorPaletteHelper } from './color-palette-helper.js';
+import type { ColorPaletteHelper } from './color-palette-helper.js';
 
 /**
  * Builder class for creating color definitions with light and dark theme variants.
- * Accepts either plain color strings or ColorPaletteHelper instances for colors with alpha.
+ * Accepts ColorPaletteHelper instances for colors (with optional alpha).
  * Does not register colors directly - call build() to get the color definition object.
  *
  * @example
  * const def = colorDefinition('my-color')
- *   .withLight('#ffffff')
- *   .withDark('#000000')
+ *   .withLight(colorPalette('#ffffff'))
+ *   .withDark(colorPalette('#000000'))
  *   .build();
  *
  * @example
@@ -41,8 +41,8 @@ import { ColorPaletteHelper } from './color-palette-helper.js';
  */
 export class ColorDefinitionBuilder {
   #id: string;
-  #lightColor?: string | ColorPaletteHelper;
-  #darkColor?: string | ColorPaletteHelper;
+  #lightColor?: ColorPaletteHelper;
+  #darkColor?: ColorPaletteHelper;
 
   constructor(id: string) {
     this.#id = id;
@@ -50,10 +50,10 @@ export class ColorDefinitionBuilder {
 
   /**
    * Set the light theme color.
-   * @param color - The color value or ColorPaletteHelper
+   * @param color - The ColorPaletteHelper instance
    * @returns This builder for method chaining
    */
-  withLight(color: string | ColorPaletteHelper): this {
+  withLight(color: ColorPaletteHelper): this {
     this.#lightColor = color;
 
     return this;
@@ -61,10 +61,10 @@ export class ColorDefinitionBuilder {
 
   /**
    * Set the dark theme color.
-   * @param color - The color value or ColorPaletteHelper
+   * @param color - The ColorPaletteHelper instance
    * @returns This builder for method chaining
    */
-  withDark(color: string | ColorPaletteHelper): this {
+  withDark(color: ColorPaletteHelper): this {
     this.#darkColor = color;
 
     return this;
@@ -79,29 +79,16 @@ export class ColorDefinitionBuilder {
       throw new Error(`Color definition for ${this.#id} is incomplete.`);
     }
 
-    /**
-     * Processes the color value.
-     * @param c - The color value or ColorPaletteHelper
-     * @returns The color object with color and alpha values
-     */
-    const processColor = (c: string | ColorPaletteHelper): { color: string; alpha: number } => {
-      if (c instanceof ColorPaletteHelper) {
-        return { color: c.color, alpha: c.alpha };
-      }
-
-      return { color: c, alpha: 1 };
-    };
-
-    const light = processColor(this.#lightColor);
-    const dark = processColor(this.#darkColor);
+    const light = this.#lightColor;
+    const dark = this.#darkColor;
 
     /**
      * Formats the color with opacity.
-     * @param c - The color object with color and alpha values
+     * @param c - The ColorPaletteHelper instance
      * @returns The formatted color string
      * @throws Error if color cannot be parsed or formatted
      */
-    const formatColor = (c: { color: string; alpha: number }): string => {
+    const formatColor = (c: ColorPaletteHelper): string => {
       if (c.alpha === 1) {
         return c.color;
       }
