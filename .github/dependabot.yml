@@ -27,7 +27,6 @@ updates:
         patterns:
           - "@storybook/*"
           - "storybook"
-          - "storybook-dark-mode"
       commitlint:
         applies-to: version-updates
         patterns:
