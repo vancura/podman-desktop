@@ -36,8 +36,8 @@
     "docusaurus-plugin-goatcounter": "^4.0.0",
     "docusaurus-plugin-typedoc": "^1.4.2",
     "prism-react-renderer": "^2.4.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "react-player": "^3.4.0"
   },
   "devDependencies": {
