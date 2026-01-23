@@ -26,7 +26,6 @@ updates:
         applies-to: version-updates
         patterns:
           - "@storybook/*"
-          - "storybook"
       commitlint:
         applies-to: version-updates
         patterns:
