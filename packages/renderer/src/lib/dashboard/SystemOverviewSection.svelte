@@ -17,8 +17,52 @@
 -->
 
 <script lang="ts">
+import { Button } from '@podman-desktop/ui-svelte';
+
+import {
+  getCurrentState,
+  setCurrentState,
+  stateLabels,
+  type SystemOverviewState,
+} from '/@/stores/dashboard/system-overview-state.svelte';
+
 import SystemOverviewCard from './SystemOverviewCard.svelte';
+
+// All available states for toggle buttons
+const states: SystemOverviewState[] = [
+  'live',
+  'machine-stopped',
+  'machine-error',
+  'multiple-errors',
+  'starting',
+  'onboarding',
+  'all-running',
+];
+
+// Get current state reactively
+let currentState = $derived(getCurrentState());
+
+function selectState(state: SystemOverviewState): void {
+  setCurrentState(state);
+}
 </script>
 
-<!-- Wrapper component registered with dashboard registry -->
+<!-- Testing States Buttons - Above System Overview -->
+<div class="flex flex-col gap-4 mb-4">
+  <div class="flex flex-wrap gap-2">
+    <div class="w-full text-xs text-[var(--pd-content-card-light-title)] mb-2">Testing States:</div>
+    {#each states as state}
+      <Button
+        type="tab"
+        selected={currentState === state}
+        onclick={() => selectState(state)}
+        padding="px-3 pb-1"
+        aria-label={`Switch to ${stateLabels[state]}`}>
+        {stateLabels[state]}
+      </Button>
+    {/each}
+  </div>
+</div>
+
+<!-- System Overview Card -->
 <SystemOverviewCard />

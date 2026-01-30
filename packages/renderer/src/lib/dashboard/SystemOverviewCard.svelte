@@ -17,36 +17,12 @@
 -->
 
 <script lang="ts">
-import { Button, Expandable } from '@podman-desktop/ui-svelte';
+import { Expandable } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 
 import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
-import {
-  getCurrentState,
-  setCurrentState,
-  stateLabels,
-  type SystemOverviewState,
-} from '/@/stores/dashboard/system-overview-state.svelte';
 
 import SystemOverviewContent from './SystemOverviewContent.svelte';
-
-// All available states for toggle buttons
-const states: SystemOverviewState[] = [
-  'live',
-  'machine-stopped',
-  'machine-error',
-  'multiple-errors',
-  'starting',
-  'onboarding',
-  'all-running',
-];
-
-// Get current state reactively
-let currentState = $derived(getCurrentState());
-
-function selectState(state: SystemOverviewState): void {
-  setCurrentState(state);
-}
 
 // Expandable state management (same pattern as Explore Features)
 let expanded: boolean = $state(true);
@@ -83,24 +59,9 @@ async function toggle(expanded: boolean): Promise<void> {
     {#snippet title()}
       <div class="text-lg font-semibold text-[var(--pd-content-card-header-text)]">System Overview</div>
     {/snippet}
-    <div class="pt-4 flex flex-col gap-4">
+    <div class="pt-4">
       <!-- System Overview Content -->
       <SystemOverviewContent />
-
-      <!-- Toggle Buttons Row - Moved to Bottom -->
-      <div class="flex flex-wrap gap-2 pt-3 border-t border-[var(--pd-content-divider)]">
-        <div class="w-full text-xs text-[var(--pd-content-card-light-title)] mb-2">Testing States:</div>
-        {#each states as state}
-          <Button
-            type="tab"
-            selected={currentState === state}
-            onclick={() => selectState(state)}
-            padding="px-3 pb-1"
-            aria-label={`Switch to ${stateLabels[state]}`}>
-            {stateLabels[state]}
-          </Button>
-        {/each}
-      </div>
     </div>
   </Expandable>
 </div>
