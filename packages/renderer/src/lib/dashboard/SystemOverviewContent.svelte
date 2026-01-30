@@ -185,9 +185,10 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
             <Button type="danger" onclick={navigateToResources} aria-label="See error details in Resources">
               See Details in Resources
             </Button>
-          {:else}
+          {:else if data.podmanStatus === 'running'}
             <Button type="secondary" onclick={navigateToResources} aria-label="View Podman Machine details">View</Button>
           {/if}
+          <!-- No button for 'starting' state -->
         </div>
       </div>
 

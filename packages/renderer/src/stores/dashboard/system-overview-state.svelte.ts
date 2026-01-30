@@ -141,7 +141,13 @@ function getStartingData(): SystemOverviewData {
     podmanMachineName: 'Podman Machine',
     podmanVersion: 'WSL · v5.7.0',
     kindStatus: 'stopped',
-    kindClusterName: 'kind-dev',
+    kindClusterName: '',
+    kindSubtitle: 'Local Kubernetes',
+    kindRequirements: 'Requires Podman',
+    kindInfo: 'Start to deploy Kubernetes workloads locally',
+    sandboxStatus: 'running',
+    statusMessage: 'Starting up...',
+    statusMessageType: 'info',
   };
 }
 
