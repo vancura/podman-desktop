@@ -60,11 +60,12 @@ export interface SystemOverviewData {
   statusMessageType?: 'info' | 'error' | 'success'; // Type of status message
   showCompactClusters?: boolean; // Use compact button-like display for K8s clusters
   showOnlyResources?: boolean; // Show only resources section without machine header
+  useDemoValues?: boolean; // Flag to indicate using demo values instead of real API data
 }
 
 // State labels for toggle buttons
 export const stateLabels: Record<SystemOverviewState, string> = {
-  live: 'Live Podman Desktop State',
+  live: 'Dashboard test: Live Podman Desktop State',
   'machine-stopped': 'Machine Stopped',
   'machine-error': 'Machine Error',
   'multiple-errors': 'Multiple Errors',
@@ -96,6 +97,7 @@ function getMachineStoppedData(): SystemOverviewData {
     kindClusterName: 'kind-dev',
     sandboxStatus: 'running',
     statusMessage: 'Some systems are stopped',
+    statusMessageType: 'info',
     showCompactClusters: true, // Use compact button-like display
   };
 }
@@ -105,7 +107,7 @@ function getMachineErrorData(): SystemOverviewData {
     podmanStatus: 'error',
     podmanMachineName: 'Podman Machine',
     podmanVersion: 'WSL · v5.7.0',
-    podmanError: "Connection failed: WSL distribution 'podman-machine-default' not responding",
+    podmanError: 'Connection failed — WSL distribution \'podman-machine-default\' not responding',
     kindStatus: 'stopped',
     kindClusterName: 'kind-dev',
     kindSubtitle: 'Local Kubernetes',
@@ -122,7 +124,7 @@ function getMultipleErrorsData(): SystemOverviewData {
     podmanStatus: 'error',
     podmanMachineName: 'Podman Machines',
     podmanVersion: '2 machines · 2 error',
-    podmanError: "Connection failed: WSL distribution 'podman-machine-default' not responding",
+    podmanError: "Connection failed — WSL distribution 'podman-machine-default' not responding",
     kindStatus: 'error',
     kindClusterName: '',
     kindSubtitle: 'Local Kubernetes',
@@ -223,13 +225,13 @@ function getLiveData(providers: ProviderInfo[]): SystemOverviewData {
   }
 
   // Resource metrics are not available in current Podman Desktop API
-  // Show placeholder "N/A" values
+  // Show demo values instead
   const systemStats: SystemStat[] | undefined =
     status === 'running'
       ? [
-          { label: 'CPU', value: null, detail: 'N/A', status: 'normal' },
-          { label: 'Memory', value: null, detail: 'N/A', status: 'normal' },
-          { label: 'Disk', value: null, detail: 'N/A', status: 'normal' },
+          { label: 'CPU', value: 40, detail: '6.4 / 16 cores', status: 'normal' },
+          { label: 'Memory', value: 70, detail: '23.3 / 33.2 GB', status: 'normal' },
+          { label: 'Disk', value: 20, detail: '216 GB / 1.08 TB', status: 'normal' },
         ]
       : undefined;
 
@@ -240,6 +242,9 @@ function getLiveData(providers: ProviderInfo[]): SystemOverviewData {
     kindStatus,
     kindClusterName,
     systemStats,
+    statusMessage: status === 'running' ? 'All systems running' : undefined,
+    statusMessageType: status === 'running' ? 'success' : undefined,
+    useDemoValues: status === 'running', // Flag to show demo values notice
   };
 }
 

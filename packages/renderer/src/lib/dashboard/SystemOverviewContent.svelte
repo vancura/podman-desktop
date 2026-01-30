@@ -93,7 +93,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
   <!-- Status Message (e.g. "Some systems are stopped" or "Podman machine error detected") -->
   {#if data.statusMessage}
     {#if data.statusMessageType === 'success'}
-      <!-- Clickable success message -->
+      <!-- Clickable success message (green) -->
       <button
         type="button"
         onclick={navigateToResources}
@@ -113,141 +113,145 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
             clip-rule="evenodd" />
         </svg>
       </button>
-    {:else}
-      <!-- Non-clickable status messages -->
-      <div
-        class="flex items-center gap-2"
-        class:text-[var(--pd-content-card-light-title)]={data.statusMessageType !== 'error'}
-        class:text-[var(--pd-status-terminated)]={data.statusMessageType === 'error'}>
-        {#if data.statusMessageType === 'error'}
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clip-rule="evenodd" />
-          </svg>
-        {:else}
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-              clip-rule="evenodd" />
-          </svg>
-        {/if}
+    {:else if data.statusMessageType === 'info'}
+      <!-- Clickable info message (default styling) -->
+      <button
+        type="button"
+        onclick={navigateToResources}
+        class="flex items-center gap-2 px-4 py-3 bg-[var(--pd-content-bg)] rounded-lg hover:bg-[var(--pd-content-card-bg)] transition-colors cursor-pointer border border-transparent hover:border-[var(--pd-content-divider)] w-fit text-[var(--pd-content-card-light-title)]"
+        aria-label="View systems in Resources">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+            clip-rule="evenodd" />
+        </svg>
         <span class="text-sm font-medium">{data.statusMessage}</span>
-      </div>
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
+    {:else if data.statusMessageType === 'error'}
+      <!-- Clickable error message (red) -->
+      <button
+        type="button"
+        onclick={navigateToResources}
+        class="flex items-center gap-2 px-4 py-3 bg-[rgba(185,28,28,0.1)] dark:bg-[rgba(185,28,28,0.15)] rounded-lg hover:bg-[rgba(185,28,28,0.15)] dark:hover:bg-[rgba(185,28,28,0.2)] transition-colors cursor-pointer border border-transparent hover:border-[rgba(185,28,28,0.3)] w-fit text-[var(--pd-status-terminated)]"
+        aria-label="View error details in Resources">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd" />
+        </svg>
+        <span class="text-sm font-medium">{data.statusMessage}</span>
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
     {/if}
   {/if}
 
   <!-- Podman Machine Section -->
-  {#if data.podmanStatus}
+  {#if data.podmanStatus && !data.showOnlyResources}
     <div
       class="p-4 rounded-lg transition-colors"
       class:bg-[var(--pd-content-bg)]={data.podmanStatus !== 'error'}
-      class:bg-[rgba(185,28,28,0.1)]={data.podmanStatus === 'error'}
-      class:border={data.podmanStatus === 'error'}
-      class:border-[var(--pd-status-terminated)]={data.podmanStatus === 'error'}>
-      {#if !data.showOnlyResources}
-        <div class="flex items-center gap-4 mb-3">
-          <!-- Podman Icon -->
-          <div
-            class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-            class:bg-[var(--pd-content-card-bg)]={data.podmanStatus !== 'error'}
-            class:bg-[rgba(185,28,28,0.2)]={data.podmanStatus === 'error'}>
-            <PodIcon
-              size="24"
-              class="{data.podmanStatus === 'error'
-                ? 'text-[var(--pd-status-terminated)]'
-                : 'text-[var(--pd-content-card-title)]'}" />
-          </div>
+      class:bg-[rgba(185,28,28,0.1)]={data.podmanStatus === 'error'}>
+      <div class="flex items-center gap-4">
+        <!-- Podman Icon -->
+        <div
+          class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+          class:bg-[var(--pd-content-card-bg)]={data.podmanStatus !== 'error'}
+          class:bg-[rgba(185,28,28,0.2)]={data.podmanStatus === 'error'}>
+          <PodIcon
+            size="24"
+            class="{data.podmanStatus === 'error'
+              ? 'text-[var(--pd-status-terminated)]'
+              : 'text-[var(--pd-content-card-title)]'}" />
+        </div>
 
-          <div class="flex-1 min-w-0">
-            <div class="text-base font-medium text-[var(--pd-content-card-title)] flex items-center gap-2 flex-wrap">
-              {data.podmanMachineName || 'Podman Machine'}
-              {#if data.podmanVersion}
-                <span class="text-xs font-medium text-[var(--pd-content-card-light-title)] bg-[var(--pd-content-card-bg)] px-2 py-0.5 rounded">
-                  {data.podmanVersion}
-                </span>
+        <div class="flex-1 min-w-0">
+          <div class="text-base font-medium text-[var(--pd-content-card-title)] flex items-center gap-2 flex-wrap">
+            {data.podmanMachineName || 'Podman Machine'}
+            {#if data.podmanVersion}
+              <span class="text-xs font-medium text-[var(--pd-content-card-light-title)] bg-[var(--pd-content-card-bg)] px-2 py-0.5 rounded">
+                {data.podmanVersion}
+              </span>
+            {/if}
+          </div>
+          <!-- Show error message as status line for error state -->
+          {#if data.podmanStatus === 'error' && data.podmanError}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
+              <span class="w-2 h-2 rounded-full {getStatusClasses(data.podmanStatus)}"></span>
+              <span>{data.podmanError}</span>
+            </div>
+          {:else}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
+              {#if data.podmanStatus === 'starting'}
+                <Spinner size="0.75em" />
+              {:else}
+                <span class="w-2 h-2 rounded-full {getStatusClasses(data.podmanStatus)}"></span>
+              {/if}
+              {getStatusLabel(data.podmanStatus)}{#if data.podmanStatus === 'stopped'}<span class="text-[var(--pd-content-card-light-title)]"> &mdash; Required to run containers and pods</span>{/if}
+            </div>
+          {/if}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2">
+          {#if data.podmanStatus === 'stopped'}
+            <Button type="primary" onclick={navigateToResources} aria-label="Start Podman Machine">
+              Start Machine
+            </Button>
+          {:else if data.podmanStatus === 'error'}
+            <Button type="danger" onclick={navigateToResources} aria-label="See error details in Resources">
+              See Details in Resources
+            </Button>
+          {:else if data.podmanStatus === 'running'}
+            <Button type="secondary" onclick={navigateToResources} aria-label="View Podman Machine details">View</Button>
+          {/if}
+          <!-- No button for 'starting' state -->
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <!-- Podman Machine Resources Section - Separate block -->
+  {#if data.systemStats && data.podmanStatus === 'running'}
+    <div class="p-4 rounded-lg bg-[var(--pd-content-bg)]">
+      <div class="text-xs font-medium text-[var(--pd-content-card-light-title)] uppercase tracking-wider mb-3">
+        {#if data.useDemoValues}
+          Podman Machine Resources · No API available, using demo values
+        {:else}
+          Podman Machine Resources
+        {/if}
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        {#each data.systemStats as stat}
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-[var(--pd-content-card-light-title)]">{stat.label}</span>
+              <span class="font-medium text-[var(--pd-content-card-title)]">
+                {stat.value !== null ? `${stat.value}%` : '—'}
+              </span>
+            </div>
+            <div class="h-2 bg-[var(--pd-content-card-bg)] rounded-full overflow-hidden">
+              {#if stat.value !== null}
+                <div class="h-full rounded-full transition-all {getProgressBarColor(stat)}" style="width: {stat.value}%">
+                </div>
               {/if}
             </div>
-            <!-- Show error message as status line for error state -->
-            {#if data.podmanStatus === 'error' && data.podmanError}
-              <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
-                <span class="w-2 h-2 rounded-full {getStatusClasses(data.podmanStatus)}"></span>
-                <span>{data.podmanError}</span>
-              </div>
-            {:else}
-              <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
-                {#if data.podmanStatus === 'starting'}
-                  <Spinner size="0.75em" />
-                {:else}
-                  <span class="w-2 h-2 rounded-full {getStatusClasses(data.podmanStatus)}"></span>
-                {/if}
-                {getStatusLabel(data.podmanStatus)}
-              </div>
-            {/if}
-            <!-- Info message for stopped status -->
-            {#if data.podmanStatus === 'stopped'}
-              <div class="text-sm flex items-center gap-2 mt-1 text-[var(--pd-content-card-light-title)]">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clip-rule="evenodd" />
-                </svg>
-                <span>Required to run containers and pods</span>
-              </div>
-            {/if}
+            <div class="text-xs text-[var(--pd-content-card-light-title)] truncate">{stat.detail}</div>
           </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-2">
-            {#if data.podmanStatus === 'stopped'}
-              <Button type="primary" onclick={navigateToResources} aria-label="Start Podman Machine">
-                Start Machine
-              </Button>
-            {:else if data.podmanStatus === 'error'}
-              <Button type="danger" onclick={navigateToResources} aria-label="See error details in Resources">
-                See Details in Resources
-              </Button>
-            {:else if data.podmanStatus === 'running'}
-              <Button type="secondary" onclick={navigateToResources} aria-label="View Podman Machine details">View</Button>
-            {/if}
-            <!-- No button for 'starting' state -->
-          </div>
-        </div>
-      {/if}
-
-      <!-- System Stats (CPU, Memory, Disk) - Only shown when running -->
-      {#if data.systemStats && data.podmanStatus === 'running'}
-        <!-- Show title for resources section -->
-        <div
-          class="text-xs font-medium text-[var(--pd-content-card-light-title)] uppercase tracking-wider mb-3"
-          class:pt-3={!data.showOnlyResources}
-          class:border-t={!data.showOnlyResources}
-          class:border-[var(--pd-content-divider)]={!data.showOnlyResources}>
-          Podman Machine Resources
-        </div>
-        <div class="grid grid-cols-3 gap-4">
-          {#each data.systemStats as stat}
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-[var(--pd-content-card-light-title)]">{stat.label}</span>
-                <span class="font-medium text-[var(--pd-content-card-title)]">
-                  {stat.value !== null ? `${stat.value}%` : '—'}
-                </span>
-              </div>
-              <div class="h-2 bg-[var(--pd-content-card-bg)] rounded-full overflow-hidden">
-                {#if stat.value !== null}
-                  <div class="h-full rounded-full transition-all {getProgressBarColor(stat)}" style="width: {stat.value}%">
-                  </div>
-                {/if}
-              </div>
-              <div class="text-xs text-[var(--pd-content-card-light-title)] truncate">{stat.detail}</div>
-            </div>
-          {/each}
-        </div>
-      {/if}
+        {/each}
+      </div>
     </div>
   {/if}
 
@@ -287,9 +291,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
     <div
       class="p-4 rounded-lg transition-colors"
       class:bg-[var(--pd-content-bg)]={data.kindStatus !== 'error'}
-      class:bg-[rgba(185,28,28,0.1)]={data.kindStatus === 'error'}
-      class:border={data.kindStatus === 'error'}
-      class:border-[var(--pd-status-terminated)]={data.kindStatus === 'error'}>
+      class:bg-[rgba(185,28,28,0.1)]={data.kindStatus === 'error'}>
       <div class="flex items-center gap-4">
         <!-- Kubernetes Icon -->
         <div
@@ -323,19 +325,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
           {:else}
             <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.kindStatus)}">
               <span class="w-2 h-2 rounded-full {getStatusClasses(data.kindStatus)}"></span>
-              {getStatusLabel(data.kindStatus)}
-            </div>
-          {/if}
-          <!-- Info message for Kind Cluster -->
-          {#if data.kindInfo}
-            <div class="text-sm flex items-center gap-2 mt-1 text-[var(--pd-content-card-light-title)]">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>{data.kindInfo}</span>
+              {getStatusLabel(data.kindStatus)}{#if data.kindInfo}<span class="text-[var(--pd-content-card-light-title)]"> &mdash; {data.kindInfo}</span>{/if}
             </div>
           {/if}
         </div>
@@ -365,7 +355,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
 
   <!-- Developer Sandbox Error Section (only shown when sandbox has error and not resources-only) -->
   {#if data.sandboxStatus && !data.showCompactClusters && data.sandboxStatus === 'error' && !data.showOnlyResources}
-    <div class="p-4 rounded-lg transition-colors bg-[rgba(185,28,28,0.1)] border border-[var(--pd-status-terminated)]">
+    <div class="p-4 rounded-lg transition-colors bg-[rgba(185,28,28,0.1)]">
       <div class="flex items-center gap-4">
         <!-- Kubernetes Icon for Sandbox -->
         <div class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 bg-[rgba(185,28,28,0.2)]">

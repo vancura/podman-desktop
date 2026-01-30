@@ -50,7 +50,6 @@ function selectState(state: SystemOverviewState): void {
 <!-- Testing States Buttons - Above System Overview -->
 <div class="flex flex-col gap-4 mb-4">
   <div class="flex flex-wrap gap-2">
-    <div class="w-full text-xs text-[var(--pd-content-card-light-title)] mb-2">Testing States:</div>
     {#each states as state}
       <Button
         type="tab"
