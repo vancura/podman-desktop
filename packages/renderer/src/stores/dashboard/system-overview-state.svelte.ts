@@ -57,8 +57,9 @@ export interface SystemOverviewData {
   systemStats?: SystemStat[];
   showOnboarding?: boolean;
   statusMessage?: string; // e.g. "Some systems are stopped"
-  statusMessageType?: 'info' | 'error'; // Type of status message
+  statusMessageType?: 'info' | 'error' | 'success'; // Type of status message
   showCompactClusters?: boolean; // Use compact button-like display for K8s clusters
+  showOnlyResources?: boolean; // Show only resources section without machine header
 }
 
 // State labels for toggle buttons
@@ -154,16 +155,14 @@ function getStartingData(): SystemOverviewData {
 function getOnboardingData(): SystemOverviewData {
   return {
     podmanStatus: 'running',
-    podmanMachineName: 'Podman Machine',
-    podmanVersion: 'WSL · v5.7.0',
-    kindStatus: 'running',
-    kindClusterName: 'kind-dev',
     systemStats: [
       { label: 'CPU', value: 40, detail: '6.4 / 16 cores', status: 'normal' },
       { label: 'Memory', value: 70, detail: '23.3 / 33.2 GB', status: 'normal' },
       { label: 'Disk', value: 20, detail: '216 GB / 1.08 TB', status: 'normal' },
     ],
-    showOnboarding: true,
+    statusMessage: 'All systems running',
+    statusMessageType: 'success',
+    showOnlyResources: true, // Show only resources, hide machine header
   };
 }
 
