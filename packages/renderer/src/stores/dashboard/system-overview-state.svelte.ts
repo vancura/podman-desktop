@@ -50,7 +50,9 @@ export interface SystemOverviewData {
   kindError?: string;
   kindRequirements?: string; // e.g. "Requires Podman" badge
   kindInfo?: string; // e.g. "Start to deploy Kubernetes workloads locally"
+  kindSubtitle?: string; // e.g. "Local Kubernetes"
   sandboxStatus?: MachineStatus;
+  sandboxSubtitle?: string; // e.g. "Connected cluster"
   sandboxError?: string;
   systemStats?: SystemStat[];
   showOnboarding?: boolean;
@@ -105,6 +107,7 @@ function getMachineErrorData(): SystemOverviewData {
     podmanError: "Connection failed: WSL distribution 'podman-machine-default' not responding",
     kindStatus: 'stopped',
     kindClusterName: 'kind-dev',
+    kindSubtitle: 'Local Kubernetes',
     kindRequirements: 'Requires Podman',
     kindInfo: 'Start to deploy Kubernetes workloads locally',
     sandboxStatus: 'running',
@@ -116,14 +119,19 @@ function getMachineErrorData(): SystemOverviewData {
 function getMultipleErrorsData(): SystemOverviewData {
   return {
     podmanStatus: 'error',
-    podmanMachineName: 'Podman Machine',
-    podmanVersion: 'WSL · v5.7.0',
+    podmanMachineName: 'Podman Machines',
+    podmanVersion: '2 machines · 2 error',
     podmanError: "Connection failed: WSL distribution 'podman-machine-default' not responding",
     kindStatus: 'error',
-    kindClusterName: 'kind-dev',
-    kindError: 'Container runtime not available. Podman machine is not running.',
+    kindClusterName: '',
+    kindSubtitle: 'Local Kubernetes',
+    kindRequirements: 'Requires Podman',
+    kindError: 'Kind cluster requires Podman machine to be running. Start Podman first.',
     sandboxStatus: 'error',
-    sandboxError: 'Unable to connect to cluster: unauthorized',
+    sandboxSubtitle: 'Connected cluster',
+    sandboxError: 'Unable to connect to cluster. Verify network connectivity and credentials.',
+    statusMessage: 'Multiple system errors detected',
+    statusMessageType: 'error',
   };
 }
 

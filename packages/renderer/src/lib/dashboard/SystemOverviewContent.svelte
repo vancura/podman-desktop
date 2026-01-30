@@ -276,11 +276,21 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
               </span>
             {/if}
           </div>
-          <div class="text-sm text-[var(--pd-content-card-light-title)] mt-1">Local Kubernetes</div>
-          <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.kindStatus)}">
-            <span class="w-2 h-2 rounded-full {getStatusClasses(data.kindStatus)}"></span>
-            {getStatusLabel(data.kindStatus)}
-          </div>
+          {#if data.kindSubtitle}
+            <div class="text-sm text-[var(--pd-content-card-light-title)] mt-1">{data.kindSubtitle}</div>
+          {/if}
+          <!-- Show error message as status line for error state -->
+          {#if data.kindStatus === 'error' && data.kindError}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.kindStatus)}">
+              <span class="w-2 h-2 rounded-full {getStatusClasses(data.kindStatus)}"></span>
+              <span>{data.kindError}</span>
+            </div>
+          {:else}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.kindStatus)}">
+              <span class="w-2 h-2 rounded-full {getStatusClasses(data.kindStatus)}"></span>
+              {getStatusLabel(data.kindStatus)}
+            </div>
+          {/if}
           <!-- Info message for Kind Cluster -->
           {#if data.kindInfo}
             <div class="text-sm flex items-center gap-2 mt-1 text-[var(--pd-content-card-light-title)]">
@@ -295,21 +305,13 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
           {/if}
         </div>
 
-        <Button type="secondary" onclick={navigateToResources} aria-label="View Kind Cluster details">View</Button>
+        <Button
+          type={data.kindStatus === 'error' ? 'danger' : 'secondary'}
+          onclick={navigateToResources}
+          aria-label="View Kind Cluster details">
+          {data.kindStatus === 'error' ? 'See Details in Resources' : 'View'}
+        </Button>
       </div>
-
-      <!-- Error Message Display for Kind -->
-      {#if data.kindError}
-        <div class="mt-3 p-2.5 bg-[rgba(185,28,28,0.2)] border border-[var(--pd-status-terminated)] rounded-md flex items-start gap-2">
-          <svg class="w-4 h-4 text-[var(--pd-status-terminated)] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-              clip-rule="evenodd" />
-          </svg>
-          <span class="text-xs text-[var(--pd-status-terminated)]">{data.kindError}</span>
-        </div>
-      {/if}
     </div>
   {/if}
 
@@ -337,26 +339,27 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
 
         <div class="flex-1 min-w-0">
           <div class="text-base font-medium text-[var(--pd-content-card-title)]">Developer Sandbox</div>
-          <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.sandboxStatus)}">
-            <span class="w-2 h-2 rounded-full {getStatusClasses(data.sandboxStatus)}"></span>
-            {getStatusLabel(data.sandboxStatus)}
-          </div>
+          {#if data.sandboxSubtitle}
+            <div class="text-sm text-[var(--pd-content-card-light-title)] mt-1">{data.sandboxSubtitle}</div>
+          {/if}
+          <!-- Show error message as status line for error state -->
+          {#if data.sandboxError}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.sandboxStatus)}">
+              <span class="w-2 h-2 rounded-full {getStatusClasses(data.sandboxStatus)}"></span>
+              <span>{data.sandboxError}</span>
+            </div>
+          {:else}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.sandboxStatus)}">
+              <span class="w-2 h-2 rounded-full {getStatusClasses(data.sandboxStatus)}"></span>
+              {getStatusLabel(data.sandboxStatus)}
+            </div>
+          {/if}
         </div>
 
-        <Button type="secondary" onclick={navigateToResources} aria-label="View Developer Sandbox details">View</Button>
+        <Button type="danger" onclick={navigateToResources} aria-label="View Developer Sandbox details">
+          See Details in Resources
+        </Button>
       </div>
-
-      {#if data.sandboxError}
-        <div class="mt-3 p-2.5 bg-[rgba(185,28,28,0.2)] border border-[var(--pd-status-terminated)] rounded-md flex items-start gap-2">
-          <svg class="w-4 h-4 text-[var(--pd-status-terminated)] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-              clip-rule="evenodd" />
-          </svg>
-          <span class="text-xs text-[var(--pd-status-terminated)]">{data.sandboxError}</span>
-        </div>
-      {/if}
     </div>
   {/if}
 
