@@ -18,8 +18,6 @@
 
 import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
-import { providerInfos } from '../providers';
-
 // System Overview display states
 export type SystemOverviewState =
   | 'live'
@@ -54,6 +52,8 @@ export interface SystemOverviewData {
   sandboxError?: string;
   systemStats?: SystemStat[];
   showOnboarding?: boolean;
+  statusMessage?: string; // e.g. "Some systems are stopped"
+  showCompactClusters?: boolean; // Use compact button-like display for K8s clusters
 }
 
 // State labels for toggle buttons
@@ -88,6 +88,9 @@ function getMachineStoppedData(): SystemOverviewData {
     podmanVersion: 'WSL · v5.7.0',
     kindStatus: 'running',
     kindClusterName: 'kind-dev',
+    sandboxStatus: 'running',
+    statusMessage: 'Some systems are stopped',
+    showCompactClusters: true, // Use compact button-like display
   };
 }
 

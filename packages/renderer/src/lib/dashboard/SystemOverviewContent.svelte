@@ -23,40 +23,11 @@ import { router } from 'tinro';
 import KubernetesIcon from '/@/lib/images/KubernetesIcon.svelte';
 import PodIcon from '/@/lib/images/PodIcon.svelte';
 import { providerInfos } from '/@/stores/providers';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
-import {
-  getCurrentState,
-  getLiveProviderConnection,
-  getSystemOverviewData,
-} from '../../stores/dashboard/system-overview-state.svelte';
+import { getSystemOverviewData } from '../../stores/dashboard/system-overview-state.svelte';
 
 // Get data reactively based on current state and providers
 let data = $derived(getSystemOverviewData($providerInfos));
-let providers = $derived($providerInfos);
-
-// Check if we're in Live mode for enabling Start button
-let isLiveMode = $derived(getCurrentState() === 'live');
-
-// Handle Start Machine action (only functional in Live mode)
-async function handleStartMachine(): Promise<void> {
-  if (!isLiveMode) return;
-
-  const providerConnection = getLiveProviderConnection(providers);
-  if (!providerConnection) {
-    console.error('No Podman provider connection found');
-    return;
-  }
-
-  const { provider, connection } = providerConnection;
-  const loggerHandlerKey = Symbol('system-overview-start-machine');
-
-  try {
-    await window.startProviderConnectionLifecycle(provider.internalId, connection, loggerHandlerKey);
-  } catch (error: unknown) {
-    console.error('Failed to start machine:', error);
-  }
-}
 
 // Handle See Details in Resources action (works in all modes)
 function navigateToResources(): void {
@@ -119,6 +90,19 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
 </script>
 
 <div class="flex flex-col gap-3">
+  <!-- Status Message (e.g. "Some systems are stopped") -->
+  {#if data.statusMessage}
+    <div class="flex items-center gap-2 text-[var(--pd-content-card-light-title)]">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          fill-rule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+          clip-rule="evenodd" />
+      </svg>
+      <span class="text-sm">{data.statusMessage}</span>
+    </div>
+  {/if}
+
   <!-- Podman Machine Section -->
   {#if data.podmanStatus}
     <div
@@ -157,12 +141,24 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
             {/if}
             {getStatusLabel(data.podmanStatus)}
           </div>
+          <!-- Info message for stopped status -->
+          {#if data.podmanStatus === 'stopped'}
+            <div class="text-sm flex items-center gap-2 mt-1 text-[var(--pd-content-card-light-title)]">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd" />
+              </svg>
+              <span>Required to run containers and pods</span>
+            </div>
+          {/if}
         </div>
 
         <!-- Action Buttons -->
         <div class="flex gap-2">
           {#if data.podmanStatus === 'stopped'}
-            <Button type="primary" onclick={handleStartMachine} disabled={!isLiveMode} aria-label="Start Podman Machine">
+            <Button type="primary" onclick={navigateToResources} aria-label="Start Podman Machine">
               Start Machine
             </Button>
           {:else if data.podmanStatus === 'error'}
@@ -213,8 +209,38 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
     </div>
   {/if}
 
-  <!-- Kind Cluster Section -->
-  {#if data.kindStatus}
+  <!-- Compact Kubernetes Clusters (Kind + Sandbox) - shown when showCompactClusters is true -->
+  {#if data.showCompactClusters}
+    <div class="flex flex-wrap gap-3">
+      <!-- Kind Cluster - Compact Button Style -->
+      {#if data.kindStatus}
+        <button
+          type="button"
+          onclick={navigateToResources}
+          class="flex items-center gap-2.5 px-4 py-2.5 bg-[var(--pd-content-bg)] rounded-lg hover:bg-[var(--pd-content-card-bg)] transition-colors cursor-pointer border border-transparent hover:border-[var(--pd-content-divider)]"
+          aria-label="View Kind Cluster details">
+          <KubernetesIcon class="w-5 h-5 text-[var(--pd-content-card-title)]" />
+          <span class="text-sm font-medium text-[var(--pd-content-card-title)]">Kind Cluster</span>
+          <span class="w-2 h-2 rounded-full {getStatusClasses(data.kindStatus)}"></span>
+        </button>
+      {/if}
+
+      <!-- Developer Sandbox - Compact Button Style -->
+      {#if data.sandboxStatus}
+        <button
+          type="button"
+          onclick={navigateToResources}
+          class="flex items-center gap-2.5 px-4 py-2.5 bg-[var(--pd-content-bg)] rounded-lg hover:bg-[var(--pd-content-card-bg)] transition-colors cursor-pointer border border-transparent hover:border-[var(--pd-content-divider)]"
+          aria-label="View Developer Sandbox details">
+          <KubernetesIcon class="w-5 h-5 text-[var(--pd-content-card-title)]" />
+          <span class="text-sm font-medium text-[var(--pd-content-card-title)]">Developer Sandbox</span>
+          <span class="w-2 h-2 rounded-full {getStatusClasses(data.sandboxStatus)}"></span>
+        </button>
+      {/if}
+    </div>
+  {:else}
+    <!-- Full Detail Kind Cluster Section (when not compact) -->
+    {#if data.kindStatus}
     <div
       class="p-4 rounded-lg transition-colors"
       class:bg-[var(--pd-content-bg)]={data.kindStatus !== 'error'}
@@ -261,8 +287,8 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
     </div>
   {/if}
 
-  <!-- Developer Sandbox Section (only shown in multiple-errors state) -->
-  {#if data.sandboxStatus}
+  <!-- Developer Sandbox Section (only shown in multiple-errors state when not compact) -->
+  {#if data.sandboxStatus && !data.showCompactClusters}
     <div class="p-4 rounded-lg transition-colors bg-[rgba(185,28,28,0.1)] border border-[var(--pd-status-terminated)]">
       <div class="flex items-center gap-4">
         <!-- Kubernetes Icon for Sandbox -->
@@ -293,6 +319,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
         </div>
       {/if}
     </div>
+  {/if}
   {/if}
 
   <!-- Onboarding Message (shown in onboarding state) -->
