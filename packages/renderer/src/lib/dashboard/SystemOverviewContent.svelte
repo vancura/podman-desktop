@@ -220,17 +220,15 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
 
       <!-- System Stats (CPU, Memory, Disk) - Only shown when running -->
       {#if data.systemStats && data.podmanStatus === 'running'}
-        {#if data.showOnlyResources}
-          <!-- Show title for resources-only view -->
-          <div class="text-xs font-medium text-[var(--pd-content-card-light-title)] uppercase tracking-wider mb-3">
-            Podman Machine Resources
-          </div>
-        {/if}
+        <!-- Show title for resources section -->
         <div
-          class="grid grid-cols-3 gap-4"
+          class="text-xs font-medium text-[var(--pd-content-card-light-title)] uppercase tracking-wider mb-3"
           class:pt-3={!data.showOnlyResources}
           class:border-t={!data.showOnlyResources}
           class:border-[var(--pd-content-divider)]={!data.showOnlyResources}>
+          Podman Machine Resources
+        </div>
+        <div class="grid grid-cols-3 gap-4">
           {#each data.systemStats as stat}
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-sm">
