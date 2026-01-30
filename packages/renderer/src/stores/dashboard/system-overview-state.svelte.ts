@@ -169,15 +169,14 @@ function getOnboardingData(): SystemOverviewData {
 function getAllRunningData(): SystemOverviewData {
   return {
     podmanStatus: 'running',
-    podmanMachineName: 'Podman Machine',
-    podmanVersion: 'WSL · v5.7.0',
-    kindStatus: 'running',
-    kindClusterName: 'kind-dev',
     systemStats: [
       { label: 'CPU', value: 40, detail: '6.4 / 16 cores', status: 'normal' },
-      { label: 'Memory', value: 92, detail: '30.6 / 33.2 GB', status: 'warning' },
+      { label: 'Memory', value: 70, detail: '23.3 / 33.2 GB', status: 'normal' },
       { label: 'Disk', value: 20, detail: '216 GB / 1.08 TB', status: 'normal' },
     ],
+    statusMessage: 'All systems running',
+    statusMessageType: 'success',
+    showOnlyResources: true, // Hide machine header, show only resources
   };
 }
 
