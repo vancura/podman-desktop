@@ -48,11 +48,14 @@ export interface SystemOverviewData {
   kindStatus?: MachineStatus;
   kindClusterName?: string;
   kindError?: string;
+  kindRequirements?: string; // e.g. "Requires Podman" badge
+  kindInfo?: string; // e.g. "Start to deploy Kubernetes workloads locally"
   sandboxStatus?: MachineStatus;
   sandboxError?: string;
   systemStats?: SystemStat[];
   showOnboarding?: boolean;
   statusMessage?: string; // e.g. "Some systems are stopped"
+  statusMessageType?: 'info' | 'error'; // Type of status message
   showCompactClusters?: boolean; // Use compact button-like display for K8s clusters
 }
 
@@ -102,6 +105,11 @@ function getMachineErrorData(): SystemOverviewData {
     podmanError: "Connection failed: WSL distribution 'podman-machine-default' not responding",
     kindStatus: 'stopped',
     kindClusterName: 'kind-dev',
+    kindRequirements: 'Requires Podman',
+    kindInfo: 'Start to deploy Kubernetes workloads locally',
+    sandboxStatus: 'running',
+    statusMessage: 'Podman machine error detected',
+    statusMessageType: 'error',
   };
 }
 

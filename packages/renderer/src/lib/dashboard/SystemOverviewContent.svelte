@@ -90,16 +90,28 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
 </script>
 
 <div class="flex flex-col gap-3">
-  <!-- Status Message (e.g. "Some systems are stopped") -->
+  <!-- Status Message (e.g. "Some systems are stopped" or "Podman machine error detected") -->
   {#if data.statusMessage}
-    <div class="flex items-center gap-2 text-[var(--pd-content-card-light-title)]">
-      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fill-rule="evenodd"
-          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-          clip-rule="evenodd" />
-      </svg>
-      <span class="text-sm">{data.statusMessage}</span>
+    <div
+      class="flex items-center gap-2"
+      class:text-[var(--pd-content-card-light-title)]={data.statusMessageType !== 'error'}
+      class:text-[var(--pd-status-terminated)]={data.statusMessageType === 'error'}>
+      {#if data.statusMessageType === 'error'}
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd" />
+        </svg>
+      {:else}
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+            clip-rule="evenodd" />
+        </svg>
+      {/if}
+      <span class="text-sm font-medium">{data.statusMessage}</span>
     </div>
   {/if}
 
@@ -133,14 +145,22 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
               </span>
             {/if}
           </div>
-          <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
-            {#if data.podmanStatus === 'starting'}
-              <Spinner size="0.75em" />
-            {:else}
+          <!-- Show error message as status line for error state -->
+          {#if data.podmanStatus === 'error' && data.podmanError}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
               <span class="w-2 h-2 rounded-full {getStatusClasses(data.podmanStatus)}"></span>
-            {/if}
-            {getStatusLabel(data.podmanStatus)}
-          </div>
+              <span>{data.podmanError}</span>
+            </div>
+          {:else}
+            <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.podmanStatus)}">
+              {#if data.podmanStatus === 'starting'}
+                <Spinner size="0.75em" />
+              {:else}
+                <span class="w-2 h-2 rounded-full {getStatusClasses(data.podmanStatus)}"></span>
+              {/if}
+              {getStatusLabel(data.podmanStatus)}
+            </div>
+          {/if}
           <!-- Info message for stopped status -->
           {#if data.podmanStatus === 'stopped'}
             <div class="text-sm flex items-center gap-2 mt-1 text-[var(--pd-content-card-light-title)]">
@@ -162,7 +182,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
               Start Machine
             </Button>
           {:else if data.podmanStatus === 'error'}
-            <Button type="secondary" onclick={navigateToResources} aria-label="See error details in Resources">
+            <Button type="danger" onclick={navigateToResources} aria-label="See error details in Resources">
               See Details in Resources
             </Button>
           {:else}
@@ -191,19 +211,6 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
               <div class="text-xs text-[var(--pd-content-card-light-title)] truncate">{stat.detail}</div>
             </div>
           {/each}
-        </div>
-      {/if}
-
-      <!-- Error Message Display -->
-      {#if data.podmanError}
-        <div class="mt-3 p-2.5 bg-[rgba(185,28,28,0.2)] border border-[var(--pd-status-terminated)] rounded-md flex items-start gap-2">
-          <svg class="w-4 h-4 text-[var(--pd-status-terminated)] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-              clip-rule="evenodd" />
-          </svg>
-          <span class="text-xs text-[var(--pd-status-terminated)]">{data.podmanError}</span>
         </div>
       {/if}
     </div>
@@ -238,9 +245,10 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
         </button>
       {/if}
     </div>
-  {:else}
-    <!-- Full Detail Kind Cluster Section (when not compact) -->
-    {#if data.kindStatus}
+  {/if}
+
+  <!-- Full Detail Kind Cluster Section (when not using compact) -->
+  {#if data.kindStatus && !data.showCompactClusters}
     <div
       class="p-4 rounded-lg transition-colors"
       class:bg-[var(--pd-content-bg)]={data.kindStatus !== 'error'}
@@ -260,13 +268,31 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
         </div>
 
         <div class="flex-1 min-w-0">
-          <div class="text-base font-medium text-[var(--pd-content-card-title)]">
+          <div class="text-base font-medium text-[var(--pd-content-card-title)] flex items-center gap-2 flex-wrap">
             Kind Cluster {data.kindClusterName ? `(${data.kindClusterName})` : ''}
+            {#if data.kindRequirements}
+              <span class="text-xs font-medium text-[var(--pd-content-card-light-title)] bg-[var(--pd-content-card-bg)] px-2 py-0.5 rounded">
+                {data.kindRequirements}
+              </span>
+            {/if}
           </div>
+          <div class="text-sm text-[var(--pd-content-card-light-title)] mt-1">Local Kubernetes</div>
           <div class="text-sm flex items-center gap-2 mt-1 {getStatusTextClasses(data.kindStatus)}">
             <span class="w-2 h-2 rounded-full {getStatusClasses(data.kindStatus)}"></span>
             {getStatusLabel(data.kindStatus)}
           </div>
+          <!-- Info message for Kind Cluster -->
+          {#if data.kindInfo}
+            <div class="text-sm flex items-center gap-2 mt-1 text-[var(--pd-content-card-light-title)]">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd" />
+              </svg>
+              <span>{data.kindInfo}</span>
+            </div>
+          {/if}
         </div>
 
         <Button type="secondary" onclick={navigateToResources} aria-label="View Kind Cluster details">View</Button>
@@ -287,8 +313,21 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
     </div>
   {/if}
 
-  <!-- Developer Sandbox Section (only shown in multiple-errors state when not compact) -->
-  {#if data.sandboxStatus && !data.showCompactClusters}
+  <!-- Compact Developer Sandbox (shown when sandbox exists but not in showCompactClusters mode and not error) -->
+  {#if data.sandboxStatus && !data.showCompactClusters && data.sandboxStatus !== 'error'}
+    <button
+      type="button"
+      onclick={navigateToResources}
+      class="flex items-center gap-2.5 px-4 py-2.5 bg-[var(--pd-content-bg)] rounded-lg hover:bg-[var(--pd-content-card-bg)] transition-colors cursor-pointer border border-transparent hover:border-[var(--pd-content-divider)] w-fit"
+      aria-label="View Developer Sandbox details">
+      <KubernetesIcon class="w-5 h-5 text-[var(--pd-content-card-title)]" />
+      <span class="text-sm font-medium text-[var(--pd-content-card-title)]">Developer Sandbox</span>
+      <span class="w-2 h-2 rounded-full {getStatusClasses(data.sandboxStatus)}"></span>
+    </button>
+  {/if}
+
+  <!-- Developer Sandbox Error Section (only shown when sandbox has error) -->
+  {#if data.sandboxStatus && !data.showCompactClusters && data.sandboxStatus === 'error'}
     <div class="p-4 rounded-lg transition-colors bg-[rgba(185,28,28,0.1)] border border-[var(--pd-status-terminated)]">
       <div class="flex items-center gap-4">
         <!-- Kubernetes Icon for Sandbox -->
@@ -319,7 +358,6 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
         </div>
       {/if}
     </div>
-  {/if}
   {/if}
 
   <!-- Onboarding Message (shown in onboarding state) -->
