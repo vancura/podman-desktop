@@ -85,7 +85,7 @@ function getProgressBarColor(stat: { status: string; value: number | null }): st
   if (stat.value === null) return 'bg-[var(--pd-content-card-bg)]';
   if (stat.status === 'warning') return 'bg-orange-500';
   if (stat.status === 'critical') return 'bg-[var(--pd-status-terminated)]';
-  return 'bg-[var(--pd-status-running)]';
+  return 'bg-[var(--pd-content-card-light-title)]';
 }
 </script>
 
