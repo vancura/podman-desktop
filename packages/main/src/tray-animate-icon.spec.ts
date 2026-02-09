@@ -59,6 +59,14 @@ vi.mock('./util.js', () => ({
   isWindows: vi.fn(),
 }));
 
+const setShouldUseDarkColors = (value: boolean): void => {
+  Object.defineProperty(nativeTheme, 'shouldUseDarkColors', {
+    value,
+    writable: true,
+    configurable: true,
+  });
+};
+
 beforeEach(() => {
   testAnimatedTray = new TestAnimatedTray();
   vi.clearAllMocks();
@@ -69,7 +77,7 @@ beforeEach(() => {
   vi.mocked(util.isWindows).mockReturnValue(false);
 
   // Reset theme to light by default
-  vi.mocked(nativeTheme).shouldUseDarkColors = false;
+  setShouldUseDarkColors(false);
 });
 
 test('valid path for icons', () => {
