@@ -347,6 +347,25 @@ export class ColorRegistry {
       dark: white,
       light: charcoal[900],
     });
+
+    this.registerColor(`${def}text-link`, {
+      dark: violet[400],
+      light: violet[700],
+    });
+
+    this.registerColorDefinition(
+      this.color(`${def}item-disabled`)
+        .withLight(colorPaletteHelper(stone[600]).withAlpha(0.4))
+        .withDark(colorPaletteHelper(stone[300]).withAlpha(0.4))
+        .build(),
+    );
+
+    this.registerColorDefinition(
+      this.color(`${def}item-hover`)
+        .withLight(colorPaletteHelper(violet[600]).withAlpha(0.1))
+        .withDark(colorPaletteHelper(violet[400]).withAlpha(0.1))
+        .build(),
+    );
   }
 
   protected initNotificationDot(): void {
@@ -1004,6 +1023,16 @@ export class ColorRegistry {
 
   // button
   protected initButton(): void {
+    const itemDisabled = this.#definitions.get('default-item-disabled');
+    const textLink = this.#definitions.get('default-text-link');
+    const hoverItem = this.#definitions.get('default-item-hover');
+
+    if (!itemDisabled || !textLink || !hoverItem) {
+      throw new Error(
+        'default-item-disabled, default-text-link and default-item-hover colors must be defined before button colors',
+      );
+    }
+
     const button = 'button-';
 
     this.registerColor(`${button}primary-bg`, {
@@ -1016,29 +1045,69 @@ export class ColorRegistry {
       light: violet[600],
     });
 
+    this.registerColorDefinition(
+      this.color(`${button}primary-border`)
+        .withLight(colorPaletteHelper(transparent))
+        .withDark(colorPaletteHelper(violet[300]).withAlpha(0.4))
+        .build(),
+    );
+
+    // @deprecated since 2026-02-06. See https://github.com/podman-desktop/podman-desktop/pull/14876
+    // Use `button-secondary-bg` instead
     this.registerColor(`${button}secondary`, {
       dark: transparent,
       light: violet[200],
     });
 
+    this.registerColor(`${button}secondary-bg`, {
+      dark: transparent,
+      light: violet[200],
+    });
+
+    // @deprecated since 2026-02-06. See https://github.com/podman-desktop/podman-desktop/pull/14876
+    // Use `button-secondary-hover-bg` instead
     this.registerColor(`${button}secondary-hover`, {
       dark: slate[700],
       light: violet[100],
     });
+
+    this.registerColor(`${button}secondary-hover-bg`, {
+      dark: slate[700],
+      light: violet[100],
+    });
+
+    this.registerColorDefinition(
+      this.color(`${button}secondary-border`)
+        .withLight(colorPaletteHelper(violet[700]))
+        .withDark(colorPaletteHelper(stone[300]).withAlpha(0.4))
+        .build(),
+    );
 
     this.registerColor(`${button}text`, {
       dark: white,
       light: white,
     });
 
+    this.registerColor(`${button}primary-text`, {
+      dark: white,
+      light: white,
+    });
+
+    this.registerColor(`${button}secondary-text`, {
+      dark: stone[100],
+      light: violet[700],
+    });
+
+    // deprecated since 2026-02-06. See https://github.com/podman-desktop/podman-desktop/pull/14876
+    // Use `button-disabled-bg` instead
     this.registerColor(`${button}disabled`, {
       dark: stone[700],
       light: stone[300],
     });
 
     this.registerColor(`${button}disabled-text`, {
-      dark: charcoal[50],
-      light: gray[900],
+      dark: itemDisabled.dark,
+      light: itemDisabled.light,
     });
 
     this.registerColorDefinition(
@@ -1070,6 +1139,8 @@ export class ColorRegistry {
       light: red[100],
     });
 
+    // deprecated since 2026-02-06. See https://github.com/podman-desktop/podman-desktop/pull/14876
+    // Use `button-disabled-bg` instead
     this.registerColor(`${button}danger-disabled-border`, {
       dark: red[600],
       light: red[200],
@@ -1082,9 +1153,16 @@ export class ColorRegistry {
       light: red[700],
     });
 
+    // deprecated since 2026-02-06. See https://github.com/podman-desktop/podman-desktop/pull/14876
+    // Unused color (disabled buttons always use `button-disabled-bg`)
     this.registerColor(`${button}danger-disabled-bg`, {
       dark: transparent,
       light: transparent,
+    });
+
+    this.registerColor(`${button}disabled-bg`, {
+      dark: stone[700],
+      light: stone[300],
     });
 
     this.registerColor(`${button}tab-border`, {
@@ -1093,8 +1171,8 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${button}tab-border-selected`, {
-      dark: purple[500],
-      light: purple[600],
+      dark: textLink.dark,
+      light: textLink.light,
     });
 
     this.registerColor(`${button}tab-hover-border`, {
@@ -1103,13 +1181,13 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${button}tab-text`, {
-      dark: gray[400],
-      light: charcoal[200],
+      dark: textLink.dark,
+      light: textLink.light,
     });
 
     this.registerColor(`${button}tab-text-selected`, {
-      dark: white,
-      light: black,
+      dark: textLink.dark,
+      light: textLink.light,
     });
 
     this.registerColorDefinition(
@@ -1119,17 +1197,30 @@ export class ColorRegistry {
         .build(),
     );
 
-    this.registerColor(`${button}link-text`, {
-      dark: purple[400],
-      light: purple[700],
+    this.registerColor(`${button}link-bg`, {
+      dark: transparent,
+      light: transparent,
     });
 
-    this.registerColorDefinition(
-      this.color(`${button}link-hover-bg`)
-        .withLight(colorPaletteHelper(black).withAlpha(0.13))
-        .withDark(colorPaletteHelper(white).withAlpha(0.13))
-        .build(),
-    );
+    this.registerColor(`${button}link-text`, {
+      dark: textLink.dark,
+      light: textLink.light,
+    });
+
+    this.registerColor(`${button}link-hover-bg`, {
+      dark: hoverItem.dark,
+      light: hoverItem.light,
+    });
+
+    this.registerColor(`${button}focus-ring`, {
+      dark: textLink.dark,
+      light: textLink.light,
+    });
+
+    this.registerColor(`${button}focus-ring-danger`, {
+      dark: red[500],
+      light: red[700],
+    });
 
     // deprecated since 2026-02-06. See https://github.com/podman-desktop/podman-desktop/pull/14876
     // Unused color
@@ -1689,12 +1780,5 @@ export class ColorRegistry {
     });
   }
 
-  protected initCommon(): void {
-    this.registerColorDefinition(
-      this.color('item-disabled')
-        .withLight(colorPaletteHelper(stone[600]).withAlpha(0.4))
-        .withDark(colorPaletteHelper(stone[300]).withAlpha(0.4))
-        .build(),
-    );
-  }
+  protected initCommon(): void {}
 }
