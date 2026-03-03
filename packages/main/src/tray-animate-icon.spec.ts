@@ -133,7 +133,7 @@ test('Linux should use regular icon for all states', () => {
 
 test('Windows should always use regular icon (ignoring theme)', () => {
   vi.mocked(util.isWindows).mockReturnValue(true);
-  vi.mocked(nativeTheme).shouldUseDarkColors = false;
+  setShouldUseDarkColors(false);
 
   const iconPath = testAnimatedTray.getIconPath('default');
 
@@ -145,7 +145,7 @@ test('Windows should always use regular icon (ignoring theme)', () => {
 
 test('Windows should use regular icon even with dark theme', () => {
   vi.mocked(util.isWindows).mockReturnValue(true);
-  vi.mocked(nativeTheme).shouldUseDarkColors = true;
+  setShouldUseDarkColors(true);
 
   const iconPath = testAnimatedTray.getIconPath('default');
 
@@ -179,7 +179,7 @@ test('manual color override to light should use template icon', () => {
 
 test('manual color override to dark should use dark icon', () => {
   vi.mocked(util.isWindows).mockReturnValue(true);
-  vi.mocked(nativeTheme).shouldUseDarkColors = false;
+  setShouldUseDarkColors(false);
 
   testAnimatedTray.setColor('dark');
   const iconPath = testAnimatedTray.getIconPath('default');
