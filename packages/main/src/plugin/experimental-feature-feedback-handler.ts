@@ -16,13 +16,13 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { IDisposable } from '@podman-desktop/core-api';
+import { IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
 import { shell } from 'electron';
 import { inject, injectable } from 'inversify';
 
-import { IConfigurationNode, IConfigurationRegistry } from '/@api/configuration/models.js';
-import type { IDisposable } from '/@api/disposable.js';
+import { formatName } from '/@/util.js';
 
-import { formatName } from '../util.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import { MessageBox } from './message-box.js';
 import { Telemetry } from './telemetry/telemetry.js';
@@ -61,11 +61,6 @@ export class ExperimentalFeatureFeedbackHandler {
     const secondPart = parts[1];
     const configuration = this.#configurationRegistry.getConfiguration(firstPart);
     if (secondPart) {
-      // HACK for features that are set as disabled with false (old config)
-      // temporarily enable them and immediately disable, to remove them
-      if (conf === undefined) {
-        await configuration?.update(secondPart, {});
-      }
       await configuration?.update(secondPart, conf);
     }
   }
@@ -106,10 +101,6 @@ export class ExperimentalFeatureFeedbackHandler {
       const conf = this.#configurationRegistry.getConfiguration(firstPart).get(secondPart);
       // Configuration does not exist (feature is not enabled), or is set to false
       if (!conf) {
-        if (typeof conf === 'boolean') {
-          // Remove the feature if has value false using logic in save
-          await this.save(configurationKey);
-        }
         continue;
       }
 

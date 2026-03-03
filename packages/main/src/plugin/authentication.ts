@@ -25,10 +25,9 @@ import type {
   Disposable,
   Event,
 } from '@podman-desktop/api';
+import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { AuthenticationProviderInfo, SessionRequestInfo } from '@podman-desktop/core-api/authentication';
 import { inject, injectable } from 'inversify';
-
-import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
-import type { AuthenticationProviderInfo, SessionRequestInfo } from '/@api/authentication/authentication.js';
 
 import { Emitter } from './events/emitter.js';
 import { MessageBox } from './message-box.js';
@@ -69,12 +68,12 @@ export interface SessionRequest {
 
 export type MenuInfo = AuthenticationRequestMenuInfo | AuthenticationSessionMenuInfo;
 
-export interface AuthenticationRequestMenuInfo {
+interface AuthenticationRequestMenuInfo {
   label: string;
   requestId: string;
 }
 
-export interface AuthenticationSessionMenuInfo {
+interface AuthenticationSessionMenuInfo {
   label: string;
   providerId: string;
   sessionId: string;

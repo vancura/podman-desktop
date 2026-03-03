@@ -1,9 +1,9 @@
 <script lang="ts">
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import type { PodInfo } from '@podman-desktop/core-api';
 import {
   Button,
   FilteredEmptyScreen,
-  Link,
   NavPage,
   Table,
   TableColumn,
@@ -19,9 +19,9 @@ import NoContainerEngineEmptyScreen from '/@/lib/image/NoContainerEngineEmptyScr
 import PodIcon from '/@/lib/images/PodIcon.svelte';
 import PodmanKubePlay from '/@/lib/kube/PodmanKubePlay.svelte';
 import ContainerEngineEnvironmentColumn from '/@/lib/table/columns/ContainerEngineEnvironmentColumn.svelte';
+import EnvironmentDropdown from '/@/lib/ui/EnvironmentDropdown.svelte';
 import { filtered, podsInfos, searchPattern } from '/@/stores/pods';
 import { providerInfos } from '/@/stores/providers';
-import type { PodInfo } from '/@api/pod-info';
 
 import { PodUtils } from './pod-utils';
 import PodColumnActions from './PodColumnActions.svelte';
@@ -37,12 +37,20 @@ interface Props {
 
 let { searchTerm = $bindable('') }: Props = $props();
 
+let selectedEnvironment = $state('');
+
 $effect(() => {
   searchPattern.set(searchTerm);
 });
 
 let pods: PodInfoUI[] = $state([]);
 let enginesList: EngineInfoUI[] = $state([]);
+
+// Filter pods by selected environment
+const filteredPods = $derived.by(() => {
+  if (!selectedEnvironment) return pods;
+  return pods.filter(pod => pod.engineId === selectedEnvironment);
+});
 
 const providerConnections = $derived(
   $providerInfos
@@ -110,10 +118,6 @@ async function deleteSelectedPods(): Promise<void> {
     }),
   );
   bulkDeleteInProgress = false;
-}
-
-async function openKubePods(): Promise<void> {
-  await window.navigateToRoute('kubernetes', { kind: 'Pod' });
 }
 
 let selectedItemsNumber: number = $state(0);
@@ -187,6 +191,7 @@ function label(pod: PodInfoUI): string {
   {/snippet}
 
   {#snippet bottomAdditionalActions()}
+    <EnvironmentDropdown bind:selectedEnvironment={selectedEnvironment} />
     {#if selectedItemsNumber > 0}
       <Button
         on:click={(): void =>
@@ -202,10 +207,6 @@ function label(pod: PodInfoUI): string {
   {/snippet}
 
   {#snippet tabs()}
-    <div class="flex flex-col gap-3">
-      <div class="self-center text-[var(--pd-table-body-text)]">Looking for pods running on a Kubernetes cluster? We have moved them to the <Link on:click={openKubePods}>Kubernetes &gt; Pods</Link> page.</div>
-
-      <div class="flex flex-row">
         <Button
           type="tab"
           on:click={(): void => {
@@ -239,8 +240,6 @@ function label(pod: PodInfoUI): string {
             searchTerm = temp ? `${temp} is:stopped` : 'is:stopped';
           }}
           selected={searchTerm.includes('is:stopped')}>Stopped</Button>
-      </div>
-    </div>
   {/snippet}
 
   {#snippet content()}
@@ -248,7 +247,7 @@ function label(pod: PodInfoUI): string {
 
     {#if providerConnections.length === 0}
       <NoContainerEngineEmptyScreen />
-    {:else if $filtered.length === 0}
+    {:else if filteredPods.length === 0}
       {#if searchTerm}
         <FilteredEmptyScreen
           icon={PodIcon}
@@ -258,6 +257,8 @@ function label(pod: PodInfoUI): string {
             searchTerm = podUtils.filterResetSearchTerm(searchTerm);
             e.preventDefault();
           }} />
+      {:else if selectedEnvironment && pods.length > 0}
+        <FilteredEmptyScreen icon={PodIcon} kind="pods" searchTerm="selected environment" onResetFilter={(): void => { selectedEnvironment = ''; }} />
       {:else}
         <PodEmptyScreen />
       {/if}
@@ -265,7 +266,7 @@ function label(pod: PodInfoUI): string {
       <Table
         kind="pod"
         bind:selectedItemsNumber={selectedItemsNumber}
-        data={pods}
+        data={filteredPods}
         columns={columns}
         row={row}
         defaultSortColumn="Name"

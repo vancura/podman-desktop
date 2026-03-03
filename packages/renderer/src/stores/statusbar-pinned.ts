@@ -16,17 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { PinOption } from '@podman-desktop/core-api/status-bar';
+import { STATUS_BAR_PIN_CONSTANTS } from '@podman-desktop/core-api/status-bar';
 import { type Writable, writable } from 'svelte/store';
-
-import { STATUS_BAR_PIN_CONSTANTS } from '/@api/status-bar/pin-constants';
-import type { PinOption } from '/@api/status-bar/pin-option';
 
 import { EventStore } from './event-store';
 
 const windowEvents = [STATUS_BAR_PIN_CONSTANTS.PIN_OPTIONS_UPDATE];
 const windowListeners = ['system-ready'];
 
-export async function checkForUpdate(): Promise<boolean> {
+async function checkForUpdate(): Promise<boolean> {
   return true;
 }
 

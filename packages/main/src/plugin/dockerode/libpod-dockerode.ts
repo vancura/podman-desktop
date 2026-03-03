@@ -19,20 +19,12 @@
 import type { RequestOptions } from 'node:http';
 
 import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '@podman-desktop/api';
+import type { ImageInfo, LibPodPodInfo, LibPodPodInspectInfo, PodmanListImagesOptions } from '@podman-desktop/core-api';
+import type { ContainerCreateOptions, PlayKubeInfo, PodCreatePortOptions } from '@podman-desktop/core-api/libpod';
 import type DockerModem from 'docker-modem';
 import type { DialOptions } from 'docker-modem';
 import type { VolumeCreateOptions, VolumeCreateResponse } from 'dockerode';
 import Dockerode from 'dockerode';
-
-import type { ImageInfo, PodmanListImagesOptions } from '/@api/image-info.js';
-import type { ContainerCreateOptions, PlayKubeInfo, PodCreatePortOptions } from '/@api/libpod/libpod.js';
-import type { LibPodPodInfo, LibPodPodInspectInfo } from '/@api/pod-info.js';
-
-export interface PodContainerInfo {
-  Id: string;
-  Names: string;
-  Status: string;
-}
 
 export interface PodCreateOptions {
   name?: string;
@@ -75,7 +67,7 @@ export interface Info {
   version: Version;
 }
 
-export interface Host {
+interface Host {
   arch: string;
   buildahVersion: string;
   cgroupManager: string;
@@ -106,54 +98,54 @@ export interface Host {
   linkmode: string;
 }
 
-export interface Conmon {
+interface Conmon {
   package: string;
   path: string;
   version: string;
 }
 
-export interface CpuUtilization {
+interface CpuUtilization {
   userPercent: number;
   systemPercent: number;
   idlePercent: number;
 }
 
-export interface Distribution {
+interface Distribution {
   distribution: string;
   variant: string;
   version: string;
 }
 
-export interface IdMappings {
+interface IdMappings {
   gidmap: Gidmap[];
   uidmap: Uidmap[];
 }
 
-export interface Gidmap {
+interface Gidmap {
   container_id: number;
   host_id: number;
   size: number;
 }
 
-export interface Uidmap {
+interface Uidmap {
   container_id: number;
   host_id: number;
   size: number;
 }
 
-export interface OciRuntime {
+interface OciRuntime {
   name: string;
   package: string;
   path: string;
   version: string;
 }
 
-export interface RemoteSocket {
+interface RemoteSocket {
   path: string;
   exists: boolean;
 }
 
-export interface Security {
+interface Security {
   apparmorEnabled: boolean;
   capabilities: string;
   rootless: boolean;
@@ -162,13 +154,13 @@ export interface Security {
   selinuxEnabled: boolean;
 }
 
-export interface Slirp4netns {
+interface Slirp4netns {
   executable: string;
   package: string;
   version: string;
 }
 
-export interface Store {
+interface Store {
   configFile: string;
   containerStore: ContainerStore;
   graphDriverName: string;
@@ -184,7 +176,7 @@ export interface Store {
   transientStore: boolean;
 }
 
-export interface ContainerStore {
+interface ContainerStore {
   number: number;
   paused: number;
   running: number;
@@ -192,31 +184,31 @@ export interface ContainerStore {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface GraphOptions {}
+interface GraphOptions {}
 
-export interface GraphStatus {
+interface GraphStatus {
   'Backing Filesystem': string;
   'Native Overlay Diff': string;
   'Supports d_type': string;
   'Using metacopy': string;
 }
 
-export interface ImageStore {
+interface ImageStore {
   number: number;
 }
 
-export interface Registries {
+interface Registries {
   search: string[];
 }
 
-export interface Plugins {
+interface Plugins {
   volume: string[];
   network: string[];
   log: string[];
   authorization: unknown;
 }
 
-export interface Version {
+interface Version {
   APIVersion: string;
   Version: string;
   GoVersion: string;

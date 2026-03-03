@@ -16,8 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { IDisposable } from '/@api/disposable.js';
-import type { ResourceCount } from '/@api/kubernetes-resource-count';
+import type { IDisposable, ResourceCount } from '@podman-desktop/core-api';
 
 // listenActiveResourcesCount listens the count of active resources
 export async function listenActiveResourcesCount(
@@ -51,7 +50,7 @@ function collectAndSendCount(callback: (activeResourcesCount: ResourceCount[]) =
     });
 }
 
-export async function isKubernetesExperimentalMode(): Promise<boolean> {
+async function isKubernetesExperimentalMode(): Promise<boolean> {
   try {
     return await window.isExperimentalConfigurationEnabled('kubernetes.statesExperimental');
   } catch {

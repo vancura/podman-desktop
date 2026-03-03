@@ -1,10 +1,10 @@
 <script lang="ts">
 import { faPen } from '@fortawesome/free-solid-svg-icons';
+import { PROXY_CONFIG_KEYS, ProxyState } from '@podman-desktop/core-api';
 import { Button, Dropdown, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import { PROXY_LABELS } from '/@/lib/preferences/proxy-state-labels';
-import { PROXY_CONFIG_KEYS, ProxyState } from '/@api/proxy';
 
 import PreferencesManagedInput from './PreferencesManagedInput.svelte';
 import SettingsPage from './SettingsPage.svelte';
@@ -49,10 +49,12 @@ onMount(async () => {
   }
 });
 
-function onProxyStateChange(key: unknown): void {
-  const entry = PROXY_LABELS.entries().find(([_, label]) => label === key);
-  if (entry) {
-    proxyState = entry[0];
+function onProxyStateChange(key: string): void {
+  for (const [state, label] of PROXY_LABELS) {
+    if (label === key) {
+      proxyState = state;
+      return;
+    }
   }
 }
 

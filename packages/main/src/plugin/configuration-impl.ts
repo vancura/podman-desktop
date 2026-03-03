@@ -17,14 +17,13 @@
  ***********************************************************************/
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
-
-import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
+import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type { IConfigurationChangeEvent } from '@podman-desktop/core-api/configuration';
 import {
   CONFIGURATION_DEFAULT_SCOPE,
   CONFIGURATION_SYSTEM_MANAGED_DEFAULTS_SCOPE,
   CONFIGURATION_SYSTEM_MANAGED_LOCKED_SCOPE,
-} from '/@api/configuration/constants.js';
-import type { IConfigurationChangeEvent } from '/@api/configuration/models.js';
+} from '@podman-desktop/core-api/configuration';
 
 import { LockedKeys } from './lock-configuration.js';
 
@@ -101,7 +100,7 @@ export class ConfigurationImpl implements containerDesktopAPI.Configuration {
 
     // remove the value if undefined
     if (value === undefined) {
-      if (localView[localKey]) {
+      if (localView[localKey] !== undefined) {
         delete localView[localKey];
         delete this[localKey];
         this.apiSender.send('configuration-changed', configurationChangedEvent);

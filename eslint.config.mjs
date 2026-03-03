@@ -93,10 +93,10 @@ export default [
   ),
   {
     plugins: {
-      // compliant v9 plug-ins
+      // compliant v10 plug-ins
       unicorn,
-      'file-progress': fileProgress,
-      // non-compliant v9 plug-ins
+      // non-compliant v10 plug-ins
+      'file-progress': fixupPluginRules(fileProgress),
       etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
       'no-null': fixupPluginRules(noNull),
@@ -295,6 +295,22 @@ export default [
       ],
     },
   },
+  {
+    files: ['packages/main/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../**'],
+              message: 'Parent relative imports are not allowed. Use path aliases (e.g. /@/) instead.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 
   {
     files: ['packages/renderer/**'],
@@ -320,6 +336,18 @@ export default [
 
       // reactive statements are not expressions
       'sonarjs/no-unused-expressions': 'off',
+
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*'],
+              message: 'Parent relative imports are not allowed. Use path aliases (e.g. /@/) instead.',
+            },
+          ],
+        },
+      ],
     },
   },
 
@@ -358,6 +386,23 @@ export default [
       // The sonarjs/no-unused-collection rule has a bug when analyzing Svelte files with reactive statements ($webviews)
       // causing "Cannot read properties of null (reading 'type')" error during linting
       'sonarjs/no-unused-collection': 'off',
+    },
+  },
+
+  {
+    files: ['packages/api/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../**'],
+              message: 'Parent relative imports are not allowed. Use path aliases (e.g. /@/) instead.',
+            },
+          ],
+        },
+      ],
     },
   },
 ];

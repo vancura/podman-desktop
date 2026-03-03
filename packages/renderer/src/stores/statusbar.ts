@@ -16,16 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { STATUS_BAR_UPDATED_EVENT_NAME, type StatusBarEntryDescriptor } from '@podman-desktop/core-api';
 import { type Writable, writable } from 'svelte/store';
-
-import { STATUS_BAR_UPDATED_EVENT_NAME, type StatusBarEntryDescriptor } from '/@api/status-bar';
 
 import { EventStore } from './event-store';
 
 const windowEvents = [STATUS_BAR_UPDATED_EVENT_NAME];
 const windowListeners = ['system-ready'];
 
-export async function checkForUpdate(): Promise<boolean> {
+async function checkForUpdate(): Promise<boolean> {
   return true;
 }
 

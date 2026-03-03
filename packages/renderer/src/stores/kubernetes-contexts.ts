@@ -16,10 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { KubeContext } from '@podman-desktop/core-api';
 import { type Writable, writable } from 'svelte/store';
 
 import { addIconToContexts } from '/@/lib/kube/KubeContextUI';
-import type { KubeContext } from '/@api/kubernetes-context';
 
 import { EventStore } from './event-store';
 
@@ -28,7 +28,7 @@ const windowListeners = ['extensions-already-started'];
 
 // Do not update until all extensions are started (since we want to make sure kube-context has been loaded)
 let readyToUpdate = false;
-export async function checkForUpdate(eventName: string): Promise<boolean> {
+async function checkForUpdate(eventName: string): Promise<boolean> {
   if ('extensions-already-started' === eventName) {
     readyToUpdate = true;
   }

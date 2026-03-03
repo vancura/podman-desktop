@@ -16,10 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { RecommendedRegistry } from '@podman-desktop/core-api/recommendations';
+import { RecommendationsSettings } from '@podman-desktop/core-api/recommendations';
 import { type Writable, writable } from 'svelte/store';
-
-import type { RecommendedRegistry } from '/@api/recommendations/recommendations';
-import { RecommendationsSettings } from '/@api/recommendations/recommendations-settings';
 
 import { EventStore, fineGrainedEvents } from './event-store';
 
@@ -38,7 +37,7 @@ const windowEvents = [
 ];
 const windowListeners = ['extensions-already-started'];
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
+async function checkForUpdate(eventName: string): Promise<boolean> {
   if ('extensions-already-started' === eventName) {
     readyToUpdate = true;
   }

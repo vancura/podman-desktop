@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2022-2025 Red Hat, Inc.
+ * Copyright (C) 2022-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,26 +24,24 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import type { Registry } from '@podman-desktop/api';
+import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import * as fzstd from 'fzstd';
 import { http, HttpResponse } from 'msw';
 import { setupServer, type SetupServerApi } from 'msw/node';
 import * as nodeTar from 'tar';
 import { afterEach, beforeAll, beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest';
 
-import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
+import imageRegistryConfigJson from '/@tests/resources/data/plugin/image-registry-config.json' with { type: 'json' };
+import imageRegistryManifestJson from '/@tests/resources/data/plugin/image-registry-manifest-index.json' with {
+  type: 'json',
+};
+import imageRegistryManifestZstdJson from '/@tests/resources/data/plugin/image-registry-manifest-index.zstd.json' with {
+  type: 'json',
+};
+import imageRegistryManifestMultiArchJson from '/@tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json' with {
+  type: 'json',
+};
 
-import imageRegistryConfigJson from '../../tests/resources/data/plugin/image-registry-config.json' with {
-  type: 'json',
-};
-import imageRegistryManifestJson from '../../tests/resources/data/plugin/image-registry-manifest-index.json' with {
-  type: 'json',
-};
-import imageRegistryManifestZstdJson from '../../tests/resources/data/plugin/image-registry-manifest-index.zstd.json' with {
-  type: 'json',
-};
-import imageRegistryManifestMultiArchJson from '../../tests/resources/data/plugin/image-registry-manifest-multi-arch-index.json' with {
-  type: 'json',
-};
 import type { Certificates } from './certificates.js';
 import { ImageRegistry } from './image-registry.js';
 import type { Proxy } from './proxy.js';

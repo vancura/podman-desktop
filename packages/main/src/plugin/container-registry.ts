@@ -25,6 +25,51 @@ import { Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
+import type {
+  BuildImageOptions,
+  ContainerCreateOptions,
+  ContainerExportOptions,
+  ContainerImportOptions,
+  ContainerInfo,
+  ContainerInspectInfo,
+  ContainerPortInfo,
+  ContainerStatsInfo,
+  Event,
+  HistoryInfo,
+  ImageInfo,
+  ImageInspectInfo,
+  ImageLoadOptions,
+  ImagesSaveOptions,
+  LibPodPodInfo,
+  ListImagesOptions,
+  ManifestCreateOptions,
+  ManifestInspectInfo,
+  ManifestPushOptions,
+  NetworkCreateOptions,
+  NetworkCreateResult,
+  NetworkInspectInfo,
+  PodCreateOptions,
+  PodInfo,
+  PodInspectInfo,
+  PodmanListImagesOptions,
+  ProviderContainerConnectionInfo,
+  PullEvent,
+  SimpleContainerInfo,
+  VolumeCreateOptions,
+  VolumeCreateResponseInfo,
+  VolumeInfo,
+  VolumeInspectInfo,
+  VolumeListInfo,
+} from '@podman-desktop/core-api';
+import { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import type {
+  ContainerCreateMountOption,
+  ContainerCreateNetNSOption,
+  ContainerCreateOptions as PodmanContainerCreateOptions,
+  ContainerCreatePortMappingOption,
+  PodmanDevice,
+} from '@podman-desktop/core-api/libpod';
+import { PlayKubeInfo } from '@podman-desktop/core-api/libpod';
 import datejs from 'date.js';
 import type { ContainerAttachOptions, ImageBuildOptions } from 'dockerode';
 import Dockerode from 'dockerode';
@@ -36,43 +81,8 @@ import type { Headers, Pack, PackOptions } from 'tar-fs';
 
 import { KubePlayContext } from '/@/plugin/podman/kube.js';
 import type { ProviderRegistry } from '/@/plugin/provider-registry.js';
-import { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
-import type {
-  ContainerCreateOptions,
-  ContainerExportOptions,
-  ContainerImportOptions,
-  ContainerInfo,
-  ContainerPortInfo,
-  ImageLoadOptions,
-  ImagesSaveOptions,
-  NetworkCreateOptions,
-  NetworkCreateResult,
-  SimpleContainerInfo,
-  VolumeCreateOptions,
-  VolumeCreateResponseInfo,
-} from '/@api/container-info.js';
-import type { ContainerInspectInfo } from '/@api/container-inspect-info.js';
-import type { ContainerStatsInfo } from '/@api/container-stats-info.js';
-import type { Event } from '/@api/event.js';
-import type { HistoryInfo } from '/@api/history-info.js';
-import type { BuildImageOptions, ImageInfo, ListImagesOptions, PodmanListImagesOptions } from '/@api/image-info.js';
-import type { ImageInspectInfo } from '/@api/image-inspect-info.js';
-import type {
-  ContainerCreateMountOption,
-  ContainerCreateNetNSOption,
-  ContainerCreateOptions as PodmanContainerCreateOptions,
-  ContainerCreatePortMappingOption,
-  PodmanDevice,
-} from '/@api/libpod/libpod.js';
-import { PlayKubeInfo } from '/@api/libpod/libpod.js';
-import type { ManifestCreateOptions, ManifestInspectInfo, ManifestPushOptions } from '/@api/manifest-info.js';
-import type { NetworkInspectInfo } from '/@api/network-info.js';
-import type { LibPodPodInfo, PodCreateOptions, PodInfo, PodInspectInfo } from '/@api/pod-info.js';
-import type { ProviderContainerConnectionInfo } from '/@api/provider-info.js';
-import type { PullEvent } from '/@api/pull-event.js';
-import type { VolumeInfo, VolumeInspectInfo, VolumeListInfo } from '/@api/volume-info.js';
+import { isWindows } from '/@/util.js';
 
-import { isWindows } from '../util.js';
 import { ConfigurationRegistry } from './configuration-registry.js';
 import type { LibPod } from './dockerode/libpod-dockerode.js';
 import { LibpodDockerode } from './dockerode/libpod-dockerode.js';
@@ -93,11 +103,6 @@ export interface InternalContainerProvider {
   // api not there if status is stopped
   api?: Dockerode;
   libpodApi?: LibPod;
-}
-
-export interface InternalContainerProviderLifecycle {
-  internal: containerDesktopAPI.ProviderLifecycle;
-  status: string;
 }
 
 interface JSONEvent {
@@ -160,60 +165,64 @@ export class ContainerProviderRegistry {
       nbEvents++;
       // reconnected
       this.notify = true;
+
+      const status = jsonEvent.status;
+      const id = jsonEvent.id;
+
       // do not log healthcheck(health_status) events
       // as it's too verbose/repeating a lot
-      if (jsonEvent.status !== 'health_status') {
+      if (status !== 'health_status') {
         console.log('event is', jsonEvent);
       }
       this._onEvent.fire(jsonEvent);
-      if (jsonEvent.status === 'stop' && jsonEvent?.Type === 'container') {
+      if (status === 'stop' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been stopped
-        this.apiSender.send('container-stopped-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'init' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-stopped-event', id);
+      } else if (status === 'init' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been started
-        this.apiSender.send('container-init-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'create' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-init-event', id);
+      } else if (status === 'create' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been created
-        this.apiSender.send('container-created-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'start' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-created-event', id);
+      } else if (status === 'start' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been started
-        this.apiSender.send('container-started-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'destroy' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-started-event', id);
+      } else if (status === 'destroy' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been destroyed
-        this.apiSender.send('container-stopped-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'die' && jsonEvent?.Type === 'container') {
-        this.apiSender.send('container-die-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'kill' && jsonEvent?.Type === 'container') {
-        this.apiSender.send('container-kill-event', jsonEvent.id);
+        this.apiSender.send('container-stopped-event', id);
+      } else if (status === 'die' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-die-event', id);
+      } else if (status === 'kill' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-kill-event', id);
       } else if (jsonEvent?.Type === 'pod') {
         this.apiSender.send('pod-event');
       } else if (jsonEvent?.Type === 'volume') {
         this.apiSender.send('volume-event');
       } else if (jsonEvent?.Type === 'network') {
         this.apiSender.send('network-event');
-      } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'container') {
-        this.apiSender.send('container-removed-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'pull' && jsonEvent?.Type === 'image') {
+      } else if (status === 'remove' && jsonEvent?.Type === 'container') {
+        this.apiSender.send('container-removed-event', id);
+      } else if (status === 'pull' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
-        this.apiSender.send('image-pull-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'tag' && jsonEvent?.Type === 'image') {
+        this.apiSender.send('image-pull-event', id);
+      } else if (status === 'tag' && jsonEvent?.Type === 'image') {
         // need to notify that image are being tagged
-        this.apiSender.send('image-tag-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'untag' && jsonEvent?.Type === 'image') {
+        this.apiSender.send('image-tag-event', id);
+      } else if (status === 'untag' && jsonEvent?.Type === 'image') {
         // need to notify that image are being untagged
-        this.apiSender.send('image-untag-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'remove' && jsonEvent?.Type === 'image') {
+        this.apiSender.send('image-untag-event', id);
+      } else if (status === 'remove' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
-        this.apiSender.send('image-remove-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'delete' && jsonEvent?.Type === 'image') {
+        this.apiSender.send('image-remove-event', id);
+      } else if (status === 'delete' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
-        this.apiSender.send('image-remove-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'build' && jsonEvent?.Type === 'image') {
+        this.apiSender.send('image-remove-event', id);
+      } else if (status === 'build' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
-        this.apiSender.send('image-build-event', jsonEvent.id);
-      } else if (jsonEvent.status === 'loadfromarchive' && jsonEvent?.Type === 'image') {
+        this.apiSender.send('image-build-event', id);
+      } else if (status === 'loadfromarchive' && jsonEvent?.Type === 'image') {
         // need to notify that image are being pulled
-        this.apiSender.send('image-loadfromarchive-event', jsonEvent.id);
+        this.apiSender.send('image-loadfromarchive-event', id);
       }
     });
 

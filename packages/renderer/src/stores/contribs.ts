@@ -16,16 +16,15 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ContributionInfo } from '@podman-desktop/core-api';
 import { type Writable, writable } from 'svelte/store';
-
-import type { ContributionInfo } from '/@api/contribution-info';
 
 import { EventStore } from './event-store';
 
 const windowEvents = ['contribution-register', 'contribution-unregister'];
 const windowListeners = ['system-ready'];
 
-export async function checkForUpdate(): Promise<boolean> {
+async function checkForUpdate(): Promise<boolean> {
   return true;
 }
 

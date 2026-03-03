@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { type IConfigurationNode, IConfigurationRegistry } from '@podman-desktop/core-api/configuration';
+import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+import type {
+  ExtensionBanner,
+  RecommendedRegistry,
+  RecommendedRegistryExtensionDetails,
+} from '@podman-desktop/core-api/recommendations';
+import { RecommendationsSettings } from '@podman-desktop/core-api/recommendations';
 import { inject, injectable } from 'inversify';
 
 import { ExtensionsCatalog } from '/@/plugin/extension/catalog/extensions-catalog.js';
 import { ExtensionLoader } from '/@/plugin/extension/extension-loader.js';
 import { Featured } from '/@/plugin/featured/featured.js';
-import { type IConfigurationNode, IConfigurationRegistry } from '/@api/configuration/models.js';
-import type { FeaturedExtension } from '/@api/featured/featured-api.js';
-import type {
-  ExtensionBanner,
-  RecommendedRegistry,
-  RecommendedRegistryExtensionDetails,
-} from '/@api/recommendations/recommendations.js';
-import { RecommendationsSettings } from '/@api/recommendations/recommendations-settings.js';
 
+// eslint-disable-next-line no-restricted-imports
 import recommendations from '../../../../../recommendations.json' with { type: 'json' };
 
 @injectable()

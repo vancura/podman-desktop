@@ -16,10 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { WebviewInfo } from '@podman-desktop/core-api';
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-
-import type { WebviewInfo } from '/@api/webview-info';
 
 import { EventStore } from './event-store';
 
@@ -35,7 +34,7 @@ const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
+async function checkForUpdate(eventName: string): Promise<boolean> {
   if ('extensions-already-started' === eventName) {
     readyToUpdate = true;
   }

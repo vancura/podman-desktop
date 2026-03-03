@@ -16,20 +16,20 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ColorDefinition, RawThemeContribution } from '@podman-desktop/core-api';
+import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
+import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
+import type { IConfigurationChangeEvent } from '@podman-desktop/core-api/configuration';
 import type { MockInstance } from 'vitest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { AppearanceSettings } from '/@/plugin/appearance-settings.js';
 import { Emitter } from '/@/plugin/events/emitter.js';
 import type { AnalyzedExtension } from '/@/plugin/extension/extension-analyzer.js';
 import { Disposable } from '/@/plugin/types/disposable.js';
-import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
-import type { ColorDefinition } from '/@api/color-info.js';
-import type { IConfigurationChangeEvent } from '/@api/configuration/models.js';
-import type { RawThemeContribution } from '/@api/theme-info.js';
+import * as util from '/@/util.js';
 
+// eslint-disable-next-line no-restricted-imports
 import tailwindColorPalette from '../../../../tailwind-color-palette.json' with { type: 'json' };
-import * as util from '../util.js';
 import { ColorBuilder } from './color-builder.js';
 import { colorPaletteHelper } from './color-palette-helper.js';
 import { type ColorDefinitionWithId, ColorRegistry } from './color-registry.js';
@@ -286,7 +286,7 @@ test('initContent', async () => {
   // check the first call
   expect(spyOnRegisterColor.mock.calls[0]?.[0]).toStrictEqual('content-breadcrumb');
   expect(spyOnRegisterColor.mock.calls[0]?.[1].light).toBe(tailwindColorPalette.purple[900]);
-  expect(spyOnRegisterColor.mock.calls[0]?.[1].dark).toBe(tailwindColorPalette.gray[600]);
+  expect(spyOnRegisterColor.mock.calls[0]?.[1].dark).toBe(tailwindColorPalette.gray[400]);
 });
 
 describe('registerColor', () => {

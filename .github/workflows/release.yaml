@@ -64,8 +64,9 @@ jobs:
 
           # Add the new version in package.json file
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" package.json
+          find packages/* -maxdepth 1 -name "package.json" | xargs -I {} sed -i "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" {}
           find extensions/* -maxdepth 5 -name "package.json" | xargs -I {} sed -i "s#version\":\ \"\(.*\)\",#version\":\ \"${{ steps.TAG_UTIL.outputs.desktopVersion }}\",#g" {}
-          git add package.json extensions/*/package.json extensions/*/packages/extension/package.json
+          git add package.json extensions/*/package.json extensions/*/packages/extension/package.json packages/*/package.json
 
           # Update the issue template with the new version and move old version below
           nextVersionLineNumber=$(grep -n "next (development version)" .github/ISSUE_TEMPLATE/bug_report.yml | cut -d ":" -f 1 | head -n 1)
@@ -113,7 +114,9 @@ jobs:
           git checkout -b "${bumpedBranchName}"
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" package.json
           find extensions/* -maxdepth 5 -name "package.json" | xargs -I {} sed -i "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" {}
-          git add package.json extensions/*/package.json extensions/*/packages/extension/package.json
+          find packages/* -maxdepth 1 -name "package.json" | xargs -I {} sed -i "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" {}
+          git add package.json extensions/*/package.json extensions/*/packages/extension/package.json packages/*/package.json
+
           git commit -s --amend -m "chore: bump version to ${bumpedVersion}"
           git push origin "${bumpedBranchName}"
           echo -e "📢 Bump version to ${bumpedVersion}\n\n${{ steps.TAG_UTIL.outputs.desktopVersion }} has been released.\n\n Time to switch to the new ${bumpedVersion} version 🥳" > /tmp/pr-title
@@ -249,7 +252,7 @@ jobs:
           tar -czf store-cache-pnpm-${{ matrix.arch }}.tgz pnpm-store
 
       - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 # v2
+        uses: svenstaro/upload-release-action@b98a3b12e86552593f3e4e577ca8a62aa2f3f22b # v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: store-cache-pnpm-${{ matrix.arch }}.tgz

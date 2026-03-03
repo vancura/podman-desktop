@@ -23,13 +23,13 @@ import { cp, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 
+import type { ApiSenderType } from '@podman-desktop/core-api/api-sender';
 import minimist from 'minimist';
 
 import type { Certificates } from '/@/plugin/certificates.js';
 import { ImageRegistry } from '/@/plugin/image-registry.js';
 import type { Proxy } from '/@/plugin/proxy.js';
 import type { Telemetry } from '/@/plugin/telemetry/telemetry.js';
-import type { ApiSenderType } from '/@api/api-sender/api-sender-type.js';
 import product from '/@product.json' with { type: 'json' };
 
 /**
@@ -174,7 +174,7 @@ export async function downloadExtension(options: DownloadOptions): Promise<void>
  * On a platform where the tmpdir is not on the same device as the destination
  * the rename will fail
  */
-export async function moveSafely(src: string, dest: string): Promise<void> {
+async function moveSafely(src: string, dest: string): Promise<void> {
   try {
     await rename(src, dest);
   } catch (error: unknown) {

@@ -16,10 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { PodInfo } from '@podman-desktop/core-api';
 import humanizeDuration from 'humanize-duration';
 import moment from 'moment';
-
-import type { PodInfo } from '/@api/pod-info';
 
 import type { PodInfoUI } from './PodInfoUI';
 
@@ -132,6 +131,6 @@ export function ensureRestrictedSecurityContext(body: any): void {
 // To avoid https://momentjs.com/guides/#/warnings/js-date/ warning
 // and provide better compatibility with the library, we will convert to ISO format before
 // passing to moment
-export function toISOStringSafe(date: string): string {
+function toISOStringSafe(date: string): string {
   return new Date(date).toISOString();
 }

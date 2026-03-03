@@ -16,10 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ExploreFeature } from '@podman-desktop/core-api';
 import type { Writable } from 'svelte/store';
 import { writable } from 'svelte/store';
-
-import type { ExploreFeature } from '/@api/explore-feature';
 
 import { EventStore } from './event-store';
 
@@ -28,7 +27,7 @@ const windowListeners = ['update-explore-features'];
 
 let readyToUpdate = false;
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
+async function checkForUpdate(eventName: string): Promise<boolean> {
   if ('explore-features-loaded' === eventName) {
     readyToUpdate = true;
   }

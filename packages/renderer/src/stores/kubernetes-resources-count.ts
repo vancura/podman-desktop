@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { ResourceCount } from '@podman-desktop/core-api';
 import { type Writable, writable } from 'svelte/store';
-
-import type { ResourceCount } from '/@api/kubernetes-resource-count';
 
 import { EventStore } from './event-store';
 
@@ -27,7 +26,7 @@ const windowListeners = ['extensions-already-started'];
 
 let readyToUpdate = false;
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
+async function checkForUpdate(eventName: string): Promise<boolean> {
   // check for update only in experimental states mode
   const enabled = await window.isExperimentalConfigurationEnabled('kubernetes.statesExperimental');
   if (!enabled) {

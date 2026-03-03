@@ -19,6 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import type { ImageInfo } from '@podman-desktop/api';
+import type { ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 /* eslint-disable import/no-duplicates */
@@ -32,7 +33,6 @@ import { IMAGE_LIST_VIEW_BADGES, IMAGE_LIST_VIEW_ICONS, IMAGE_VIEW_BADGES, IMAGE
 import { imagesInfos } from '/@/stores/images';
 import { providerInfos } from '/@/stores/providers';
 import { viewsContributions } from '/@/stores/views';
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info';
 
 import ImagesList from './ImagesList.svelte';
 
@@ -756,4 +756,159 @@ test('Expect environment column sorted by engineId', async () => {
   const cells = screen.getAllByRole('cell', { name: /alpine|fedora/ });
   expect(cells[0]).toHaveTextContent('alpine');
   expect(cells[1]).toHaveTextContent('fedora');
+});
+
+test('Expect environment dropdown to appear with multiple running connections', async () => {
+  vi.mocked(window.getProviderInfos).mockResolvedValue([
+    {
+      id: 'podman',
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          displayName: 'Podman Machine',
+          status: 'started',
+          type: 'podman',
+        } as unknown as ProviderContainerConnectionInfo,
+      ],
+    } as unknown as ProviderInfo,
+    {
+      id: 'docker',
+      name: 'docker',
+      status: 'started',
+      internalId: 'docker-internal-id',
+      containerConnections: [
+        {
+          name: 'docker-context',
+          displayName: 'Docker Desktop',
+          status: 'started',
+          type: 'docker',
+        } as unknown as ProviderContainerConnectionInfo,
+      ],
+    } as unknown as ProviderInfo,
+  ]);
+
+  vi.mocked(window.listImages).mockResolvedValue([
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['podman-image:latest'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman.podman-machine-default',
+      engineName: 'Podman Machine',
+    },
+    {
+      Id: 'sha256:2345678901234',
+      RepoTags: ['docker-image:latest'],
+      Created: 1644009612,
+      Size: 456,
+      Status: 'Running',
+      engineId: 'docker.docker-context',
+      engineName: 'Docker Desktop',
+    },
+  ] as unknown as ImageInfo[]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('image-build'));
+
+  await waitFor(() => {
+    expect(get(imagesInfos)).not.toHaveLength(0);
+    expect(get(providerInfos)).not.toHaveLength(0);
+  });
+
+  await waitRender({});
+
+  // Environment dropdown should be visible
+  const environmentDropdown = screen.getByLabelText('Environment');
+  expect(environmentDropdown).toBeInTheDocument();
+});
+
+test('Expect environment dropdown to filter images by selected environment', async () => {
+  vi.mocked(window.getProviderInfos).mockResolvedValue([
+    {
+      id: 'podman',
+      name: 'podman',
+      status: 'started',
+      internalId: 'podman-internal-id',
+      containerConnections: [
+        {
+          name: 'podman-machine-default',
+          displayName: 'Podman Machine',
+          status: 'started',
+          type: 'podman',
+        } as unknown as ProviderContainerConnectionInfo,
+      ],
+    } as unknown as ProviderInfo,
+    {
+      id: 'docker',
+      name: 'docker',
+      status: 'started',
+      internalId: 'docker-internal-id',
+      containerConnections: [
+        {
+          name: 'docker-context',
+          displayName: 'Docker Desktop',
+          status: 'started',
+          type: 'docker',
+        } as unknown as ProviderContainerConnectionInfo,
+      ],
+    } as unknown as ProviderInfo,
+  ]);
+
+  vi.mocked(window.listImages).mockResolvedValue([
+    {
+      Id: 'sha256:1234567890123',
+      RepoTags: ['podman-image:latest'],
+      Created: 1644009612,
+      Size: 123,
+      Status: 'Running',
+      engineId: 'podman.podman-machine-default',
+      engineName: 'Podman Machine',
+    },
+    {
+      Id: 'sha256:2345678901234',
+      RepoTags: ['docker-image:latest'],
+      Created: 1644009612,
+      Size: 456,
+      Status: 'Running',
+      engineId: 'docker.docker-context',
+      engineName: 'Docker Desktop',
+    },
+  ] as unknown as ImageInfo[]);
+
+  window.dispatchEvent(new CustomEvent('extensions-already-started'));
+  window.dispatchEvent(new CustomEvent('provider-lifecycle-change'));
+  window.dispatchEvent(new CustomEvent('image-build'));
+
+  await waitFor(() => {
+    expect(get(imagesInfos)).not.toHaveLength(0);
+    expect(get(providerInfos)).not.toHaveLength(0);
+  });
+
+  await waitRender({});
+
+  // Both images should be visible initially
+  expect(screen.getByText('podman-image')).toBeInTheDocument();
+  expect(screen.getByText('docker-image')).toBeInTheDocument();
+
+  // Select Podman environment from dropdown
+  const dropdownContainer = screen.getByLabelText('Environment');
+  const dropdownButton = within(dropdownContainer).getByRole('button');
+  await fireEvent.click(dropdownButton);
+
+  const podmanOption = await waitFor(async () => {
+    await tick();
+    return screen.getByRole('button', { name: 'Podman' });
+  });
+  await fireEvent.click(podmanOption);
+
+  // Only podman image should be visible
+  await waitFor(() => {
+    expect(screen.getByText('podman-image')).toBeInTheDocument();
+    expect(screen.queryByText('docker-image')).not.toBeInTheDocument();
+  });
 });

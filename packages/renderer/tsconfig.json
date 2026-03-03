@@ -10,8 +10,7 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "/@/*": ["./src/*"],
-      "/@api/*": ["../api/src/*"]
+      "/@/*": ["./src/*"]
     },
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
@@ -30,7 +29,6 @@
     "src/**/*.svelte",
     "types/**/*.d.ts",
     "../../types/**/*.d.ts",
-    "../preload/exposedInMainWorld.d.ts",
-    "../api/src/**/*.ts"
+    "../preload/exposedInMainWorld.d.ts"
   ]
 }

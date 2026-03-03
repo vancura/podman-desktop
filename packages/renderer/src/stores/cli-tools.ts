@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { CliToolInfo } from '@podman-desktop/core-api';
 import { type Writable, writable } from 'svelte/store';
-
-import type { CliToolInfo } from '/@api/cli-tool-info';
 
 import { EventStore } from './event-store';
 
@@ -27,7 +26,7 @@ const windowListeners = ['system-ready', 'extensions-already-started'];
 
 let extensionsStarted = false;
 
-export async function checkForUpdate(eventName: string): Promise<boolean> {
+async function checkForUpdate(eventName: string): Promise<boolean> {
   // trigger update after all extensions started
   if (eventName === 'extensions-already-started') {
     extensionsStarted = true;

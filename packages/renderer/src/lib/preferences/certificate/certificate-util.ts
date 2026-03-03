@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { CertificateInfo } from '/@api/certificate-info';
+import type { CertificateInfo } from '@podman-desktop/core-api';
 
 /**
  * Get display name for certificate subject (CN → Full DN → 'Unknown')
@@ -28,14 +28,14 @@ export function getSubjectDisplayName(cert: CertificateInfo): string {
 /**
  * Get display name for certificate issuer (CN → Full DN → 'Unknown')
  */
-export function getIssuerDisplayName(cert: CertificateInfo): string {
+function getIssuerDisplayName(cert: CertificateInfo): string {
   return cert.issuerCommonName || cert.issuer || 'Unknown';
 }
 
 /**
  * Check if certificate is self-signed (subject === issuer)
  */
-export function isSelfSigned(cert: CertificateInfo): boolean {
+function isSelfSigned(cert: CertificateInfo): boolean {
   return cert.subject === cert.issuer;
 }
 

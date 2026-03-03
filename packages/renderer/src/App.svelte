@@ -2,6 +2,7 @@
 import './app.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+import type { KubernetesNavigationRequest, NavigationRequest } from '@podman-desktop/core-api';
 import { tablePersistence } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
@@ -10,8 +11,6 @@ import KubernetesRoot from '/@/lib/kube/KubernetesRoot.svelte';
 import PinActions from '/@/lib/statusbar/PinActions.svelte';
 import { handleNavigation } from '/@/navigation';
 import { kubernetesNoCurrentContext } from '/@/stores/kubernetes-no-current-context';
-import type { KubernetesNavigationRequest } from '/@api/kubernetes-navigation';
-import type { NavigationRequest } from '/@api/navigation-request';
 
 import AppNavigation from './AppNavigation.svelte';
 import { navigateTo } from './kubernetesNavigation';
@@ -217,10 +216,6 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
               base64RepoTag={meta.params.base64RepoTag} />
           </Route>
         </Route>
-
-        <Route path="/networks/create/*" breadcrumb="Create Network">
-          <CreateNetwork />
-        </Route>
         <Route
           path="/manifests/:id/:engineId/:base64RepoTag/*"
           breadcrumb="Manifest Details"
@@ -231,6 +226,19 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
             engineId={decodeURI(meta.params.engineId)}
             base64RepoTag={meta.params.base64RepoTag} />
         </Route>
+
+        <Route path="/networks/*" breadcrumb="Networks" navigationHint="root" firstmatch>
+          <Route path="/" breadcrumb="Networks" navigationHint="root">
+            <NetworksList />
+          </Route>
+          <Route path="/create/*" breadcrumb="Create Network">
+            <CreateNetwork />
+          </Route>
+          <Route path="/:name/:engineId/*" breadcrumb="Network Details" let:meta navigationHint="details">
+            <NetworkDetails networkName={decodeURIComponent(meta.params.name)} engineId={decodeURIComponent(meta.params.engineId)} />
+          </Route>
+        </Route>
+
         <Route path="/pods" breadcrumb="Pods" navigationHint="root">
           <PodsList />
         </Route>
@@ -269,13 +277,6 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
           <Route path="/:name/:engineId/*" breadcrumb="Volume Details" let:meta navigationHint="details">
             <VolumeDetails volumeName={decodeURI(meta.params.name)} engineId={decodeURI(meta.params.engineId)} />
           </Route>
-        </Route>
-
-        <Route path="/networks" breadcrumb="Networks" navigationHint="root">
-          <NetworksList />
-        </Route>
-        <Route path="/networks/:name/:engineId/*" breadcrumb="Network Details" let:meta navigationHint="details">
-          <NetworkDetails networkName={decodeURIComponent(meta.params.name)} engineId={decodeURIComponent(meta.params.engineId)} />
         </Route>
         {#if $kubernetesNoCurrentContext}
           <Route path="/kubernetes/*" breadcrumb="Kubernetes" navigationHint="root">
@@ -402,15 +403,18 @@ tablePersistence.storage = new PodmanDesktopStoragePersist();
         <Route path="/troubleshooting/*" breadcrumb="Troubleshooting">
           <TroubleshootingPage />
         </Route>
-        <Route path="/extensions" breadcrumb="Extensions" navigationHint="root" let:meta>
-          {@const request = parseExtensionListRequest(meta)}
-          <ExtensionList
-            searchTerm={request.searchTerm}
-            screen={request.screen}
-          />
-        </Route>
-        <Route path="/extensions/details/:id/*" breadcrumb="Extension Details" let:meta navigationHint="details">
-          <ExtensionDetails extensionId={meta.params.id} />
+
+        <Route path="/extensions/*" breadcrumb="Extensions" navigationHint="root" firstmatch>
+          <Route path="/" breadcrumb="Extensions" navigationHint="root" let:meta>
+            {@const request = parseExtensionListRequest(meta)}
+            <ExtensionList
+              searchTerm={request.searchTerm}
+              screen={request.screen}
+            />
+          </Route>
+          <Route path="/details/:id/*" breadcrumb="Extension Details" let:meta navigationHint="details">
+            <ExtensionDetails extensionId={meta.params.id} />
+          </Route>
         </Route>
       </div>
     </div>

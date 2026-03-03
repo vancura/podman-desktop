@@ -17,7 +17,8 @@
  ***********************************************************************/
 import { expect, test, vi } from 'vitest';
 
-import type { ConfigurationRegistry } from '../configuration-registry.js';
+import type { ConfigurationRegistry } from '/@/plugin/configuration-registry.js';
+
 import { StatusbarProvidersInit } from './statusbar-providers-init.js';
 
 const registerConfigurationsMock = vi.fn();
@@ -26,7 +27,6 @@ const configurationRegistryMock = {
 } as unknown as ConfigurationRegistry;
 
 test('should register a configuration', async () => {
-  vi.stubEnv('DEV', true);
   const statusbarProvidersInit = new StatusbarProvidersInit(configurationRegistryMock);
   statusbarProvidersInit.init();
 
@@ -46,14 +46,13 @@ test('should register a configuration', async () => {
   );
 });
 
-test('Undefined should be default if not in dev env', () => {
+test('True should be default', () => {
   vi.resetAllMocks();
-  vi.stubEnv('DEV', false);
   const statusbarProvidersInit = new StatusbarProvidersInit(configurationRegistryMock);
   statusbarProvidersInit.init();
 
   expect(configurationRegistryMock.registerConfigurations).toBeCalled();
   const configurationNode = vi.mocked(configurationRegistryMock.registerConfigurations).mock.calls[0]?.[0][0];
 
-  expect(configurationNode?.properties?.['statusbarProviders.showProviders']?.default).toBe(undefined);
+  expect(configurationNode?.properties?.['statusbarProviders.showProviders']?.default).toEqual({});
 });

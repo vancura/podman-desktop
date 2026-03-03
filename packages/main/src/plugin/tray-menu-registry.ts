@@ -16,28 +16,16 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { ProviderConnectionStatus, ProviderStatus } from '@podman-desktop/api';
+import type { MenuItem, ProviderContainerConnectionInfo, ProviderInfo } from '@podman-desktop/core-api';
 import { dialog, ipcMain } from 'electron';
 import { inject, injectable } from 'inversify';
 
-import type { ProviderContainerConnectionInfo, ProviderInfo } from '/@api/provider-info.js';
-import type { MenuItem } from '/@api/tray-menu-info.js';
+import { TrayMenu } from '/@/tray-menu.js';
 
-import { TrayMenu } from '../tray-menu.js';
 import { CommandRegistry } from './command-registry.js';
 import { ProviderRegistry } from './provider-registry.js';
 import { Telemetry } from './telemetry/telemetry.js';
 import { Disposable } from './types/disposable.js';
-
-export interface TrayProviderConnectionInfo {
-  name: string;
-  status: ProviderConnectionStatus;
-}
-
-export interface TrayProviderInfo {
-  name: string;
-  status: ProviderStatus;
-}
 
 @injectable()
 export class TrayMenuRegistry {

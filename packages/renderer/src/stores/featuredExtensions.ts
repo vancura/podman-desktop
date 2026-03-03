@@ -16,9 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
 import { type Writable, writable } from 'svelte/store';
-
-import type { FeaturedExtension } from '/@api/featured/featured-api';
 
 import { EventStore } from './event-store';
 
@@ -32,7 +31,7 @@ const windowEvents = [
 ];
 const windowListeners = ['system-ready'];
 
-export async function checkForUpdate(): Promise<boolean> {
+async function checkForUpdate(): Promise<boolean> {
   return true;
 }
 

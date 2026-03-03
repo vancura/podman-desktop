@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,4 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import rootPackage from '../../../package.json' with { type: 'json' };
-import { RepositoryInfoParser } from './repository-info-parser.js';
-
-export const REPOSITORY_URL = rootPackage.repository;
-export const REPOSITORY_HOMEPAGE = rootPackage.homepage;
-
-const parser = new RepositoryInfoParser(REPOSITORY_URL);
-
-export const GITHUB_OWNER = parser.owner;
-export const GITHUB_REPOSITORY = parser.repository;
+export const ENHANCED_DASHBOARD_CONFIGURATION_KEY = 'dashboard.enhancedDashboard';
