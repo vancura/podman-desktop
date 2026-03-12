@@ -24,7 +24,7 @@ import { expect as playExpect, test } from '/@/utility/fixtures';
 import { deleteImage, deleteRegistry } from '/@/utility/operations';
 import { waitForPodmanMachineStartup } from '/@/utility/wait';
 
-const helloContainer = 'quay.io/podman/hello';
+const helloContainer = 'ghcr.io/podmandesktop-ci/hello';
 let registryUrl: string;
 let registryUsername: string;
 let registryPswdSecret: string;

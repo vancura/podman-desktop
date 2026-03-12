@@ -26,7 +26,7 @@ import { expect as playExpect, test } from '/@/utility/fixtures';
 import { untagImagesFromPodman } from '/@/utility/operations';
 import { waitForPodmanMachineStartup } from '/@/utility/wait';
 
-const helloContainer = 'quay.io/podman/hello';
+const helloContainer = 'ghcr.io/podmandesktop-ci/hello';
 const imageList = ['quay.io/podman/image1', 'quay.io/podman/image2'];
 const imageToSearch = 'ghcr.io/linuxcontainers/alpine';
 const imageTagToSearch = 'latest';
