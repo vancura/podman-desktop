@@ -1572,6 +1572,7 @@ export class PluginSystem {
         buildargs?: { [key: string]: string },
         taskId?: number,
         target?: string,
+        validateRegistries?: boolean,
       ): Promise<unknown> => {
         const titleArgs = ['Building image'];
         if (imageName) {
@@ -1621,6 +1622,7 @@ export class PluginSystem {
               abortController,
               buildargs,
               target,
+              validateRegistries,
             },
           )
           .then(result => {
