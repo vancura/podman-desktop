@@ -16,16 +16,53 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+/**
+ * @file Vite configuration for the accent-themes extension.
+ *
+ * Builds the extension TypeScript source into a CJS bundle and includes
+ * a custom plugin that watches {@link theme-palette.json} for changes
+ * during development, triggering theme regeneration on each save.
+ */
+
 import { join } from 'path';
 import { builtinModules } from 'module';
+import { execFileSync } from 'child_process';
 
 const PACKAGE_ROOT = __dirname;
+
+/**
+ * Vite plugin that watches `theme-palette.json` and re-runs the theme
+ * generation script whenever the palette file changes.
+ *
+ * During `vite build --watch`, vite monitors files registered via
+ * `addWatchFile`. When `theme-palette.json` is modified, the
+ * `watchChange` hook fires, regenerates `package.json` themes, and
+ * vite continues the rebuild -- causing the extension to reload with
+ * the updated colors.
+ *
+ * @returns {import('vite').Plugin} Vite plugin instance.
+ */
+function themePalettePlugin() {
+  const palettePath = join(PACKAGE_ROOT, 'theme-palette.json');
+  return {
+    name: 'watch-theme-palette',
+    buildStart() {
+      this.addWatchFile(palettePath);
+    },
+    watchChange(id) {
+      if (id === palettePath) {
+        execFileSync(process.execPath, [join(PACKAGE_ROOT, 'scripts/generate-themes.js')]);
+      }
+    },
+  };
+}
 
 /**
  * @type {import('vite').UserConfig}
  * @see https://vitejs.dev/config/
  */
 const config = {
+  plugins: [themePalettePlugin()],
   mode: process.env.MODE,
   root: PACKAGE_ROOT,
   envDir: process.cwd(),

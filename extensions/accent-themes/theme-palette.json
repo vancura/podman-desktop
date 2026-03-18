@@ -1,0 +1,202 @@
+{
+  "palettes": {
+    "rhbpd": {
+      "dark": {
+        "accent-1": "#92c5f9",
+        "accent-2": "#a60000",
+        "shadow": "#e7e5e4",
+        "midtone": "#27272a",
+        "highlight": "#e5e7eb",
+
+        "muted": "#b4b4b4",
+        "subtle": "#aaabac",
+        "dimmed": "#9a9a9a",
+        "disabled": "#818181"
+      },
+      "light": {
+        "accent-1": "#06c",
+        "accent-2": "#a60000",
+        "shadow": "#101828",
+        "midtone": "#4a5565",
+        "highlight": "#f3f4f6"
+      }
+    }
+  },
+
+  "themes": [
+    {
+      "id": "rhbpd-dark",
+      "name": "Red Hat Build of PD (Dark)",
+      "parent": "dark",
+      "palette": "rhbpd.dark",
+      "colors": {
+        "notificationDot": "$accent-1",
+
+        "globalNavIcon": "$muted",
+        "globalNavIconHover": "$muted",
+        "globalNavIconHoverBg": "#27272a",
+        "globalNavIconSelectedHighlight": "transparent",
+
+        "secondaryNavTextHover": "$highlight",
+        "secondaryNavTextHoverBg": "transparent",
+        "secondaryNavSelectedHighlight": "transparent",
+
+        "invertContentButtonActive": "$accent-1",
+        "invertContentInfoIcon": "$accent-1",
+
+        "contentBreadcrumb": "$accent-1",
+        "contentBreadcrumb-2": "$accent-1",
+        "contentText": "$subtle",
+        "contentSubHeader": "$accent-1",
+        "contentHeaderIcon": "$muted",
+        "contentCardHeaderText": "#171717",
+        "contentCardLightTitle": "$dimmed",
+        "contentCardInsetBg": "#000",
+        "contentCardHoverInsetBg": "#000",
+        "contentCardIcon": "$accent-1",
+        "contentCardCarouselNav": "$dimmed",
+        "contentCardCarouselHoverNav": "$muted",
+        "contentCardBorderSelected": "$accent-1",
+
+        "inputFieldHoverText": "$subtle",
+        "inputFieldPlaceholderText": "$subtle",
+        "inputFieldHoverStroke": "#fff",
+        "inputFieldIcon": "$subtle",
+        "inputFieldHoverIcon": "$subtle",
+        "inputCheckboxDisabled": "$subtle",
+        "inputCheckboxIndeterminate": "$accent-1",
+        "inputCheckboxFocusedIndeterminate": "$accent-1",
+        "inputCheckboxChecked": "$accent-1",
+        "inputCheckboxFocusedChecked": "$accent-1",
+        "inputCheckboxUnchecked": "$highlight",
+        "inputCheckboxFocusedUnchecked": "$highlight",
+        "inputToggleOnBg": "$accent-1",
+        "inputToggleOnFocusedBg": "$accent-1",
+
+        "tableHeaderText": "$muted",
+        "tableBodyText": "$subtle",
+        "tableBodyTextSubSecondary": "$accent-1",
+
+        "detailsEmptyIcon": "$muted",
+        "detailsEmptySubHeader": "$muted",
+        "detailsCardHeader": "$subtle",
+
+        "tabText": "$muted",
+        "tabHighlight": "$highlight",
+        "tabHover": "#707073",
+
+        "modalHeaderText": "#f6f6f6",
+
+        "link": "$accent-1",
+
+        "buttonPrimaryBg": "$accent-1",
+        "buttonPrimaryHoverBg": "$accent-1",
+        "buttonSecondary": "$accent-1",
+        "buttonSecondaryHover": "$accent-1",
+        "buttonText": "#000",
+        "buttonTabBorderSelected": "$highlight",
+        "buttonTabText": "$muted",
+        "buttonLinkText": "$accent-1",
+
+        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonPrimaryHoverText": "$accent-1",
+        "actionButtonDisabledText": "$disabled",
+        "actionButtonDetailsDisabledText": "$disabled",
+
+        "dropdownHoverRing": "#37255d",
+        "dropdownItemHoverText": "#d1d1d1",
+        "dropdownDisabledItemText": "$disabled",
+
+        "inputSelectHoverText": "$disabled",
+
+        "labelText": "#c8c8c8",
+
+        "statusNotRunning": "$subtle",
+
+        "onboardingActiveDotBg": "$accent-1",
+        "onboardingActiveDotBorder": "$accent-1",
+        "onboardingInactiveDotBorder": "$subtle",
+
+        "stateInfo": "$accent-1",
+
+        "statusbarBg": "#000",
+        "statusbarHoverBg": "#06c"
+      }
+    },
+    {
+      "id": "rhbpd-light",
+      "name": "Red Hat Build of PD (Light)",
+      "parent": "light",
+      "palette": "rhbpd.light",
+      "colors": {
+        "notificationDot": "$accent-1",
+
+        "globalNavIconHover": "#5c5c5c",
+        "globalNavIconHoverBg": "#f6f6f6",
+        "globalNavIconSelected": "$accent-1",
+        "globalNavIconSelectedHighlight": "transparent",
+
+        "titlebarText": "$accent-1",
+        "titlebarIcon": "$accent-1",
+
+        "secondaryNavTextHover": "#222222",
+        "secondaryNavTextHoverBg": "transparent",
+        "secondaryNavSelectedHighlight": "transparent",
+
+        "invertContentButtonActive": "$accent-1",
+        "invertContentInfoIcon": "$accent-1",
+
+        "contentBreadcrumb": "$accent-1",
+        "contentBreadcrumb-2": "$accent-1",
+        "contentSubHeader": "$accent-1",
+        "contentCardHeaderText": "#171717",
+        "contentCardText": "#404040",
+        "contentCardInsetBg": "#fff",
+        "contentCardHoverInsetBg": "#fff",
+        "contentCardIcon": "$accent-1",
+        "contentCardBorderSelected": "$accent-1",
+
+        "inputFieldHoverStroke": "#000",
+        "inputCheckboxIndeterminate": "$accent-1",
+        "inputCheckboxFocusedIndeterminate": "$accent-1",
+        "inputCheckboxChecked": "$accent-1",
+        "inputCheckboxFocusedChecked": "$accent-1",
+        "inputCheckboxUnchecked": "$highlight",
+        "inputCheckboxFocusedUnchecked": "$highlight",
+        "inputToggleOnBg": "$accent-1",
+        "inputToggleOnFocusedBg": "$accent-1",
+
+        "tableBodyTextSubSecondary": "$accent-1",
+        "tabHighlight": "$highlight",
+        "tabHover": "#b4b4b4",
+
+        "modalHeaderText": "#404040",
+
+        "link": "$accent-1",
+
+        "buttonPrimaryBg": "$accent-1",
+        "buttonPrimaryHoverBg": "$accent-1",
+        "buttonSecondary": "$accent-1",
+        "buttonSecondaryHover": "$accent-1",
+        "buttonTabBorderSelected": "$highlight",
+        "buttonLinkText": "$accent-1",
+
+        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonPrimaryHoverText": "$accent-1",
+
+        "dropdownHoverRing": "#c8c8c8",
+        "dropdownItemHoverText": "$highlight",
+
+        "labelBg": "#e5e5e5",
+
+        "onboardingActiveDotBg": "$accent-1",
+        "onboardingActiveDotBorder": "$accent-1",
+
+        "stateInfo": "$accent-1",
+
+        "statusbarBg": "#000",
+        "statusbarHoverBg": "#06c"
+      }
+    }
+  ]
+}
