@@ -20,6 +20,22 @@
         "midtone": "#4a5565",
         "highlight": "#f3f4f6"
       }
+    },
+    "kortex": {
+      "dark": {
+        "accent-1": "#588ed1",
+        "accent-2": "#b5782d",
+        "shadow": "#e7e5e4",
+        "midtone": "#27272a",
+        "highlight": "#e5e7eb"
+      },
+      "light": {
+        "accent-1": "#1f6fd1",
+        "accent-2": "#c08236",
+        "shadow": "#101828",
+        "midtone": "#4a5565",
+        "highlight": "#f3f4f6"
+      }
     }
   },
 
@@ -188,6 +204,120 @@
         "dropdownItemHoverText": "$highlight",
 
         "labelBg": "#e5e5e5",
+
+        "onboardingActiveDotBg": "$accent-1",
+        "onboardingActiveDotBorder": "$accent-1",
+
+        "stateInfo": "$accent-1",
+
+        "statusbarBg": "#000",
+        "statusbarHoverBg": "#06c"
+      }
+    },
+    {
+      "id": "kortex-dark",
+      "name": "Kortex (Dark)",
+      "parent": "dark",
+      "palette": "kortex.dark",
+      "colors": {
+        "notificationDot": "$accent-1",
+
+        "globalNavIconSelected": "$accent-1",
+
+        "titlebarText": "$accent-1",
+        "titlebarIcon": "$accent-1",
+
+        "invertContentButtonActive": "$accent-1",
+        "invertContentInfoIcon": "$accent-1",
+
+        "contentBreadcrumb": "$accent-1",
+        "contentBreadcrumb-2": "$accent-1",
+        "contentSubHeader": "$accent-1",
+        "contentCardIcon": "$accent-1",
+        "contentCardBorderSelected": "$accent-1",
+
+        "inputCheckboxIndeterminate": "$accent-1",
+        "inputCheckboxFocusedIndeterminate": "$accent-1",
+        "inputCheckboxChecked": "$accent-1",
+        "inputCheckboxFocusedChecked": "$accent-1",
+        "inputCheckboxUnchecked": "$highlight",
+        "inputCheckboxFocusedUnchecked": "$highlight",
+        "inputToggleOnBg": "$accent-1",
+        "inputToggleOnFocusedBg": "$accent-1",
+
+        "tableBodyTextSubSecondary": "$accent-1",
+        "tabHighlight": "$highlight",
+
+        "link": "$accent-1",
+
+        "buttonPrimaryBg": "$accent-1",
+        "buttonPrimaryHoverBg": "$accent-1",
+        "buttonSecondary": "$accent-1",
+        "buttonSecondaryHover": "$accent-1",
+        "buttonTabBorderSelected": "$highlight",
+        "buttonLinkText": "$accent-1",
+
+        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonPrimaryHoverText": "$accent-1",
+
+        "dropdownItemHoverText": "$highlight",
+
+        "onboardingActiveDotBg": "$accent-1",
+        "onboardingActiveDotBorder": "$accent-1",
+
+        "stateInfo": "$accent-1",
+
+        "statusbarBg": "#000",
+        "statusbarHoverBg": "#06c"
+      }
+    },
+    {
+      "id": "kortex-light",
+      "name": "Kortex (Light)",
+      "parent": "light",
+      "palette": "kortex.light",
+      "colors": {
+        "notificationDot": "$accent-1",
+
+        "globalNavIconSelected": "$accent-1",
+
+        "titlebarText": "$accent-1",
+        "titlebarIcon": "$accent-1",
+
+        "invertContentButtonActive": "$accent-1",
+        "invertContentInfoIcon": "$accent-1",
+
+        "contentBreadcrumb": "$accent-1",
+        "contentBreadcrumb-2": "$accent-1",
+        "contentSubHeader": "$accent-1",
+        "contentCardIcon": "$accent-1",
+        "contentCardBorderSelected": "$accent-1",
+
+        "inputCheckboxIndeterminate": "$accent-1",
+        "inputCheckboxFocusedIndeterminate": "$accent-1",
+        "inputCheckboxChecked": "$accent-1",
+        "inputCheckboxFocusedChecked": "$accent-1",
+        "inputCheckboxUnchecked": "$highlight",
+        "inputCheckboxFocusedUnchecked": "$highlight",
+        "inputToggleOnBg": "$accent-1",
+        "inputToggleOnFocusedBg": "$accent-1",
+
+        "tableBodyTextSubSecondary": "$accent-1",
+        "tabHighlight": "$highlight",
+
+        "link": "$accent-1",
+
+        "buttonPrimaryBg": "$accent-1",
+        "buttonPrimaryHoverBg": "$accent-1",
+        "buttonSecondary": "$accent-1",
+        "buttonSecondaryHover": "$accent-1",
+        "buttonTabBorderSelected": "$highlight",
+        "buttonLinkText": "$accent-1",
+
+        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonPrimaryHoverText": "$accent-1",
+
+        "dropdownItemHoverText": "$highlight",
 
         "onboardingActiveDotBg": "$accent-1",
         "onboardingActiveDotBorder": "$accent-1",
