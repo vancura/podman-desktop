@@ -61,13 +61,13 @@
     },
     "kortex": {
       "dark": {
-        "accent-1": "#da8a23",
-        "accent-2": "#588ed1",
+        "accent-1": "#588ed1",
+        "accent-2": "#b5782d",
         "shadow": "#e7e5e4",
         "midtone": "#292929",
         "highlight": "#e5e7eb",
 
-        "accent-bg": "#3d2b14",
+        "accent-bg": "#2c333d",
         "accent-deep": "#003366",
         "accent-deepest": "#032142",
         "bright": "#ddd",
@@ -91,13 +91,13 @@
         "success-soft": "#afdc8f"
       },
       "light": {
-        "accent-1": "#ac6a18",
-        "accent-2": "#1f6fd1",
+        "accent-1": "#1f6fd1",
+        "accent-2": "#c08236",
         "shadow": "#101828",
         "midtone": "#4a5565",
         "highlight": "#f3f4f6",
 
-        "accent-bg": "#f8e8d9",
+        "accent-bg": "#dce7f9",
         "accent-light": "#b9dafc",
         "accent-wash": "#e0f0ff",
         "black": "#000",
