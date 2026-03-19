@@ -5,36 +5,117 @@
         "accent-1": "#92c5f9",
         "accent-2": "#a60000",
         "shadow": "#e7e5e4",
-        "midtone": "#27272a",
+        "midtone": "#292929",
         "highlight": "#e5e7eb",
 
-        "muted": "#b4b4b4",
-        "subtle": "#aaabac",
+        "accent-bg": "#2c333d",
+        "accent-deep": "#003366",
+        "accent-deepest": "#032142",
+        "bright": "#ddd",
+        "deep": "#000",
+        "dim": "#4d4d4d",
         "dimmed": "#9a9a9a",
-        "disabled": "#818181"
+        "disabled": "#818181",
+        "faint": "#383838",
+        "gray": "#707070",
+        "lightest": "#f2f2f2",
+        "muted": "#b4b4b4",
+        "pale": "#c7c7c7",
+        "soft": "#d1d1d1",
+        "subtle": "#aaabac",
+        "white": "#fff",
+
+        "danger": "#f0561d",
+        "danger-bold": "#b1380b",
+        "success": "#87bb62",
+        "success-deep": "#63993d",
+        "success-soft": "#afdc8f"
       },
       "light": {
         "accent-1": "#06c",
         "accent-2": "#a60000",
         "shadow": "#101828",
         "midtone": "#4a5565",
-        "highlight": "#f3f4f6"
+        "highlight": "#f3f4f6",
+
+        "accent-bg": "#dce7f9",
+        "accent-light": "#b9dafc",
+        "accent-wash": "#e0f0ff",
+        "black": "#000",
+        "dark": "#1f1f1f",
+        "darkest": "#151515",
+        "light": "#f2f2f2",
+        "medium": "#5c5c5c",
+        "muted": "#ddd",
+        "near-white": "#fafafa",
+        "soft": "#e0e0e0",
+        "text": "#404040",
+        "white": "#fff",
+
+        "danger": "#b1380b",
+        "danger-bold": "#731f00",
+        "danger-vivid": "#f0561d",
+        "success": "#3d7317",
+        "success-soft": "#afdc8f"
       }
     },
     "kortex": {
       "dark": {
-        "accent-1": "#588ed1",
-        "accent-2": "#b5782d",
+        "accent-1": "#da8a23",
+        "accent-2": "#588ed1",
         "shadow": "#e7e5e4",
-        "midtone": "#27272a",
-        "highlight": "#e5e7eb"
+        "midtone": "#292929",
+        "highlight": "#e5e7eb",
+
+        "accent-bg": "#3d2b14",
+        "accent-deep": "#003366",
+        "accent-deepest": "#032142",
+        "bright": "#ddd",
+        "deep": "#000",
+        "dim": "#4d4d4d",
+        "dimmed": "#9a9a9a",
+        "disabled": "#818181",
+        "faint": "#383838",
+        "gray": "#707070",
+        "lightest": "#f2f2f2",
+        "muted": "#b4b4b4",
+        "pale": "#c7c7c7",
+        "soft": "#d1d1d1",
+        "subtle": "#aaabac",
+        "white": "#fff",
+
+        "danger": "#f0561d",
+        "danger-bold": "#b1380b",
+        "success": "#87bb62",
+        "success-deep": "#63993d",
+        "success-soft": "#afdc8f"
       },
       "light": {
-        "accent-1": "#1f6fd1",
-        "accent-2": "#c08236",
+        "accent-1": "#ac6a18",
+        "accent-2": "#1f6fd1",
         "shadow": "#101828",
         "midtone": "#4a5565",
-        "highlight": "#f3f4f6"
+        "highlight": "#f3f4f6",
+
+        "accent-bg": "#f8e8d9",
+        "accent-light": "#b9dafc",
+        "accent-wash": "#e0f0ff",
+        "black": "#000",
+        "dark": "#1f1f1f",
+        "darkest": "#151515",
+        "light": "#f2f2f2",
+        "medium": "#5c5c5c",
+        "muted": "#ddd",
+        "near-white": "#fafafa",
+        "soft": "#e0e0e0",
+        "text": "#404040",
+        "white": "#fff",
+
+        "danger": "#b1380b",
+        "danger-bold": "#731f00",
+        "danger-vivid": "#f0561d",
+        "success": "#3d7317",
+        "success-soft": "#afdc8f"
       }
     }
   },
@@ -47,15 +128,18 @@
       "palette": "rhbpd.dark",
       "colors": {
         "notificationDot": "$accent-1",
+        "badgePurple": "$accent-1",
 
         "globalNavIcon": "$muted",
         "globalNavIconHover": "$muted",
-        "globalNavIconHoverBg": "#27272a",
-        "globalNavIconSelectedHighlight": "transparent",
+        "globalNavIconHoverBg": "$midtone",
+        "globalNavIconSelectedHighlight": "$accent-1",
+        "globalNavIconSelectedBg": "$accent-bg",
 
         "secondaryNavTextHover": "$highlight",
         "secondaryNavTextHoverBg": "transparent",
-        "secondaryNavSelectedHighlight": "transparent",
+        "secondaryNavSelectedHighlight": "$accent-1",
+        "secondaryNavSelectedBg": "$accent-bg",
 
         "invertContentButtonActive": "$accent-1",
         "invertContentInfoIcon": "$accent-1",
@@ -65,21 +149,22 @@
         "contentText": "$subtle",
         "contentSubHeader": "$accent-1",
         "contentHeaderIcon": "$muted",
-        "contentCardHeaderText": "#171717",
+        "contentCardHeaderText": "$bright",
         "contentCardLightTitle": "$dimmed",
-        "contentCardInsetBg": "#000",
-        "contentCardHoverInsetBg": "#000",
+        "contentCardInsetBg": "$deep",
+        "contentCardHoverInsetBg": "$deep",
         "contentCardIcon": "$accent-1",
         "contentCardCarouselNav": "$dimmed",
         "contentCardCarouselHoverNav": "$muted",
         "contentCardBorderSelected": "$accent-1",
+        "contentCardText": "$bright",
 
         "inputFieldHoverText": "$subtle",
         "inputFieldPlaceholderText": "$subtle",
-        "inputFieldHoverStroke": "#fff",
+        "inputFieldHoverStroke": "$white",
         "inputFieldIcon": "$subtle",
         "inputFieldHoverIcon": "$subtle",
-        "inputCheckboxDisabled": "$subtle",
+        "inputCheckboxDisabled": "$faint",
         "inputCheckboxIndeterminate": "$accent-1",
         "inputCheckboxFocusedIndeterminate": "$accent-1",
         "inputCheckboxChecked": "$accent-1",
@@ -99,9 +184,11 @@
 
         "tabText": "$muted",
         "tabHighlight": "$highlight",
-        "tabHover": "#707073",
+        "tabHover": "$gray",
 
-        "modalHeaderText": "#f6f6f6",
+        "modalHeaderText": "$lightest",
+        "modalHeaderDivider": "$accent-1",
+        "modalDropdownHighlight": "$accent-bg",
 
         "link": "$accent-1",
 
@@ -109,23 +196,30 @@
         "buttonPrimaryHoverBg": "$accent-1",
         "buttonSecondary": "$accent-1",
         "buttonSecondaryHover": "$accent-1",
-        "buttonText": "#000",
+        "buttonText": "$deep",
         "buttonTabBorderSelected": "$highlight",
         "buttonTabText": "$muted",
         "buttonLinkText": "$accent-1",
 
+        "actionButtonHoverText": "$accent-1",
         "actionButtonPrimaryText": "$accent-1",
         "actionButtonPrimaryHoverText": "$accent-1",
+        "actionButtonDetailsHoverText": "$accent-1",
         "actionButtonDisabledText": "$disabled",
         "actionButtonDetailsDisabledText": "$disabled",
+        "actionButtonSpinner": "$accent-1",
 
-        "dropdownHoverRing": "#37255d",
-        "dropdownItemHoverText": "#d1d1d1",
+        "dropdownRing": "$accent-deepest",
+        "dropdownHoverRing": "$accent-deep",
+        "dropdownItemHoverBg": "$accent-bg",
+        "dropdownItemHoverText": "$soft",
         "dropdownDisabledItemText": "$disabled",
 
         "inputSelectHoverText": "$disabled",
 
-        "labelText": "#c8c8c8",
+        "labelText": "$pale",
+        "labelPrimaryBg": "$accent-bg",
+        "labelPrimaryText": "$accent-1",
 
         "statusNotRunning": "$subtle",
 
@@ -134,8 +228,27 @@
         "onboardingInactiveDotBorder": "$subtle",
 
         "stateInfo": "$accent-1",
+        "stateError": "$danger",
+        "stateSuccess": "$success",
 
-        "statusbarBg": "#000",
+        "statusRunning": "$success",
+        "statusStarting": "$success",
+        "statusTerminated": "$danger",
+        "statusDead": "$danger",
+        "statusConnected": "$success-deep",
+        "statusCreated": "$success-soft",
+
+        "buttonDangerBorder": "$danger",
+        "buttonDangerText": "$danger",
+        "buttonDangerHoverBg": "$danger-bold",
+
+        "inputFieldErrorText": "$danger",
+        "inputFieldStrokeError": "$danger",
+
+        "progressBarInProgressBg": "$accent-1",
+        "progressBarText": "$accent-1",
+
+        "statusbarBg": "$deep",
         "statusbarHoverBg": "#06c"
       }
     },
@@ -146,72 +259,114 @@
       "palette": "rhbpd.light",
       "colors": {
         "notificationDot": "$accent-1",
+        "badgePurple": "$accent-1",
 
-        "globalNavIconHover": "#5c5c5c",
-        "globalNavIconHoverBg": "#f6f6f6",
+        "globalNavIconHover": "$medium",
+        "globalNavIconHoverBg": "$light",
         "globalNavIconSelected": "$accent-1",
-        "globalNavIconSelectedHighlight": "transparent",
+        "globalNavIconSelectedBg": "$accent-bg",
+        "globalNavIconSelectedHighlight": "$accent-1",
 
-        "titlebarText": "$accent-1",
         "titlebarIcon": "$accent-1",
+        "titlebarText": "$accent-1",
 
-        "secondaryNavTextHover": "#222222",
+        "secondaryNavSelectedBg": "$accent-bg",
+        "secondaryNavSelectedHighlight": "$accent-1",
+        "secondaryNavTextHover": "$dark",
         "secondaryNavTextHoverBg": "transparent",
-        "secondaryNavSelectedHighlight": "transparent",
 
         "invertContentButtonActive": "$accent-1",
         "invertContentInfoIcon": "$accent-1",
 
-        "contentBreadcrumb": "$accent-1",
         "contentBreadcrumb-2": "$accent-1",
-        "contentSubHeader": "$accent-1",
-        "contentCardHeaderText": "#171717",
-        "contentCardText": "#404040",
-        "contentCardInsetBg": "#fff",
-        "contentCardHoverInsetBg": "#fff",
-        "contentCardIcon": "$accent-1",
+        "contentBreadcrumb": "$accent-1",
         "contentCardBorderSelected": "$accent-1",
+        "contentCardHeaderText": "$darkest",
+        "contentCardHoverBg": "$near-white",
+        "contentCardHoverInsetBg": "$white",
+        "contentCardIcon": "$accent-1",
+        "contentCardInsetBg": "$white",
+        "contentCardLightTitle": "$accent-1",
+        "contentCardSelectedBg": "$accent-wash",
+        "contentCardText": "$text",
+        "contentHeaderIcon": "$accent-1",
+        "contentSubHeader": "$accent-1",
+        "contentText": "$text",
 
-        "inputFieldHoverStroke": "#000",
-        "inputCheckboxIndeterminate": "$accent-1",
-        "inputCheckboxFocusedIndeterminate": "$accent-1",
         "inputCheckboxChecked": "$accent-1",
+        "inputCheckboxDisabled": "$muted",
         "inputCheckboxFocusedChecked": "$accent-1",
-        "inputCheckboxUnchecked": "$highlight",
-        "inputCheckboxFocusedUnchecked": "$highlight",
+        "inputCheckboxFocusedIndeterminate": "$accent-1",
+        "inputCheckboxFocusedUnchecked": "$shadow",
+        "inputCheckboxIndeterminate": "$accent-1",
+        "inputCheckboxUnchecked": "$shadow",
+        "inputFieldFocusedIcon": "$accent-1",
+        "inputFieldHoverIcon": "$accent-1",
+        "inputFieldHoverStroke": "$accent-1",
         "inputToggleOnBg": "$accent-1",
         "inputToggleOnFocusedBg": "$accent-1",
 
+        "tabHighlight": "$accent-1",
+        "tabHover": "$muted",
         "tableBodyTextSubSecondary": "$accent-1",
-        "tabHighlight": "$highlight",
-        "tabHover": "#b4b4b4",
 
-        "modalHeaderText": "#404040",
+        "modalDropdownHighlight": "$accent-bg",
+        "modalHeaderDivider": "$accent-1",
+        "modalHeaderText": "$text",
+        "modalTextHover": "$accent-1",
 
         "link": "$accent-1",
 
+        "buttonLinkText": "$accent-1",
         "buttonPrimaryBg": "$accent-1",
         "buttonPrimaryHoverBg": "$accent-1",
         "buttonSecondary": "$accent-1",
         "buttonSecondaryHover": "$accent-1",
-        "buttonTabBorderSelected": "$highlight",
-        "buttonLinkText": "$accent-1",
+        "buttonTabBorderSelected": "$accent-1",
+        "buttonTabHoverBorder": "$muted",
 
-        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonDetailsHoverText": "$accent-1",
+        "actionButtonHoverText": "$accent-1",
         "actionButtonPrimaryHoverText": "$accent-1",
+        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonSpinner": "$accent-1",
 
-        "dropdownHoverRing": "#c8c8c8",
-        "dropdownItemHoverText": "$highlight",
+        "dropdownBorder": "$accent-1",
+        "dropdownHoverRing": "$accent-1",
+        "dropdownItemHoverBg": "$accent-bg",
+        "dropdownItemHoverText": "$text",
+        "dropdownRing": "$accent-1",
 
-        "labelBg": "#e5e5e5",
+        "labelBg": "$soft",
+        "labelPrimaryBg": "$accent-light",
+        "labelPrimaryText": "$accent-1",
 
         "onboardingActiveDotBg": "$accent-1",
         "onboardingActiveDotBorder": "$accent-1",
 
         "stateInfo": "$accent-1",
+        "stateError": "$danger",
+        "stateSuccess": "$success",
 
-        "statusbarBg": "#000",
-        "statusbarHoverBg": "#06c"
+        "statusRunning": "$success",
+        "statusStarting": "$success",
+        "statusTerminated": "$danger-bold",
+        "statusDead": "$danger-bold",
+        "statusConnected": "$success",
+        "statusCreated": "$success-soft",
+
+        "buttonDangerBorder": "$danger-bold",
+        "buttonDangerText": "$danger-bold",
+        "buttonDangerHoverBg": "$danger",
+
+        "inputFieldErrorText": "$danger-vivid",
+        "inputFieldStrokeError": "$danger-vivid",
+
+        "progressBarInProgressBg": "$accent-1",
+        "progressBarText": "$accent-1",
+
+        "statusbarBg": "$black",
+        "statusbarHoverBg": "$accent-1"
       }
     },
     {
@@ -221,21 +376,43 @@
       "palette": "kortex.dark",
       "colors": {
         "notificationDot": "$accent-1",
+        "badgePurple": "$accent-1",
 
-        "globalNavIconSelected": "$accent-1",
+        "globalNavIcon": "$muted",
+        "globalNavIconHover": "$muted",
+        "globalNavIconHoverBg": "$midtone",
+        "globalNavIconSelectedHighlight": "$accent-1",
+        "globalNavIconSelectedBg": "$accent-bg",
 
-        "titlebarText": "$accent-1",
-        "titlebarIcon": "$accent-1",
+        "secondaryNavTextHover": "$highlight",
+        "secondaryNavTextHoverBg": "transparent",
+        "secondaryNavSelectedHighlight": "$accent-1",
+        "secondaryNavSelectedBg": "$accent-bg",
 
         "invertContentButtonActive": "$accent-1",
         "invertContentInfoIcon": "$accent-1",
 
         "contentBreadcrumb": "$accent-1",
         "contentBreadcrumb-2": "$accent-1",
+        "contentText": "$subtle",
         "contentSubHeader": "$accent-1",
+        "contentHeaderIcon": "$muted",
+        "contentCardHeaderText": "$bright",
+        "contentCardLightTitle": "$dimmed",
+        "contentCardInsetBg": "$deep",
+        "contentCardHoverInsetBg": "$deep",
         "contentCardIcon": "$accent-1",
+        "contentCardCarouselNav": "$dimmed",
+        "contentCardCarouselHoverNav": "$muted",
         "contentCardBorderSelected": "$accent-1",
+        "contentCardText": "$bright",
 
+        "inputFieldHoverText": "$subtle",
+        "inputFieldPlaceholderText": "$subtle",
+        "inputFieldHoverStroke": "$white",
+        "inputFieldIcon": "$subtle",
+        "inputFieldHoverIcon": "$subtle",
+        "inputCheckboxDisabled": "$faint",
         "inputCheckboxIndeterminate": "$accent-1",
         "inputCheckboxFocusedIndeterminate": "$accent-1",
         "inputCheckboxChecked": "$accent-1",
@@ -245,8 +422,21 @@
         "inputToggleOnBg": "$accent-1",
         "inputToggleOnFocusedBg": "$accent-1",
 
+        "tableHeaderText": "$muted",
+        "tableBodyText": "$subtle",
         "tableBodyTextSubSecondary": "$accent-1",
+
+        "detailsEmptyIcon": "$muted",
+        "detailsEmptySubHeader": "$muted",
+        "detailsCardHeader": "$subtle",
+
+        "tabText": "$muted",
         "tabHighlight": "$highlight",
+        "tabHover": "$gray",
+
+        "modalHeaderText": "$lightest",
+        "modalHeaderDivider": "$accent-1",
+        "modalDropdownHighlight": "$accent-bg",
 
         "link": "$accent-1",
 
@@ -254,20 +444,59 @@
         "buttonPrimaryHoverBg": "$accent-1",
         "buttonSecondary": "$accent-1",
         "buttonSecondaryHover": "$accent-1",
+        "buttonText": "$deep",
         "buttonTabBorderSelected": "$highlight",
+        "buttonTabText": "$muted",
         "buttonLinkText": "$accent-1",
 
+        "actionButtonHoverText": "$accent-1",
         "actionButtonPrimaryText": "$accent-1",
         "actionButtonPrimaryHoverText": "$accent-1",
+        "actionButtonDetailsHoverText": "$accent-1",
+        "actionButtonDisabledText": "$disabled",
+        "actionButtonDetailsDisabledText": "$disabled",
+        "actionButtonSpinner": "$accent-1",
 
-        "dropdownItemHoverText": "$highlight",
+        "dropdownRing": "$accent-deepest",
+        "dropdownHoverRing": "$accent-deep",
+        "dropdownItemHoverBg": "$accent-bg",
+        "dropdownItemHoverText": "$soft",
+        "dropdownDisabledItemText": "$disabled",
+
+        "inputSelectHoverText": "$disabled",
+
+        "labelText": "$pale",
+        "labelPrimaryBg": "$accent-bg",
+        "labelPrimaryText": "$accent-1",
+
+        "statusNotRunning": "$subtle",
 
         "onboardingActiveDotBg": "$accent-1",
         "onboardingActiveDotBorder": "$accent-1",
+        "onboardingInactiveDotBorder": "$subtle",
 
         "stateInfo": "$accent-1",
+        "stateError": "$danger",
+        "stateSuccess": "$success",
 
-        "statusbarBg": "#000",
+        "statusRunning": "$success",
+        "statusStarting": "$success",
+        "statusTerminated": "$danger",
+        "statusDead": "$danger",
+        "statusConnected": "$success-deep",
+        "statusCreated": "$success-soft",
+
+        "buttonDangerBorder": "$danger",
+        "buttonDangerText": "$danger",
+        "buttonDangerHoverBg": "$danger-bold",
+
+        "inputFieldErrorText": "$danger",
+        "inputFieldStrokeError": "$danger",
+
+        "progressBarInProgressBg": "$accent-1",
+        "progressBarText": "$accent-1",
+
+        "statusbarBg": "$deep",
         "statusbarHoverBg": "#06c"
       }
     },
@@ -278,54 +507,114 @@
       "palette": "kortex.light",
       "colors": {
         "notificationDot": "$accent-1",
+        "badgePurple": "$accent-1",
 
+        "globalNavIconHover": "$medium",
+        "globalNavIconHoverBg": "$light",
         "globalNavIconSelected": "$accent-1",
+        "globalNavIconSelectedBg": "$accent-bg",
+        "globalNavIconSelectedHighlight": "$accent-1",
 
-        "titlebarText": "$accent-1",
         "titlebarIcon": "$accent-1",
+        "titlebarText": "$accent-1",
+
+        "secondaryNavSelectedBg": "$accent-bg",
+        "secondaryNavSelectedHighlight": "$accent-1",
+        "secondaryNavTextHover": "$dark",
+        "secondaryNavTextHoverBg": "transparent",
 
         "invertContentButtonActive": "$accent-1",
         "invertContentInfoIcon": "$accent-1",
 
-        "contentBreadcrumb": "$accent-1",
         "contentBreadcrumb-2": "$accent-1",
-        "contentSubHeader": "$accent-1",
-        "contentCardIcon": "$accent-1",
+        "contentBreadcrumb": "$accent-1",
         "contentCardBorderSelected": "$accent-1",
+        "contentCardHeaderText": "$darkest",
+        "contentCardHoverBg": "$near-white",
+        "contentCardHoverInsetBg": "$white",
+        "contentCardIcon": "$accent-1",
+        "contentCardInsetBg": "$white",
+        "contentCardLightTitle": "$accent-1",
+        "contentCardSelectedBg": "$accent-wash",
+        "contentCardText": "$text",
+        "contentHeaderIcon": "$accent-1",
+        "contentSubHeader": "$accent-1",
+        "contentText": "$text",
 
-        "inputCheckboxIndeterminate": "$accent-1",
-        "inputCheckboxFocusedIndeterminate": "$accent-1",
         "inputCheckboxChecked": "$accent-1",
+        "inputCheckboxDisabled": "$muted",
         "inputCheckboxFocusedChecked": "$accent-1",
-        "inputCheckboxUnchecked": "$highlight",
-        "inputCheckboxFocusedUnchecked": "$highlight",
+        "inputCheckboxFocusedIndeterminate": "$accent-1",
+        "inputCheckboxFocusedUnchecked": "$shadow",
+        "inputCheckboxIndeterminate": "$accent-1",
+        "inputCheckboxUnchecked": "$shadow",
+        "inputFieldFocusedIcon": "$accent-1",
+        "inputFieldHoverIcon": "$accent-1",
+        "inputFieldHoverStroke": "$accent-1",
         "inputToggleOnBg": "$accent-1",
         "inputToggleOnFocusedBg": "$accent-1",
 
+        "tabHighlight": "$accent-1",
+        "tabHover": "$muted",
         "tableBodyTextSubSecondary": "$accent-1",
-        "tabHighlight": "$highlight",
+
+        "modalDropdownHighlight": "$accent-bg",
+        "modalHeaderDivider": "$accent-1",
+        "modalHeaderText": "$text",
+        "modalTextHover": "$accent-1",
 
         "link": "$accent-1",
 
+        "buttonLinkText": "$accent-1",
         "buttonPrimaryBg": "$accent-1",
         "buttonPrimaryHoverBg": "$accent-1",
         "buttonSecondary": "$accent-1",
         "buttonSecondaryHover": "$accent-1",
-        "buttonTabBorderSelected": "$highlight",
-        "buttonLinkText": "$accent-1",
+        "buttonTabBorderSelected": "$accent-1",
+        "buttonTabHoverBorder": "$muted",
 
-        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonDetailsHoverText": "$accent-1",
+        "actionButtonHoverText": "$accent-1",
         "actionButtonPrimaryHoverText": "$accent-1",
+        "actionButtonPrimaryText": "$accent-1",
+        "actionButtonSpinner": "$accent-1",
 
-        "dropdownItemHoverText": "$highlight",
+        "dropdownBorder": "$accent-1",
+        "dropdownHoverRing": "$accent-1",
+        "dropdownItemHoverBg": "$accent-bg",
+        "dropdownItemHoverText": "$text",
+        "dropdownRing": "$accent-1",
+
+        "labelBg": "$soft",
+        "labelPrimaryBg": "$accent-light",
+        "labelPrimaryText": "$accent-1",
 
         "onboardingActiveDotBg": "$accent-1",
         "onboardingActiveDotBorder": "$accent-1",
 
         "stateInfo": "$accent-1",
+        "stateError": "$danger",
+        "stateSuccess": "$success",
 
-        "statusbarBg": "#000",
-        "statusbarHoverBg": "#06c"
+        "statusRunning": "$success",
+        "statusStarting": "$success",
+        "statusTerminated": "$danger-bold",
+        "statusDead": "$danger-bold",
+        "statusConnected": "$success",
+        "statusCreated": "$success-soft",
+
+        "buttonDangerBorder": "$danger-bold",
+        "buttonDangerText": "$danger-bold",
+        "buttonDangerHoverBg": "$danger",
+
+        "inputFieldErrorText": "$danger-vivid",
+        "inputFieldStrokeError": "$danger-vivid",
+
+        "progressBarInProgressBg": "$accent-1",
+        "progressBarText": "$accent-1",
+
+        "statusbarBg": "$black",
+        "statusbarHoverBg": "$accent-1"
       }
     }
   ]
