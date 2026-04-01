@@ -38,11 +38,25 @@ const ROOT_DIR = path.join(PACKAGE_ROOT, '..');
 // Vite plugin to watch color-registry and regenerate themes.css
 function colorRegistryWatcher() {
   let isRegenerating = false;
+  let queuedRegeneration = false;
+
+  async function regenerate(server) {
+    try {
+      await execAsync('pnpm run storybook:css', { cwd: ROOT_DIR });
+      console.log('[color-registry-watcher] themes.css regenerated successfully\n');
+
+      server.ws.send({
+        type: 'full-reload',
+        path: '*',
+      });
+    } catch (error) {
+      console.error('[color-registry-watcher] Failed to regenerate themes.css:', error.message);
+    }
+  }
 
   return {
     name: 'color-registry-watcher',
     configureServer(server) {
-      // Watch files using chokidar
       const filesToWatch = [
         path.join(ROOT_DIR, 'packages/main/src/plugin/color-registry.ts'),
         path.join(ROOT_DIR, 'tailwind-color-palette.json'),
@@ -54,25 +68,22 @@ function colorRegistryWatcher() {
       });
 
       watcher.on('change', async changedFile => {
-        if (isRegenerating) return;
+        if (isRegenerating) {
+          queuedRegeneration = true;
+          return;
+        }
         isRegenerating = true;
 
         console.log(`\n[color-registry-watcher] ${path.basename(changedFile)} changed, regenerating themes.css...`);
+        await regenerate(server);
 
-        try {
-          await execAsync('pnpm run storybook:css', { cwd: ROOT_DIR });
-          console.log('[color-registry-watcher] themes.css regenerated successfully\n');
-
-          // Trigger full reload
-          server.ws.send({
-            type: 'full-reload',
-            path: '*',
-          });
-        } catch (error) {
-          console.error('[color-registry-watcher] Failed to regenerate themes.css:', error.message);
-        } finally {
-          isRegenerating = false;
+        while (queuedRegeneration) {
+          queuedRegeneration = false;
+          console.log('[color-registry-watcher] Processing queued change...');
+          await regenerate(server);
         }
+
+        isRegenerating = false;
       });
 
       server.httpServer?.on('close', () => {
