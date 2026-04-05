@@ -88,6 +88,7 @@ import { TelemetryTrustedValue } from '/@/plugin/types/telemetry.js';
 import { Uri } from '/@/plugin/types/uri.js';
 import { Exec } from '/@/plugin/util/exec.js';
 import { getFreePort } from '/@/plugin/util/port.js';
+import { withTimeout } from '/@/plugin/util/timeout.js';
 import { ViewRegistry } from '/@/plugin/view-registry.js';
 import { WebviewRegistry } from '/@/plugin/webview/webview-registry.js';
 import { securityRestrictionCurrentHandler } from '/@/security-restrictions-handler.js';
@@ -1794,14 +1795,6 @@ export class ExtensionLoader implements IAsyncDisposable {
           .get(ExtensionLoaderSettings.MaxActivationTime, DEFAULT_TIMEOUT);
         const delayInMilliseconds = delayInSeconds * 1000;
 
-        // reject a promise after this delay
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error(`Extension ${extension.id} activation timed out after ${delayInSeconds} seconds`)),
-            delayInMilliseconds,
-          ),
-        );
-
         // it returns exports
         console.log(`Activating extension (${extension.id}) with max activation time of ${delayInSeconds} seconds`);
 
@@ -1809,7 +1802,7 @@ export class ExtensionLoader implements IAsyncDisposable {
         const activatePromise = extensionMain['activate'].apply(undefined, [extensionContext]);
 
         // if extension reach the timeout, do not wait for it to finish and flag as error
-        exports = await Promise.race([activatePromise, timeoutPromise]);
+        exports = await withTimeout(activatePromise, delayInMilliseconds, `Extension ${extension.id} activation`);
         const afterActivateTime = performance.now();
 
         // Computing activation duration
