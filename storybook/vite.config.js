@@ -17,17 +17,17 @@
  ***********************************************************************/
 
 /* eslint-env node */
-import { join } from 'path';
-import * as path from 'path';
+import { join } from 'node:path';
+import * as path from 'node:path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
 import chokidar from 'chokidar';
 
 import { defineConfig } from 'vite';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 const execAsync = promisify(exec);
 
