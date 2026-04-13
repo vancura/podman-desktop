@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
 import type { ElectronApplication, JSHandle, Page } from '@playwright/test';
@@ -178,12 +179,7 @@ export class ElectronRunner extends Runner {
     } catch (err: unknown) {
       console.log(`Caught exception in closing: ${err}`);
       if (pid) {
-        console.log(`Killing the electron app process with PID: ${pid}`);
-        try {
-          process.kill(pid);
-        } catch (error: unknown) {
-          console.log(`Exception thrown when killing the process: ${error}`);
-        }
+        this.forceKillProcess(pid);
       }
     }
 
@@ -201,6 +197,25 @@ export class ElectronRunner extends Runner {
       }
     }
     await this.removeTracesOnFinished();
+  }
+
+  /**
+   * Force-kill a process by PID. On Windows, uses `taskkill /F /T` to ensure
+   * the entire process tree is terminated and OS-level resources (such as
+   * Electron's single-instance lock) are released.
+   */
+  protected forceKillProcess(pid: number): void {
+    console.log(`Force-killing the electron app process with PID: ${pid}`);
+    try {
+      if (process.platform === 'win32') {
+        // eslint-disable-next-line sonarjs/no-os-command-from-path, n/no-sync
+        execFileSync('taskkill', ['/F', '/T', '/PID', String(pid)], { timeout: 30_000 });
+      } else {
+        process.kill(pid, 'SIGKILL');
+      }
+    } catch (error: unknown) {
+      console.log(`Exception thrown when force-killing process ${pid}: ${error}`);
+    }
   }
 
   protected override defaultOptions(): object {
