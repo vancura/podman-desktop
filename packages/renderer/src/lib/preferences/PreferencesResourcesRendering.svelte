@@ -27,6 +27,7 @@ import { capitalize } from '/@/lib/ui/Util';
 import { configurationProperties } from '/@/stores/configurationProperties';
 import { context } from '/@/stores/context';
 import { onboardingList } from '/@/stores/onboarding';
+import { type PrototypeOverride, prototypeOverride } from '/@/stores/prototype-screen';
 import { providerInfos } from '/@/stores/providers';
 
 import {
@@ -62,6 +63,14 @@ let preflightChecks = $state<CheckStatus[]>([]);
 
 let restartingQueue: IConnectionRestart[] = [];
 let globalContext = $state<ContextUI>();
+
+let currentPrototypeOverride = $state<PrototypeOverride | undefined>();
+$effect(() => {
+  const unsubscribe = prototypeOverride.subscribe(override => {
+    currentPrototypeOverride = override;
+  });
+  return unsubscribe;
+});
 
 let providersUnsubscribe: Unsubscriber;
 let configurationPropertiesUnsubscribe: Unsubscriber;
@@ -543,7 +552,7 @@ $effect(() => {
                 {/if}
               </div>
               <div class="flex" aria-label="Connection Status">
-                <ConnectionStatus status={container.status} />
+                <ConnectionStatus status={currentPrototypeOverride?.connectionStatus ?? container.status} />
                 <ConnectionErrorIndicator error={container.error} />
                 {#if containerConnectionStatus.has(getProviderConnectionName(provider, container))}
                   {@const status = containerConnectionStatus.get(getProviderConnectionName(provider, container))}
@@ -575,7 +584,7 @@ $effect(() => {
               <PreferencesConnectionActions
                 provider={provider}
                 connection={container}
-                connectionStatus={containerConnectionStatus.get(getProviderConnectionName(provider, container))}
+                connectionStatus={currentPrototypeOverride?.loadingStatus ?? containerConnectionStatus.get(getProviderConnectionName(provider, container))}
                 updateConnectionStatus={updateContainerStatus}
                 addConnectionToRestartingQueue={addConnectionToRestartingQueue}>
                 {#snippet advanced_actions()}

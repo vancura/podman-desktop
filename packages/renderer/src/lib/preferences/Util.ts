@@ -40,6 +40,7 @@ export interface IProviderConnectionConfigurationPropertyRecorded extends IConfi
 export interface ILoadingStatus {
   status: string;
   action?: string;
+  activeActions?: string[];
   inProgress: boolean;
 }
 

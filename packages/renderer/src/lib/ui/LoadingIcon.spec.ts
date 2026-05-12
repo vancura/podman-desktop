@@ -25,41 +25,42 @@ import { expect, test } from 'vitest';
 import LoadingIcon from './LoadingIcon.svelte';
 
 test('Expect default size', async () => {
-  const icon = faPlayCircle;
-  const loadingWidthClass = 'w-10';
-  const loadingHeightClass = 'h-10';
-  const loading = true;
-  const iconSize = undefined;
   render(LoadingIcon, {
-    icon,
-    iconSize,
-    loadingHeightClass,
-    loadingWidthClass,
-    loading,
+    icon: faPlayCircle,
+    loading: true,
   });
   const loadingIcon = screen.getByRole('img', { hidden: true, name: '' });
   expect(loadingIcon).toBeInTheDocument();
 
-  // check the style attribute of the loading icon is not set
   expect(loadingIcon).not.toHaveAttribute('style');
 });
 
 test('Expect specified size', async () => {
-  const icon = faPlayCircle;
-  const loadingWidthClass = 'w-10';
-  const loadingHeightClass = 'h-10';
-  const loading = true;
-  const iconSize = '2x';
   render(LoadingIcon, {
-    icon,
-    iconSize,
-    loadingHeightClass,
-    loadingWidthClass,
-    loading,
+    icon: faPlayCircle,
+    iconSize: '2x',
+    loading: true,
   });
   const loadingIcon = screen.getByRole('img', { hidden: true, name: '' });
   expect(loadingIcon).toBeInTheDocument();
 
-  // check the font-size attribute of the loading icon is set to 2em
   expect(loadingIcon).toHaveAttribute('style', expect.stringContaining('font-size: 2em;'));
+});
+
+test('Expect spinner visible when loading', async () => {
+  render(LoadingIcon, {
+    icon: faPlayCircle,
+    loading: true,
+  });
+  const spinner = screen.getByRole('status', { name: 'spinner' });
+  expect(spinner).toBeInTheDocument();
+});
+
+test('Expect spinner hidden when not loading', async () => {
+  render(LoadingIcon, {
+    icon: faPlayCircle,
+    loading: false,
+  });
+  const spinner = screen.queryByRole('status', { name: 'spinner' });
+  expect(spinner).not.toBeInTheDocument();
 });

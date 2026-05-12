@@ -16,7 +16,24 @@ interface Props {
   clickAction: () => Promise<void> | void;
 }
 
-const { action, icon, state, color = 'secondary', tooltip = capitalize(action), clickAction }: Props = $props();
+const { action, icon, state, color = 'secondary', tooltip, clickAction }: Props = $props();
+
+const gerunds: Record<string, string> = {
+  start: 'Starting machine...',
+  stop: 'Stopping machine...',
+  restart: 'Restarting machine...',
+  delete: 'Deleting machine...',
+  edit: 'Editing machine...',
+  update: 'Updating machine...',
+};
+
+const activeTooltip = $derived.by(() => {
+  if (tooltip) return tooltip;
+  if (state?.inProgress && (action === state?.action || state?.activeActions?.includes(action))) {
+    return gerunds[action];
+  }
+  return capitalize(action);
+});
 
 const disable = $derived.by(() => {
   if (state?.inProgress || state?.status === 'unsupported') {
@@ -39,7 +56,7 @@ const disable = $derived.by(() => {
   }
 });
 
-const loading = $derived(state?.inProgress && action === state?.action);
+const loading = $derived(state?.inProgress && (action === state?.action || state?.activeActions?.includes(action)));
 
 const style = $derived(
   disable
@@ -50,7 +67,7 @@ const style = $derived(
 );
 </script>
 
-<Tooltip bottom tip={tooltip}>
+<Tooltip bottom tip={activeTooltip}>
   <button aria-label={capitalize(action)} class="px-2.5 py-2 {style}" onclick={clickAction} disabled={disable}>
     <LoadingIcon
       icon={icon}

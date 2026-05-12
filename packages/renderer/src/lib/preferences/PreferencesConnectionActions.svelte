@@ -6,7 +6,9 @@ import type { Snippet } from 'svelte';
 import { router } from 'tinro';
 
 import { withConfirmation } from '/@/lib/dialogs/messagebox-utils';
+import ActionStatusPopover from '/@/lib/ui/ActionStatusPopover.svelte';
 import LoadingIconButton from '/@/lib/ui/LoadingIconButton.svelte';
+import { type PopoverEntry, prototypeOverride } from '/@/stores/prototype-screen';
 
 import {
   type ConnectionCallback,
@@ -38,6 +40,50 @@ let {
   addConnectionToRestartingQueue,
   advanced_actions,
 }: Props = $props();
+
+let popoverEntries = $state<PopoverEntry[]>([]);
+$effect(() => {
+  const unsubscribe = prototypeOverride.subscribe(override => {
+    popoverEntries = override.popoverEntries;
+  });
+  return unsubscribe;
+});
+
+let containerRef = $state<HTMLElement>();
+let buttonRefs = $state<Record<string, HTMLElement | undefined>>({});
+let popoverLeftPx = $state<number>(0);
+let lastSpinningKey = '';
+
+$effect(() => {
+  if (!containerRef || popoverEntries.length === 0) {
+    lastSpinningKey = '';
+    return;
+  }
+
+  const spinningActions = popoverEntries.filter(e => e.status === 'in-progress').map(e => e.action);
+
+  if (spinningActions.length === 0) return;
+
+  const key = spinningActions.join(',');
+  if (key === lastSpinningKey) return;
+  lastSpinningKey = key;
+
+  const containerRect = containerRef.getBoundingClientRect();
+  let minLeft = Infinity;
+  let maxRight = -Infinity;
+
+  for (const action of spinningActions) {
+    const el = buttonRefs[action];
+    if (!el) continue;
+    const rect = el.getBoundingClientRect();
+    minLeft = Math.min(minLeft, rect.left);
+    maxRight = Math.max(maxRight, rect.right);
+  }
+
+  if (minLeft < Infinity) {
+    popoverLeftPx = (minLeft + maxRight) / 2 - containerRect.left;
+  }
+});
 
 async function startConnectionProvider(
   provider: ProviderInfo,
@@ -150,14 +196,13 @@ function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: Provi
 
 {#if connectionStatus}
   {#if connection.lifecycleMethods && connection.lifecycleMethods.length > 0}
-    <div class="mt-2 relative">
-      <!-- TODO: see action available like machine infos -->
+    <div class="mt-2 relative" bind:this={containerRef}>
       <div
         class="flex bg-[var(--pd-action-button-details-bg)] w-fit rounded-lg m-auto"
         role="group"
         aria-label="Connection Actions">
         {#if connection.canStart}
-          <div class="ml-2">
+          <div class="ml-2" bind:this={buttonRefs['start']}>
             <LoadingIconButton
               clickAction={(): Promise<void> => startConnectionProvider(provider, connection)}
               action="start"
@@ -166,41 +211,50 @@ function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: Provi
           </div>
         {/if}
         {#if connection.canStart && connection.canStop}
-          <LoadingIconButton
-            clickAction={(): Promise<void> => restartConnectionProvider(provider, connection)}
-            action="restart"
-            icon={faRotateRight}
-            state={connectionStatus}
-            />
+          <div bind:this={buttonRefs['restart']}>
+            <LoadingIconButton
+              clickAction={(): Promise<void> => restartConnectionProvider(provider, connection)}
+              action="restart"
+              icon={faRotateRight}
+              state={connectionStatus}
+              />
+          </div>
         {/if}
         {#if connection.canStop}
-          <LoadingIconButton
-            clickAction={(): Promise<void> => stopConnectionProvider(provider, connection)}
-            action="stop"
-            icon={faStop}
-            state={connectionStatus}
-            />
+          <div bind:this={buttonRefs['stop']}>
+            <LoadingIconButton
+              clickAction={(): Promise<void> => stopConnectionProvider(provider, connection)}
+              action="stop"
+              icon={faStop}
+              state={connectionStatus}
+              />
+          </div>
         {/if}
         {#if connection.canEdit}
-          <LoadingIconButton
-            clickAction={(): Promise<void> => editConnectionProvider(provider, connection)}
-            action="edit"
-            icon={faEdit}
-            state={connectionStatus}
-            />
+          <div bind:this={buttonRefs['edit']}>
+            <LoadingIconButton
+              clickAction={(): Promise<void> => editConnectionProvider(provider, connection)}
+              action="edit"
+              icon={faEdit}
+              state={connectionStatus}
+              />
+          </div>
         {/if}
         {#if connection.canDelete}
-          <LoadingIconButton
-            clickAction={withConfirmation.bind(undefined, deleteConnectionProvider.bind(undefined, provider, connection), `delete ${connection.name}`, { title: 'Delete Connection?', variant: 'delete' })}
-            action="delete"
-            icon={faTrash}
-            state={connectionStatus}
-            />
+          <div bind:this={buttonRefs['delete']}>
+            <LoadingIconButton
+              clickAction={withConfirmation.bind(undefined, deleteConnectionProvider.bind(undefined, provider, connection), `delete ${connection.name}`, { title: 'Delete Connection?', variant: 'delete' })}
+              action="delete"
+              icon={faTrash}
+              state={connectionStatus}
+              />
+          </div>
         {/if}
         <div class="mr-2 text-sm">
           {@render advanced_actions?.()}
         </div>
       </div>
+      <ActionStatusPopover entries={popoverEntries} leftPx={popoverLeftPx} />
     </div>
   {/if}
 {/if}
