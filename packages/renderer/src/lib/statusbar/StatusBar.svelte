@@ -1,14 +1,30 @@
 <script lang="ts">
 import type { StatusBarEntry } from '@podman-desktop/core-api';
 import { ExperimentalTasksSettings } from '@podman-desktop/core-api';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount } from 'svelte';
 
 import TaskIndicator from '/@/lib/statusbar/TaskIndicator.svelte';
 import { onDidChangeConfiguration } from '/@/stores/configurationProperties';
+import { currentScreen } from '/@/stores/prototype';
 import { statusBarEntries } from '/@/stores/statusbar';
 
 import Providers from './Providers.svelte';
 import StatusBarItem from './StatusBarItem.svelte';
+
+let panelVisible = $state(false);
+const unsubScreen = currentScreen.subscribe(s => {
+  panelVisible = s !== '' && s !== 'closed';
+});
+onDestroy(unsubScreen);
+
+function togglePanel(): void {
+  if (panelVisible) {
+    currentScreen.set('closed');
+  } else {
+    currentScreen.set('mixed');
+  }
+}
 
 let leftEntries: StatusBarEntry[] = $state([]);
 let rightEntries: StatusBarEntry[] = $state([]);
@@ -82,7 +98,15 @@ onDestroy(() => {
   class="flex justify-between px-1 bg-[var(--pd-statusbar-bg)] text-[var(--pd-statusbar-text)] text-sm space-x-2 z-40"
   role="contentinfo"
   aria-label="Status Bar">
-  <div class="flex flex-nowrap gap-x-1.5 h-full text-ellipsis whitespace-nowrap">
+  <div class="flex flex-nowrap gap-x-1.5 h-full text-ellipsis whitespace-nowrap items-center">
+    <Tooltip top tip="Toggle terminal panel (`)">
+      <button
+        class="px-1.5 py-px flex h-full items-center hover:cursor-pointer transition-colors {panelVisible ? 'bg-[var(--pd-statusbar-hover-bg)] text-[var(--pd-statusbar-text)]' : 'text-[var(--pd-statusbar-text)] opacity-60 hover:bg-[var(--pd-statusbar-hover-bg)]'}"
+        aria-label="Toggle terminal panel"
+        onclick={togglePanel}>
+        <i class="fa-solid fa-terminal text-[11px]"></i>
+      </button>
+    </Tooltip>
     {#if experimentalProvidersStatusBar}
       <Providers/>
     {/if}
