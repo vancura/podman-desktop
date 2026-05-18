@@ -73,7 +73,7 @@ async function createWindow(): Promise<BrowserWindow> {
 
   if (isMac()) {
     // change position of traffic light buttons
-    browserWindowConstructorOptions.trafficLightPosition = { x: 20, y: 13 };
+    browserWindowConstructorOptions.trafficLightPosition = { x: 12, y: 11.5 };
   }
 
   const browserWindow = new BrowserWindow(browserWindowConstructorOptions);
