@@ -51,6 +51,7 @@ overrides:
   '@babel/plugin-transform-modules-systemjs': '>=7.29.4'
   mermaid: '>=11.15.0'
   ws@^8: '>=8.20.1'
+  concurrently>shell-quote: '>=1.8.4'
 
 patchedDependencies:
   docker-modem:
@@ -10928,8 +10929,9 @@ packages:
     resolution: {integrity: sha512-s/9q9PEtcRmDTz69+cJ3yYBAe9yGrL7e46gm2bU4pQ9N48ecPK9QrGFnLwYgb4smOHskx4PL7wCNMktW2AoD+g==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  shell-quote@1.8.1:
-    resolution: {integrity: sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==}
+  shell-quote@1.8.4:
+    resolution: {integrity: sha512-VsC6n6vz1ihYYyZZwX7YZSF5l5x36ca17OC+a69h94YqB7X6XLwf+5MOgynYir2SLFUbl8gIYvBo8K8RoNQ6bQ==}
+    engines: {node: '>= 0.4'}
 
   side-channel-list@1.0.0:
     resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
@@ -21643,7 +21645,7 @@ snapshots:
   launch-editor@2.9.1:
     dependencies:
       picocolors: 1.1.1
-      shell-quote: 1.8.1
+      shell-quote: 1.8.4
 
   layout-base@1.0.2: {}
 
@@ -24661,7 +24663,7 @@ snapshots:
     dependencies:
       shell-env: 4.0.1
 
-  shell-quote@1.8.1: {}
+  shell-quote@1.8.4: {}
 
   side-channel-list@1.0.0:
     dependencies:
