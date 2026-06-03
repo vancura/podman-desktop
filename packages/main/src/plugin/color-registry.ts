@@ -1306,6 +1306,15 @@ export class ColorRegistry {
       hcDark: white,
       hcLight: black,
     });
+
+    this.registerColorDefinition(
+      this.color(`${modal}shadow`)
+        .withDark(colorPaletteHelper(black).withAlpha(0.3))
+        .withLight(colorPaletteHelper(black).withAlpha(0.3))
+        .withHcDark(colorPaletteHelper(black).withAlpha(0.3))
+        .withHcLight(colorPaletteHelper(black).withAlpha(0.3))
+        .build(),
+    );
   }
 
   // links
