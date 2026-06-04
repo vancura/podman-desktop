@@ -50,6 +50,7 @@ const {
   slate,
   stone,
   white,
+  yellow,
   transparent,
 } = tailwindColorPalette;
 
@@ -2364,9 +2365,9 @@ export class ColorRegistry {
 
     this.registerColor(`${toast}success-bg`, {
       dark: green[600],
-      light: green[700],
+      light: green[500],
       hcDark: green[400],
-      hcLight: green[800],
+      hcLight: green[600],
     });
 
     this.registerColor(`${toast}success-color`, {
@@ -2377,17 +2378,17 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${toast}success-bar-bg`, {
-      dark: green[800],
-      light: green[900],
-      hcDark: green[700],
-      hcLight: green[900],
+      dark: green[500],
+      light: green[400],
+      hcDark: black,
+      hcLight: white,
     });
 
     this.registerColor(`${toast}error-bg`, {
-      dark: red[600],
-      light: red[700],
+      dark: red[700],
+      light: red[600],
       hcDark: red[400],
-      hcLight: red[900],
+      hcLight: red[800],
     });
 
     this.registerColor(`${toast}error-color`, {
@@ -2398,35 +2399,35 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${toast}error-bar-bg`, {
-      dark: red[800],
-      light: red[900],
-      hcDark: red[800],
-      hcLight: red[950],
-    });
-
-    this.registerColor(`${toast}warning-bg`, {
-      dark: amber[400],
-      light: amber[500],
-      hcDark: amber[300],
-      hcLight: amber[800],
-    });
-
-    this.registerColor(`${toast}warning-color`, {
-      dark: charcoal[900],
-      light: charcoal[900],
+      dark: red[500],
+      light: red[400],
       hcDark: black,
       hcLight: white,
     });
 
+    this.registerColor(`${toast}warning-bg`, {
+      dark: yellow[500],
+      light: yellow[500],
+      hcDark: yellow[400],
+      hcLight: yellow[500],
+    });
+
+    this.registerColor(`${toast}warning-color`, {
+      dark: black,
+      light: black,
+      hcDark: black,
+      hcLight: black,
+    });
+
     this.registerColor(`${toast}warning-bar-bg`, {
-      dark: amber[700],
-      light: amber[800],
-      hcDark: amber[800],
-      hcLight: amber[950],
+      dark: yellow[600],
+      light: yellow[600],
+      hcDark: black,
+      hcLight: black,
     });
 
     this.registerColor(`${toast}info-bg`, {
-      dark: accent1[400],
+      dark: accent1[600],
       light: accent1[500],
       hcDark: accent1[300],
       hcLight: accent1[800],
@@ -2440,10 +2441,10 @@ export class ColorRegistry {
     });
 
     this.registerColor(`${toast}info-bar-bg`, {
-      dark: accent1[700],
-      light: accent1[800],
-      hcDark: accent1[800],
-      hcLight: accent1[950],
+      dark: accent1[400],
+      light: accent1[300],
+      hcDark: black,
+      hcLight: white,
     });
   }
 
