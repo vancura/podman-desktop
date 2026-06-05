@@ -202,6 +202,13 @@ jobs:
             return { start: startIndex, end };
           }
 
+          function ensureTopLevelId(text, schemaId) {
+            return text.replace(
+              /^(\{\n\s*"\$schema"\s*:\s*"[^"]+",\n)(\s*"\$id"\s*:\s*"[^"]+",\n)?/,
+              (_match, schemaLine) => `${schemaLine}  "$id": "${schemaId}",\n`,
+            );
+          }
+
           const incomingText = fs.readFileSync(incomingFile, 'utf8');
           let stableSchemaText = incomingText;
           if (incomingText.includes(packageSchemaRef)) {
@@ -211,8 +218,10 @@ jobs:
             stableSchemaText = `${JSON.stringify(stableSchema, null, 2)}\n`;
           }
 
+          const stableId = `https://json.schemastore.org/${process.env.SCHEMA_FILE_NAME}`;
+          stableSchemaText = ensureTopLevelId(stableSchemaText, stableId);
           fs.writeFileSync(stableFile, stableSchemaText, 'utf8');
-          const versionedSchemaText = stableSchemaText.replace(/("\$id"\s*:\s*")[^"]+(")/, `$1${versionedId}$2`);
+          const versionedSchemaText = ensureTopLevelId(stableSchemaText, versionedId);
           fs.writeFileSync(versionedFile, versionedSchemaText, 'utf8');
 
           const catalogText = fs.readFileSync(catalogFile, 'utf8');
