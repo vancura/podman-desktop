@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Podman Desktop Extension Manifest",
-  "description": "Schema for Podman Desktop extension package.json files",
+  "description": "Schema for Podman Desktop extension package.json files (proof v1.27.99 override test)",
   "allOf": [
     {
       "$ref": "https://json.schemastore.org/package.json"
