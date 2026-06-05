@@ -20,7 +20,14 @@
           "type": "string"
         },
         "publisher": {
-          "type": "string"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "description": {
           "type": "string"
