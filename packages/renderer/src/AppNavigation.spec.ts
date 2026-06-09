@@ -20,19 +20,25 @@ import '@testing-library/jest-dom/vitest';
 
 import type { KubernetesObject } from '@kubernetes/client-node';
 import type { ContextGeneralState, ContributionInfo, ForwardConfig } from '@podman-desktop/core-api';
+import { NavigationPage } from '@podman-desktop/core-api';
 import { AppearanceSettings } from '@podman-desktop/core-api/appearance';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { readable } from 'svelte/store';
 import type { TinroRouteMeta } from 'tinro';
-import { beforeAll, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 
 import * as kubeContextStore from '/@/stores/kubernetes-contexts-state';
 
 import AppNavigation from './AppNavigation.svelte';
+import { handleNavigation } from './navigation';
 import { onDidChangeConfiguration } from './stores/configurationProperties';
 import { contributions } from './stores/contribs';
 import { fetchNavigationRegistries } from './stores/navigation/navigation-registry';
+
+vi.mock(import('./navigation'), () => ({
+  handleNavigation: vi.fn(),
+}));
 
 const eventsMock = vi.fn();
 
@@ -40,6 +46,12 @@ const callbacks = new Map<string, (arg: unknown) => void>();
 
 vi.mock(import('/@/stores/kubernetes-contexts-state'), async () => {
   return {};
+});
+
+const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`;
+
+beforeEach(() => {
+  vi.mocked(handleNavigation).mockClear();
 });
 
 // fake the window object
@@ -122,7 +134,6 @@ test('Test contributions', () => {
 });
 
 test('NAV_BAR_LAYOUT updates on configuration change', async () => {
-  const NAV_BAR_LAYOUT = `${AppearanceSettings.SectionName}.${AppearanceSettings.NavigationAppearance}`;
   const meta = {
     url: '/',
   } as unknown as TinroRouteMeta;
@@ -145,4 +156,254 @@ test('NAV_BAR_LAYOUT updates on configuration change', async () => {
   await tick();
   expect(screen.queryByLabelText('Dashboard title')).not.toBeInTheDocument();
   expect(screen.getByRole('navigation')).toHaveClass('min-w-leftnavbar');
+});
+
+test('renders Accounts nav item', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+
+  // Accounts NavItem uses tooltip="" so its link aria-label is ""; query by attribute directly
+  const accountsLink = document.querySelector('nav a[aria-label=""]');
+  expect(accountsLink).toBeInTheDocument();
+});
+
+test('clicking Settings when URL starts with /preferences calls exitSettingsCallback', async () => {
+  const exitSettingsCallback = vi.fn();
+  const meta = { url: '/preferences/resources' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback });
+
+  await fireEvent.click(screen.getByRole('link', { name: 'Settings' }));
+
+  expect(exitSettingsCallback).toHaveBeenCalledOnce();
+  expect(vi.mocked(handleNavigation)).not.toHaveBeenCalled();
+});
+
+test('clicking Settings when URL does not start with /preferences navigates to resources', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+
+  await fireEvent.click(screen.getByRole('link', { name: 'Settings' }));
+
+  expect(vi.mocked(handleNavigation)).toHaveBeenCalledWith({ page: NavigationPage.RESOURCES });
+});
+
+test('NAV_BAR_LAYOUT callback ignores event without detail property', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  callbacks.get(NAV_BAR_LAYOUT)?.(new Event('change'));
+  await tick();
+
+  expect(screen.queryByLabelText('Dashboard title')).not.toBeInTheDocument();
+});
+
+test('NAV_BAR_LAYOUT callback ignores event with mismatched key', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  callbacks.get(NAV_BAR_LAYOUT)?.({ detail: { key: 'some.other.setting', value: AppearanceSettings.IconAndTitle } });
+  await tick();
+
+  expect(screen.queryByLabelText('Dashboard title')).not.toBeInTheDocument();
+});
+
+test('removeEventListener is called for NAV_BAR_LAYOUT when component is destroyed', async () => {
+  const removeEventListenerMock = vi.fn();
+  onDidChangeConfiguration.removeEventListener = removeEventListenerMock;
+
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  const { unmount } = render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+
+  unmount();
+
+  expect(removeEventListenerMock).toHaveBeenCalledWith(NAV_BAR_LAYOUT, expect.any(Function));
+});
+
+test('scroll thumb is hidden when scroll region has no overflow', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  expect(document.querySelector('[data-nav-scroll-thumb]')).not.toBeInTheDocument();
+});
+
+test('scroll thumb appears with correct aria attributes when content overflows', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  const scrollRegion = document.getElementById('nav-scroll-region');
+  expect(scrollRegion).toBeInTheDocument();
+  if (!scrollRegion) return;
+
+  Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
+  Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
+  Object.defineProperty(scrollRegion, 'scrollTop', { value: 50, configurable: true, writable: true });
+
+  await fireEvent.scroll(scrollRegion);
+
+  const thumb = await waitFor(() => {
+    const el = document.querySelector('[data-nav-scroll-thumb]');
+    if (!el) throw new Error('thumb not yet visible');
+    return el;
+  });
+
+  expect(thumb).toHaveAttribute('role', 'scrollbar');
+  expect(thumb).toHaveAttribute('aria-controls', 'nav-scroll-region');
+  expect(thumb).toHaveAttribute('aria-valuemin', '0');
+  expect(thumb).toHaveAttribute('aria-valuemax', '100');
+  expect(Number(thumb.getAttribute('aria-valuenow'))).toBeGreaterThan(0);
+});
+
+test('scroll thumb disappears after scroll when content fits again', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  const scrollRegion = document.getElementById('nav-scroll-region');
+  if (!scrollRegion) return;
+
+  Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
+  Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
+  Object.defineProperty(scrollRegion, 'scrollTop', { value: 0, configurable: true, writable: true });
+  await fireEvent.scroll(scrollRegion);
+  await waitFor(() => {
+    if (!document.querySelector('[data-nav-scroll-thumb]')) throw new Error('thumb not yet visible');
+  });
+
+  Object.defineProperty(scrollRegion, 'scrollHeight', { value: 200, configurable: true });
+  await fireEvent.scroll(scrollRegion);
+  await tick();
+
+  expect(document.querySelector('[data-nav-scroll-thumb]')).not.toBeInTheDocument();
+});
+
+test('scroll region pointerdown on a nav link does not modify scrollTop', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  const scrollRegion = document.getElementById('nav-scroll-region');
+  if (!scrollRegion) return;
+
+  let scrollTopModified = false;
+  Object.defineProperty(scrollRegion, 'scrollTop', {
+    get: () => 0,
+    set: () => {
+      scrollTopModified = true;
+    },
+    configurable: true,
+  });
+
+  const navLink = scrollRegion.querySelector('a');
+  if (navLink) {
+    await fireEvent.pointerDown(navLink, { clientY: 100 });
+  }
+
+  expect(scrollTopModified).toBe(false);
+});
+
+test('scroll region pointerdown on non-interactive area modifies scrollTop', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  const scrollRegion = document.getElementById('nav-scroll-region');
+  if (!scrollRegion) return;
+
+  Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
+  Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
+
+  let scrollTopModified = false;
+  Object.defineProperty(scrollRegion, 'scrollTop', {
+    get: () => 0,
+    set: () => {
+      scrollTopModified = true;
+    },
+    configurable: true,
+  });
+
+  await fireEvent.pointerDown(scrollRegion, { target: scrollRegion, clientY: 100 });
+
+  expect(scrollTopModified).toBe(true);
+});
+
+test('scroll thumb wheel event scrolls the scroll region', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  const scrollRegion = document.getElementById('nav-scroll-region');
+  if (!scrollRegion) return;
+
+  Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
+  Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
+
+  let currentScrollTop = 0;
+  Object.defineProperty(scrollRegion, 'scrollTop', {
+    get: () => currentScrollTop,
+    set: (v: number) => {
+      currentScrollTop = v;
+    },
+    configurable: true,
+  });
+
+  await fireEvent.scroll(scrollRegion);
+  const thumb = await waitFor(() => {
+    const el = document.querySelector('[data-nav-scroll-thumb]');
+    if (!el) throw new Error('thumb not visible');
+    return el;
+  });
+
+  await fireEvent.wheel(thumb, { deltaY: 80 });
+
+  expect(currentScrollTop).toBe(80);
+});
+
+test('scroll thumb drag updates scroll position on pointermove', async () => {
+  const meta = { url: '/' } as unknown as TinroRouteMeta;
+  await fetchNavigationRegistries();
+  render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
+  await tick();
+
+  const scrollRegion = document.getElementById('nav-scroll-region');
+  if (!scrollRegion) return;
+
+  Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
+  Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
+
+  let currentScrollTop = 0;
+  Object.defineProperty(scrollRegion, 'scrollTop', {
+    get: () => currentScrollTop,
+    set: (v: number) => {
+      currentScrollTop = v;
+    },
+    configurable: true,
+  });
+
+  await fireEvent.scroll(scrollRegion);
+  const thumb = await waitFor(() => {
+    const el = document.querySelector('[data-nav-scroll-thumb]');
+    if (!el) throw new Error('thumb not visible');
+    return el;
+  });
+
+  await fireEvent.pointerDown(thumb, { clientY: 50 });
+  await fireEvent.pointerMove(window, { clientY: 100 });
+  await tick();
+
+  expect(currentScrollTop).toBeGreaterThan(0);
 });
