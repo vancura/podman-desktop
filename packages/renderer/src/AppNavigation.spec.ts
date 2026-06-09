@@ -163,9 +163,7 @@ test('renders Accounts nav item', async () => {
   await fetchNavigationRegistries();
   render(AppNavigation, { meta, exitSettingsCallback: vi.fn() });
 
-  // Accounts NavItem uses tooltip="" so its link aria-label is ""; query by attribute directly
-  const accountsLink = document.querySelector('nav a[aria-label=""]');
-  expect(accountsLink).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Accounts' })).toBeInTheDocument();
 });
 
 test('clicking Settings when URL starts with /preferences calls exitSettingsCallback', async () => {
@@ -243,7 +241,7 @@ test('scroll thumb appears with correct aria attributes when content overflows',
 
   const scrollRegion = document.getElementById('nav-scroll-region');
   expect(scrollRegion).toBeInTheDocument();
-  if (!scrollRegion) return;
+  if (!scrollRegion) throw new Error('nav-scroll-region element not found');
 
   Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
   Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
@@ -271,7 +269,8 @@ test('scroll thumb disappears after scroll when content fits again', async () =>
   await tick();
 
   const scrollRegion = document.getElementById('nav-scroll-region');
-  if (!scrollRegion) return;
+  expect(scrollRegion).not.toBeNull();
+  if (!scrollRegion) throw new Error('nav-scroll-region element not found');
 
   Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
   Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
@@ -295,7 +294,8 @@ test('scroll region pointerdown on a nav link does not modify scrollTop', async 
   await tick();
 
   const scrollRegion = document.getElementById('nav-scroll-region');
-  if (!scrollRegion) return;
+  expect(scrollRegion).not.toBeNull();
+  if (!scrollRegion) throw new Error('nav-scroll-region element not found');
 
   let scrollTopModified = false;
   Object.defineProperty(scrollRegion, 'scrollTop', {
@@ -321,7 +321,8 @@ test('scroll region pointerdown on non-interactive area modifies scrollTop', asy
   await tick();
 
   const scrollRegion = document.getElementById('nav-scroll-region');
-  if (!scrollRegion) return;
+  expect(scrollRegion).not.toBeNull();
+  if (!scrollRegion) throw new Error('nav-scroll-region element not found');
 
   Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
   Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
@@ -347,7 +348,8 @@ test('scroll thumb wheel event scrolls the scroll region', async () => {
   await tick();
 
   const scrollRegion = document.getElementById('nav-scroll-region');
-  if (!scrollRegion) return;
+  expect(scrollRegion).not.toBeNull();
+  if (!scrollRegion) throw new Error('nav-scroll-region element not found');
 
   Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
   Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
@@ -380,7 +382,8 @@ test('scroll thumb drag updates scroll position on pointermove', async () => {
   await tick();
 
   const scrollRegion = document.getElementById('nav-scroll-region');
-  if (!scrollRegion) return;
+  expect(scrollRegion).not.toBeNull();
+  if (!scrollRegion) throw new Error('nav-scroll-region element not found');
 
   Object.defineProperty(scrollRegion, 'scrollHeight', { value: 500, configurable: true });
   Object.defineProperty(scrollRegion, 'clientHeight', { value: 200, configurable: true });
