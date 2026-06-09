@@ -17,10 +17,10 @@
   },
   "devDependencies": {
     "@docker/extension-api-client-types": "0.4.2",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@podman-desktop/core-api": "workspace:*",
-    "electron": "42.1.0"
+    "electron": "42.3.3"
   }
 }
