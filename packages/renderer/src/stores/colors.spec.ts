@@ -36,7 +36,7 @@ const eventEmitter = {
 
 vi.mock(import('/@/lib/appearance/appearance-util'));
 
-const listColorsMock: Mock<() => Promise<ColorInfo[]>> = vi.fn();
+const listColorsMock: Mock<(theme: string) => Promise<ColorInfo[]>> = vi.fn();
 
 Object.defineProperty(global, 'window', {
   value: {
