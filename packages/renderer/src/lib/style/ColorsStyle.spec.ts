@@ -24,7 +24,7 @@ import type { ColorInfo } from '@podman-desktop/core-api';
 import { render } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
-import { colorsInfos } from '/@/stores/colors';
+import { colorsInfos, darkContextColorsInfos, hcDarkContextColorsInfos } from '/@/stores/colors';
 
 import ColorsStyle from './ColorsStyle.svelte';
 
@@ -42,20 +42,33 @@ test('Check colors are added in the css style', async () => {
     cssVar: '--pd-my-custom-color',
   };
 
-  // sets the colors
   colorsInfos.set([color]);
+  darkContextColorsInfos.set([]);
+  hcDarkContextColorsInfos.set([]);
 
   render(ColorsStyle);
 
-  // expect to have the generated style for the colors
   const style = document.querySelector('style');
   expect(style).toBeInTheDocument();
-  // should have css type
   expect(style).toHaveAttribute('type', 'text/css');
-
-  // check the id
   expect(style).toHaveAttribute('id', 'podman-desktop-colors-styles');
-
-  // check content
   expect(style).toHaveTextContent(':root { --pd-my-custom-color: #123456; }');
+});
+
+test('Check scoped dark and hc-dark blocks are emitted', async () => {
+  const currentColor: ColorInfo = { id: 'c', value: '#cur', cssVar: '--pd-c' };
+  const darkColor: ColorInfo = { id: 'd', value: '#drk', cssVar: '--pd-d' };
+  const hcDarkColor: ColorInfo = { id: 'h', value: '#hcd', cssVar: '--pd-h' };
+
+  colorsInfos.set([currentColor]);
+  darkContextColorsInfos.set([darkColor]);
+  hcDarkContextColorsInfos.set([hcDarkColor]);
+
+  render(ColorsStyle);
+
+  const style = document.querySelector('style');
+  expect(style).toBeInTheDocument();
+  expect(style).toHaveTextContent(':root { --pd-c: #cur; }');
+  expect(style).toHaveTextContent('[data-pd-force-theme="dark"] { --pd-d: #drk; }');
+  expect(style).toHaveTextContent('[data-pd-force-theme="hc-dark"] { --pd-h: #hcd; }');
 });

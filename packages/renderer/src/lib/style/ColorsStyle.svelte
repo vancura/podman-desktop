@@ -3,11 +3,17 @@ import type { ColorInfo } from '@podman-desktop/core-api';
 import { onDestroy, onMount } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
-import { colorsInfos } from '/@/stores/colors';
+import { colorsInfos, darkContextColorsInfos, hcDarkContextColorsInfos } from '/@/stores/colors';
 
 let style: HTMLStyleElement;
 
-let unsubscribe: Unsubscriber;
+let unsubscribeCurrent: Unsubscriber;
+let unsubscribeDark: Unsubscriber;
+let unsubscribeHcDark: Unsubscriber;
+
+let currentInfos: ColorInfo[] = [];
+let darkInfos: ColorInfo[] = [];
+let hcDarkInfos: ColorInfo[] = [];
 
 function createStyleSheet(): HTMLStyleElement {
   style = document.createElement('style');
@@ -22,31 +28,47 @@ function createStyleSheet(): HTMLStyleElement {
   return style;
 }
 
+function toVars(infos: ColorInfo[]): string {
+  return infos.map(color => `${color.cssVar}: ${color.value};`).join('\n    ');
+}
+
+function regenerateCSS(): void {
+  style.textContent = `
+  :root {
+    ${toVars(currentInfos)}
+  }
+  [data-pd-force-theme="dark"] {
+    ${toVars(darkInfos)}
+  }
+  [data-pd-force-theme="hc-dark"] {
+    ${toVars(hcDarkInfos)}
+  }
+`;
+}
+
 onMount(() => {
   createStyleSheet();
 
-  // update icon rules
-  unsubscribe = colorsInfos.subscribe(infos => {
-    const styles: string[] = [];
-    infos.forEach((color: ColorInfo) => {
-      const cssVar = color.cssVar;
-      const colorValue = color.value;
+  unsubscribeCurrent = colorsInfos.subscribe(infos => {
+    currentInfos = infos;
+    regenerateCSS();
+  });
 
-      styles.push(`${cssVar}: ${colorValue};`);
-    });
+  unsubscribeDark = darkContextColorsInfos.subscribe(infos => {
+    darkInfos = infos;
+    regenerateCSS();
+  });
 
-    style.textContent = `
-  :root {
-    ${styles.join('\n')}
-  }
-`;
+  unsubscribeHcDark = hcDarkContextColorsInfos.subscribe(infos => {
+    hcDarkInfos = infos;
+    regenerateCSS();
   });
 });
 
 onDestroy(() => {
-  // remove old style tag from the head
   style?.remove();
-
-  unsubscribe?.();
+  unsubscribeCurrent?.();
+  unsubscribeDark?.();
+  unsubscribeHcDark?.();
 });
 </script>
