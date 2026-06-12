@@ -42,16 +42,23 @@ test('Check colors are added in the css style', async () => {
     cssVar: '--pd-my-custom-color',
   };
 
+  // sets the colors
   colorsInfos.set([color]);
   darkContextColorsInfos.set([]);
   hcDarkContextColorsInfos.set([]);
 
   render(ColorsStyle);
 
+  // expect to have the generated style for the colors
   const style = document.querySelector('style');
   expect(style).toBeInTheDocument();
+  // should have css type
   expect(style).toHaveAttribute('type', 'text/css');
+
+  // check the id
   expect(style).toHaveAttribute('id', 'podman-desktop-colors-styles');
+
+  // check content
   expect(style).toHaveTextContent(':root { --pd-my-custom-color: #123456; }');
 });
 
