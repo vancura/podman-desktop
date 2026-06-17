@@ -107,7 +107,7 @@ beforeEach(() => {
   BrowserWindow.prototype.destroy = vi.fn();
   BrowserWindow.prototype.hide = vi.fn();
   Object.defineProperty(BrowserWindow.prototype, 'webContents', {
-    value: { send: vi.fn() },
+    value: { send: vi.fn(), on: vi.fn(), once: vi.fn() },
     configurable: true,
   });
 
@@ -250,5 +250,122 @@ describe('createNewWindow', () => {
 
     // Window should be shown immediately (no deferral on non-macOS)
     expect(bwInstance.show).toHaveBeenCalled();
+  });
+
+  test('should force quit on close when tray is disabled', async () => {
+    vi.mocked(util.isLinux).mockReturnValue(true);
+
+    const { createNewWindow } = await import('./mainWindow.js');
+
+    await createNewWindow();
+
+    const bwInstance = vi.mocked(BrowserWindow).mock.results[0]?.value;
+    assert(bwInstance);
+
+    // Simulate configuration-registry IPC with ExitOnClose=false but ShowTrayIcon=false
+    const configHandler = getHandler(vi.mocked(ipcMain.on), 'configuration-registry');
+
+    const mockConfigRegistry = {
+      getConfiguration: vi.fn().mockReturnValue({
+        get: vi.fn((key: string) => {
+          if (key === 'ExitOnClose') return false;
+          if (key === 'ShowTrayIcon') return false;
+          return undefined;
+        }),
+      } as unknown as Configuration),
+    } as unknown as ConfigurationRegistry;
+
+    configHandler({}, mockConfigRegistry);
+
+    // Now trigger the close event
+    const closeHandler = getHandler(bwInstance.on, 'close');
+    const mockEvent = { preventDefault: vi.fn() };
+
+    closeHandler(mockEvent);
+
+    // Should quit (destroy + app.quit) even though ExitOnClose is false, because tray is hidden
+    expect(bwInstance.destroy).toHaveBeenCalled();
+    expect(app.quit).toHaveBeenCalled();
+  });
+
+  describe('Linux did-finish-load (replaces ready-to-show)', () => {
+    beforeEach(() => {
+      vi.mocked(util.isLinux).mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      delete process.env['WAYLAND_DISPLAY'];
+    });
+
+    test('should show window via did-finish-load on Linux X11', async () => {
+      const { createNewWindow } = await import('./mainWindow.js');
+
+      await createNewWindow();
+
+      const bwInstance = vi.mocked(BrowserWindow).mock.results[0]?.value;
+      assert(bwInstance);
+
+      const didFinishLoad = getHandler(bwInstance.webContents.once, 'did-finish-load');
+      didFinishLoad();
+
+      expect(bwInstance.show).toHaveBeenCalled();
+    });
+
+    test('should show window via did-finish-load on Linux Wayland', async () => {
+      process.env['WAYLAND_DISPLAY'] = 'wayland-0';
+
+      const { createNewWindow } = await import('./mainWindow.js');
+
+      await createNewWindow();
+
+      const bwInstance = vi.mocked(BrowserWindow).mock.results[0]?.value;
+      assert(bwInstance);
+
+      const didFinishLoad = getHandler(bwInstance.webContents.once, 'did-finish-load');
+      didFinishLoad();
+
+      expect(bwInstance.show).toHaveBeenCalled();
+    });
+
+    test('should not register ready-to-show on Linux (avoids Wayland show() feedback loop)', async () => {
+      const { createNewWindow } = await import('./mainWindow.js');
+
+      await createNewWindow();
+
+      const bwInstance = vi.mocked(BrowserWindow).mock.results[0]?.value;
+      assert(bwInstance);
+
+      const registeredEvents = vi.mocked(bwInstance.on).mock.calls.map((c: unknown[]) => c[0]);
+      expect(registeredEvents).not.toContain('ready-to-show');
+    });
+
+    test('should not register did-finish-load handler when not on Linux', async () => {
+      vi.mocked(util.isLinux).mockReturnValue(false);
+
+      const { createNewWindow } = await import('./mainWindow.js');
+
+      await createNewWindow();
+
+      const bwInstance = vi.mocked(BrowserWindow).mock.results[0]?.value;
+      assert(bwInstance);
+
+      expect(bwInstance.webContents.once).not.toHaveBeenCalledWith('did-finish-load', expect.any(Function));
+    });
+
+    test('should not show window via did-finish-load when --minimize flag is set', async () => {
+      process.argv = ['electron', '--minimize'];
+
+      const { createNewWindow } = await import('./mainWindow.js');
+
+      await createNewWindow();
+
+      const bwInstance = vi.mocked(BrowserWindow).mock.results[0]?.value;
+      assert(bwInstance);
+
+      const didFinishLoad = getHandler(bwInstance.webContents.once, 'did-finish-load');
+      didFinishLoad();
+
+      expect(bwInstance.show).not.toHaveBeenCalled();
+    });
   });
 });

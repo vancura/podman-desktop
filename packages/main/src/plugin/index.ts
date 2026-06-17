@@ -171,6 +171,8 @@ import { TrayMenu } from '/@/tray-menu.js';
 import { createHash, isMac } from '/@/util.js';
 import product from '/@product.json' with { type: 'json' };
 
+// eslint-disable-next-line no-restricted-imports
+import rootPackage from '../../../../package.json' with { type: 'json' };
 import { MainWindowDeferred } from './api.js';
 import { AppearanceInit } from './appearance-init.js';
 import { AuthenticationImpl } from './authentication.js';
@@ -243,6 +245,7 @@ import { TempFileService } from './temp-file-service.js';
 import { TerminalInit } from './terminal-init.js';
 import { TrayIconColor } from './tray-icon-color.js';
 import { TrayMenuRegistry } from './tray-menu-registry.js';
+import { TrayVisibility } from './tray-visibility.js';
 import { Troubleshooting } from './troubleshooting.js';
 import { DirectoryStrategy } from './util/directory-strategy.js';
 import { Exec } from './util/exec.js';
@@ -596,6 +599,10 @@ export class PluginSystem {
     container.bind<CloseBehavior>(CloseBehavior).toSelf().inSingletonScope();
     const closeBehaviorConfiguration = container.get<CloseBehavior>(CloseBehavior);
     await closeBehaviorConfiguration.init();
+
+    container.bind<TrayVisibility>(TrayVisibility).toSelf().inSingletonScope();
+    const trayVisibilityConfiguration = container.get<TrayVisibility>(TrayVisibility);
+    await trayVisibilityConfiguration.init();
 
     container.bind<DockerCompatibility>(DockerCompatibility).toSelf().inSingletonScope();
     const dockerCompatibility = container.get<DockerCompatibility>(DockerCompatibility);
@@ -1761,6 +1768,10 @@ export class PluginSystem {
 
     this.ipcHandle('app:getTitleBarText', async (_listener): Promise<string> => {
       return product.name;
+    });
+
+    this.ipcHandle('app:getAppRepository', async (_listener): Promise<string | undefined> => {
+      return rootPackage.repository;
     });
 
     this.ipcHandle('provider-registry:getProviderInfos', async (): Promise<ProviderInfo[]> => {
