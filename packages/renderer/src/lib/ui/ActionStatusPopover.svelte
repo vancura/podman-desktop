@@ -9,44 +9,12 @@ import type { PopoverEntry } from '/@/stores/prototype-screen';
 interface Props {
   entries: PopoverEntry[];
   leftPx: number;
+  visible: boolean;
 }
 
-let { entries, leftPx }: Props = $props();
+let { entries, leftPx, visible }: Props = $props();
 
-let allDone = $derived(entries.length > 0 && entries.every(e => e.status === 'done'));
-let dismissed = $state(false);
-let dismissTimer: ReturnType<typeof setTimeout> | undefined;
-
-$effect(() => {
-  if (allDone) {
-    dismissed = false;
-    clearTimeout(dismissTimer);
-    dismissTimer = setTimeout(() => {
-      dismissed = true;
-    }, 3000);
-  } else {
-    dismissed = false;
-    clearTimeout(dismissTimer);
-  }
-
-  return (): void => clearTimeout(dismissTimer);
-});
-
-let shouldShow = $derived(entries.length > 0 && !dismissed);
-let shown = $state(false);
-let showTimer: ReturnType<typeof setTimeout> | undefined;
-
-$effect(() => {
-  clearTimeout(showTimer);
-  if (shouldShow) {
-    showTimer = setTimeout(() => {
-      shown = true;
-    }, 500);
-  } else {
-    shown = false;
-  }
-  return (): void => clearTimeout(showTimer);
-});
+let shown = $derived(visible && entries.length > 0);
 
 $effect(() => {
   window.dispatchEvent(new CustomEvent(shown ? 'tooltip-hide' : 'tooltip-show'));
@@ -83,4 +51,3 @@ $effect(() => {
     </div>
   </div>
 {/if}
-

@@ -54,6 +54,26 @@ let buttonRefs = $state<Record<string, HTMLElement | undefined>>({});
 let popoverLeftPx = $state<number>(0);
 let lastSpinningKey = '';
 
+let isHovering = $state(false);
+let isFocusWithin = $state(false);
+let popoverVisible = $derived((isHovering || isFocusWithin) && popoverEntries.length > 0);
+
+function handleMouseEnter(): void {
+  isHovering = true;
+}
+
+function handleMouseLeave(): void {
+  isHovering = false;
+}
+
+function handleFocusIn(): void {
+  isFocusWithin = true;
+}
+
+function handleFocusOut(): void {
+  isFocusWithin = false;
+}
+
 $effect(() => {
   if (!containerRef || popoverEntries.length === 0) {
     lastSpinningKey = '';
@@ -196,7 +216,14 @@ function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: Provi
 
 {#if connectionStatus}
   {#if connection.lifecycleMethods && connection.lifecycleMethods.length > 0}
-    <div class="mt-2 relative" bind:this={containerRef}>
+    <div
+      class="mt-2 relative"
+      bind:this={containerRef}
+      onmouseenter={handleMouseEnter}
+      onmouseleave={handleMouseLeave}
+      onfocusin={handleFocusIn}
+      onfocusout={handleFocusOut}
+      role="presentation">
       <div
         class="flex bg-[var(--pd-action-button-details-bg)] w-fit rounded-lg m-auto"
         role="group"
@@ -254,7 +281,7 @@ function getLoggerHandler(provider: ProviderInfo, containerConnectionInfo: Provi
           {@render advanced_actions?.()}
         </div>
       </div>
-      <ActionStatusPopover entries={popoverEntries} leftPx={popoverLeftPx} />
+      <ActionStatusPopover entries={popoverEntries} leftPx={popoverLeftPx} visible={popoverVisible} />
     </div>
   {/if}
 {/if}

@@ -31,7 +31,6 @@ const overrides: Record<string, PrototypeOverride> = {
     popoverEntries: [{ action: 'start', status: 'done', label: 'Machine started' }],
   },
 
-  // dual-spinners: phase 0 -> both spinning, phase 1 -> stop done, phase 2 -> both done (auto-dismiss via popover)
   'dual-spinners': {
     connectionStatus: 'stopping',
     loadingStatus: { status: 'stopping', activeActions: ['stop', 'start'], inProgress: true },
@@ -57,28 +56,12 @@ const overrides: Record<string, PrototypeOverride> = {
     ],
   },
 
-  // timer-interrupt: phase 0 -> one action done (dismiss timer starts),
-  // phase 1 (at 2s, before 3s dismiss) -> new in-progress action interrupts dismiss,
-  // phase 2 (at 7s) -> second action done (dismiss timer restarts)
-  'timer-interrupt': {
-    connectionStatus: 'started',
-    loadingStatus: { status: 'started', inProgress: false },
-    popoverEntries: [{ action: 'stop', status: 'done', label: 'Machine stopped' }],
-  },
-  'timer-interrupt:1': {
+  'mixed-status': {
     connectionStatus: 'starting',
     loadingStatus: { status: 'starting', action: 'start', inProgress: true },
     popoverEntries: [
       { action: 'stop', status: 'done', label: 'Machine stopped' },
       { action: 'start', status: 'in-progress', label: 'Starting machine...' },
-    ],
-  },
-  'timer-interrupt:2': {
-    connectionStatus: 'started',
-    loadingStatus: { status: 'started', inProgress: false },
-    popoverEntries: [
-      { action: 'stop', status: 'done', label: 'Machine stopped' },
-      { action: 'start', status: 'done', label: 'Machine started' },
     ],
   },
 };
@@ -92,10 +75,6 @@ const screenTimelines: Record<string, PhaseSchedule[]> = {
   'dual-spinners': [
     { delay: 5000, phase: 1 },
     { delay: 10000, phase: 2 },
-  ],
-  'timer-interrupt': [
-    { delay: 2000, phase: 1 },
-    { delay: 7000, phase: 2 },
   ],
 };
 

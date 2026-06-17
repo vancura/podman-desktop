@@ -10,7 +10,7 @@ const screens: { value: string; label: string }[] = [
   { value: 'single-starting', label: 'Single action - starting' },
   { value: 'single-complete', label: 'Single action - complete' },
   { value: 'dual-spinners', label: 'Dual spinners - full timeline' },
-  { value: 'timer-interrupt', label: 'Timer interrupt - dismiss interrupted' },
+  { value: 'mixed-status', label: 'Mixed status - one done, one in-progress' },
 ];
 
 let selectedScreen: string = $state(screens[0].value);
