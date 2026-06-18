@@ -13,7 +13,7 @@ overrides:
   express>cookie: ^0.7.0
   qs: ^6.15.2
   dompurify@^3: ^3.4.10
-  webpack-dev-server>http-proxy-middleware: ^2.0.9
+  webpack-dev-server>http-proxy-middleware: ^3.0.6
   esbuild-register>esbuild: '>=0.28.1'
   tsx>esbuild: '>=0.28.1'
   vite>esbuild: '>=0.28.1'
@@ -8357,14 +8357,9 @@ packages:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
 
-  http-proxy-middleware@2.0.9:
-    resolution: {integrity: sha512-c1IyJYLYppU574+YI7R4QyX2ystMtVXZwIdzazUIPIJsHuWNd+mho2j+bKoHftndicGj9yh+xjd+l0yj7VeT1Q==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@types/express': ^4.17.13
-    peerDependenciesMeta:
-      '@types/express':
-        optional: true
+  http-proxy-middleware@3.0.7:
+    resolution: {integrity: sha512-iwbQltVlx8bCrqePUM8C+hllHvdawVhQJaLrj1X7qllkvFQdXFsr16pW/mo9+JDVjN+QO2XUx9jd8SmoFkE5qw==}
+    engines: {node: ^14.18.0 || ^16.10.0 || >=18.0.0}
 
   http-proxy@1.18.1:
     resolution: {integrity: sha512-7mz/721AbnJwIVbnaSv1Cz3Am0ZLT/UBwkC92VlxhXv/k/BBQfM2fXElQNC27BVGr0uwUpplYPQM9LnaBMR5NQ==}
@@ -8717,16 +8712,16 @@ packages:
     resolution: {integrity: sha512-yvkRyxmFKEOQ4pNXCmJG5AEQNlXJS5LaONXo5/cLdTZdWvsZ1ioJEonLGAosKlMWE8lwUy/bJzMjcw8az73+Fg==}
     engines: {node: '>=0.10.0'}
 
-  is-plain-obj@3.0.0:
-    resolution: {integrity: sha512-gwsOE28k+23GP1B6vFl1oVh/WOzmawBrKwo5Ev6wMKzPkaXaCDIQKzLnvsA42DRlbVTWorkgTKIviAKCWkfUwA==}
-    engines: {node: '>=10'}
-
   is-plain-obj@4.1.0:
     resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
     engines: {node: '>=12'}
 
   is-plain-object@2.0.4:
     resolution: {integrity: sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==}
+    engines: {node: '>=0.10.0'}
+
+  is-plain-object@5.0.0:
+    resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
     engines: {node: '>=0.10.0'}
 
   is-potential-custom-element-name@1.0.1:
@@ -14590,7 +14585,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14689,7 +14683,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14732,7 +14725,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14773,7 +14765,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14804,7 +14795,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14830,7 +14820,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - react
@@ -14861,7 +14850,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14888,7 +14876,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14916,7 +14903,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14943,7 +14929,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -14975,7 +14960,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -15006,7 +14990,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -15046,7 +15029,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - search-insights
@@ -15101,7 +15083,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -15157,7 +15138,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - supports-color
@@ -15199,7 +15179,6 @@ snapshots:
       - acorn
       - bufferutil
       - csso
-      - debug
       - esbuild
       - lightningcss
       - search-insights
@@ -21177,7 +21156,9 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  follow-redirects@1.16.0: {}
+  follow-redirects@1.16.0(debug@4.4.3):
+    optionalDependencies:
+      debug: 4.4.3
 
   for-each@0.3.5:
     dependencies:
@@ -21787,22 +21768,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy-middleware@2.0.9(@types/express@4.17.25):
+  http-proxy-middleware@3.0.7:
     dependencies:
       '@types/http-proxy': 1.17.15
-      http-proxy: 1.18.1
+      debug: 4.4.3
+      http-proxy: 1.18.1(debug@4.4.3)
       is-glob: 4.0.3
-      is-plain-obj: 3.0.0
+      is-plain-object: 5.0.0
       micromatch: 4.0.8
-    optionalDependencies:
-      '@types/express': 4.17.25
     transitivePeerDependencies:
-      - debug
+      - supports-color
 
-  http-proxy@1.18.1:
+  http-proxy@1.18.1(debug@4.4.3):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.16.0
+      follow-redirects: 1.16.0(debug@4.4.3)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -22087,13 +22067,13 @@ snapshots:
 
   is-plain-obj@1.1.0: {}
 
-  is-plain-obj@3.0.0: {}
-
   is-plain-obj@4.1.0: {}
 
   is-plain-object@2.0.4:
     dependencies:
       isobject: 3.0.1
+
+  is-plain-object@5.0.0: {}
 
   is-potential-custom-element-name@1.0.1: {}
 
@@ -26865,7 +26845,7 @@ snapshots:
       connect-history-api-fallback: 2.0.0
       express: 4.22.1
       graceful-fs: 4.2.11
-      http-proxy-middleware: 2.0.9(@types/express@4.17.25)
+      http-proxy-middleware: 3.0.7
       ipaddr.js: 2.2.0
       launch-editor: 2.14.1
       open: 10.2.0
@@ -26881,7 +26861,6 @@ snapshots:
       webpack: 5.105.0(esbuild@0.28.1)
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - supports-color
       - utf-8-validate
 
