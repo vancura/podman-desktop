@@ -542,6 +542,13 @@ jobs:
             ./tests/**/output/
             !./tests/**/traces/raw
 
+  managed-configuration:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/managed-configuration-template.yaml
+    secrets: inherit
+
   detect_pnpm_changes:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'area/ci') || !github.event.pull_request.draft }}
     # name should not change since it is a required rule pattern
