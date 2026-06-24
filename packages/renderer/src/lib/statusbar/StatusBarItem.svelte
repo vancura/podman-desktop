@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { StatusBarEntry } from '@podman-desktop/core-api';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 
 import { iconClass } from './StatusBarItem';
 
@@ -38,21 +39,22 @@ async function executeCommand(entry: StatusBarEntry): Promise<void> {
 }
 </script>
 
-<button
-  onclick={async (): Promise<void> => {
-    await executeCommand(entry);
-  }}
-  class="{opacity(entry)} px-1 py-px flex h-full items-center {hoverBackground(entry)} {hoverCursor(
-    entry,
-  )} relative inline-block"
-  title={tooltipText(entry)}>
-  {#if iconClass(entry)}
-    <span class={iconClass(entry)} aria-hidden="true" data-task-button="{tooltipText(entry)}"></span>
-  {/if}
-  {#if entry.text}
-    <span class="ml-1">{entry.text}</span>
-  {/if}
-  {#if entry.highlight}
-    <span role="status" class="absolute bg-[var(--pd-notification-dot)] rounded-full p-1 top-[1px] right-[-1px]"></span>
-  {/if}
-</button>
+<Tooltip tip={tooltipText(entry)} top>
+  <button
+    onclick={async (): Promise<void> => {
+      await executeCommand(entry);
+    }}
+    class="{opacity(entry)} px-1 py-px flex h-full items-center {hoverBackground(entry)} {hoverCursor(
+      entry,
+    )} relative inline-block">
+    {#if iconClass(entry)}
+      <span class={iconClass(entry)} aria-hidden="true" data-task-button="{tooltipText(entry)}"></span>
+    {/if}
+    {#if entry.text}
+      <span class="ml-1">{entry.text}</span>
+    {/if}
+    {#if entry.highlight}
+      <span role="status" class="absolute bg-[var(--pd-notification-dot)] rounded-full p-1 top-[1px] right-[-1px]"></span>
+    {/if}
+  </button>
+</Tooltip>

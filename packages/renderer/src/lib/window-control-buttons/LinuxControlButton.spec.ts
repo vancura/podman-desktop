@@ -32,5 +32,5 @@ test('Check Minimize', async () => {
   expect(customButton).toBeInTheDocument();
 
   // check the title of the button is 'Maximize'
-  expect(customButton).toHaveAttribute('title', 'Minimize');
+  expect(customButton).toHaveAttribute('aria-label', 'Minimize');
 });

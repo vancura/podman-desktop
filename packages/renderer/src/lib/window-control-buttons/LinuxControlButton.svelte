@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faSquare } from '@fortawesome/free-regular-svg-icons';
 import { faMinus, faXmark, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
 import type { IconSize } from 'svelte-fa';
@@ -26,10 +27,11 @@ onMount(() => {
 });
 </script>
 
-<button
-  on:click={action}
-  title={titleName}
-  aria-label={name}
-  class="h-[25px] w-[25px] cursor-pointer text-[var(--pd-titlebar-text)] hover:rounded-full hover:bg-[var(--pd-titlebar-hover-bg)] flex place-items-center justify-center">
-  <Icon size={iconSize} icon={icon} />
-</button>
+<Tooltip tip={titleName} bottom>
+  <button
+    on:click={action}
+    aria-label={name}
+    class="h-[25px] w-[25px] cursor-pointer text-[var(--pd-titlebar-text)] hover:rounded-full hover:bg-[var(--pd-titlebar-hover-bg)] flex place-items-center justify-center">
+    <Icon size={iconSize} icon={icon} />
+  </button>
+</Tooltip>

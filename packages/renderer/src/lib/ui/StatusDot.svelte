@@ -21,8 +21,8 @@ let resolvedTooltip = $derived(
 <Tooltip top tip={resolvedTooltip}>
   <div
     class="mr-0.5 {number ? 'mt-3' : ''}"
-    data-testid="status-dot"
-    title={resolvedTooltip}>
+    title={resolvedTooltip}
+    data-testid="status-dot">
     <StatusDotIcon {status} />
   </div>
   {#if number}

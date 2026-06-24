@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { faArrowLeft, faArrowRight, faBackward, faForward } from '@fortawesome/free-solid-svg-icons';
-import { Dropdown } from '@podman-desktop/ui-svelte';
+import { Dropdown, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import type { Component } from 'svelte';
 import { onMount } from 'svelte';
@@ -211,15 +211,16 @@ onMount(() => {
     style="-webkit-app-region: none;">
     {#each navButtons as btn (btn.direction)}
       <div class="relative">
-        <button
-          class="h-[25px] w-[25px] flex place-items-center justify-center hover:rounded hover:bg-[var(--pd-titlebar-hover-bg)] disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent"
-          title={btn.label}
-          aria-label={btn.label}
-          onclick={onClick.bind(undefined, btn.direction)}
-          disabled={!btn.canNavigate()}
-          {@attach longPress(onLongPress.bind(undefined, btn.direction))}>
-          <Icon icon={btn.icon} />
-        </button>
+        <Tooltip tip={btn.label} bottom>
+          <button
+            class="h-[25px] w-[25px] flex place-items-center justify-center hover:rounded hover:bg-[var(--pd-titlebar-hover-bg)] disabled:opacity-30 disabled:cursor-default disabled:hover:bg-transparent"
+            aria-label={btn.label}
+            onclick={onClick.bind(undefined, btn.direction)}
+            disabled={!btn.canNavigate()}
+            {@attach longPress(onLongPress.bind(undefined, btn.direction))}>
+            <Icon icon={btn.icon} />
+          </button>
+        </Tooltip>
         <Dropdown
           triggerless
           selectOnMouseUp

@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import { DropdownMenu } from '@podman-desktop/ui-svelte';
+import { DropdownMenu, Tooltip } from '@podman-desktop/ui-svelte';
 import { onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
 
@@ -111,18 +111,19 @@ const styleClass = $derived(
     onClick={handleClick} />
 {:else}
   <!-- enabled button -->
-  <button
-    title={title}
-    aria-label={title}
-    onclick={handleClick}
-    class="{styleClass} relative"
-    class:disabled={inProgress}
-    class:hidden={hidden}
-    class:inline-flex={!hidden}
-    disabled={!enabled}>
-    <LoadingIcon
-      icon={icon}
-      loading={inProgress}
-    />
-  </button>
+  <Tooltip tip={title}>
+    <button
+      aria-label={title}
+      onclick={handleClick}
+      class="{styleClass} relative"
+      class:disabled={inProgress}
+      class:hidden={hidden}
+      class:inline-flex={!hidden}
+      disabled={!enabled}>
+      <LoadingIcon
+        icon={icon}
+        loading={inProgress}
+      />
+    </button>
+  </Tooltip>
 {/if}

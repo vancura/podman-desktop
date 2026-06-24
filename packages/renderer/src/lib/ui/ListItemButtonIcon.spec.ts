@@ -42,10 +42,11 @@ test('Expect the dropDownMenuItem to have classes that display a disabled object
     contextUI: contextUI,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByText(title);
   expect(listItemSpan).toBeInTheDocument();
+  const menuItem = listItemSpan.closest('[role="none"]');
   expect(
-    listItemSpan.parentElement!.outerHTML.indexOf(
+    menuItem!.outerHTML.indexOf(
       'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]',
     ) > 0,
   ).toBeTruthy();
@@ -61,10 +62,11 @@ test('Expect the dropDownMenuItem to have classes that display a disabled object
     menu: true,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByText(title);
   expect(listItemSpan).toBeInTheDocument();
+  const menuItem = listItemSpan.closest('[role="none"]');
   expect(
-    listItemSpan.parentElement!.outerHTML.indexOf(
+    menuItem!.outerHTML.indexOf(
       'text-[var(--pd-dropdown-disabled-item-text)] bg-[var(--pd-dropdown-disabled-item-bg)]',
     ) > 0,
   ).toBeTruthy();
@@ -85,9 +87,10 @@ test('Expect the dropDownMenuItem NOT to have classes that display a disabled ob
     contextUI: contextUI,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByText(title);
   expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
+  const menuItem = listItemSpan.closest('[role="none"]');
+  expect(menuItem!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
 });
 
 test('Expect the dropDownMenuItem NOT to have classes that display a disabled object if the disabled when clause is false', async () => {
@@ -100,9 +103,10 @@ test('Expect the dropDownMenuItem NOT to have classes that display a disabled ob
     menu: true,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByText(title);
   expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
+  const menuItem = listItemSpan.closest('[role="none"]');
+  expect(menuItem!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
 });
 
 test('Expect the dropDownMenuItem NOT to have classes that display a disabled object if the disabled when clause is empty', async () => {
@@ -115,9 +119,10 @@ test('Expect the dropDownMenuItem NOT to have classes that display a disabled ob
     menu: true,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByText(title);
   expect(listItemSpan).toBeInTheDocument();
-  expect(listItemSpan.parentElement!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
+  const menuItem = listItemSpan.closest('[role="none"]');
+  expect(menuItem!.outerHTML.indexOf('text-gray-900 bg-charcoal-800') === -1).toBeTruthy();
 });
 
 test('With custom font icon', async () => {
@@ -166,7 +171,7 @@ test('expect button to not have inline-flex when hidden is true', async () => {
     menu: false,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByRole('button', { name: title });
   expect(listItemSpan).toBeInTheDocument();
   expect(listItemSpan).toHaveClass('hidden');
   expect(listItemSpan).not.toHaveClass('inline-flex');
@@ -182,7 +187,7 @@ test('expect button to have inline-flex when hidden is false', async () => {
     menu: false,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByRole('button', { name: title });
   expect(listItemSpan).toBeInTheDocument();
   expect(listItemSpan).not.toHaveClass('hidden');
   expect(listItemSpan).toHaveClass('inline-flex');
