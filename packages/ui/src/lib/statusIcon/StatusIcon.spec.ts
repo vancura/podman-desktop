@@ -28,7 +28,7 @@ test('Expect starting styling', async () => {
   render(StatusIcon, { status });
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveAttribute('aria-label', status);
 
   expect(icon).toHaveClass('bg-[var(--pd-status-starting)]');
   expect(icon).toHaveClass('text-[var(--pd-status-contrast)]');
@@ -39,7 +39,7 @@ test('Expect running styling', async () => {
   render(StatusIcon, { status });
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveAttribute('aria-label', status);
 
   expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
   expect(icon).toHaveClass('text-[var(--pd-status-contrast)]');
@@ -50,7 +50,7 @@ test('Expect degraded styling', async () => {
   render(StatusIcon, { status });
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveAttribute('aria-label', status);
 
   expect(icon).toHaveClass('bg-[var(--pd-status-degraded)]');
   expect(icon).toHaveClass('text-[var(--pd-status-contrast)]');
@@ -61,7 +61,7 @@ test('Expect deleting styling', async () => {
   render(StatusIcon, { status });
   const icon = screen.getByRole('status', { name: status });
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveAttribute('aria-label', status);
   expect(icon).not.toHaveAttribute('border');
 
   const spinner = screen.getByRole('status', { name: 'Loading' }).firstChild;
@@ -74,7 +74,7 @@ test('Expect updating styling', async () => {
   render(StatusIcon, { status });
   const icon = screen.getByRole('status', { name: status });
   expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveAttribute('aria-label', status);
   expect(icon).not.toHaveAttribute('border');
 
   const spinner = screen.getByRole('status', { name: 'Loading' }).firstChild;

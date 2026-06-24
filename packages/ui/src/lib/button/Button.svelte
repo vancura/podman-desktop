@@ -5,6 +5,7 @@ import { createEventDispatcher, untrack } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
 import Spinner from '../progress/Spinner.svelte';
+import Tooltip from '../tooltip/Tooltip.svelte';
 import type { ButtonType } from './Button';
 
 interface Props {
@@ -88,34 +89,35 @@ let classes = $derived.by(() => {
 });
 </script>
 
-<button
-  type="button"
-  class="relative {actualPadding} motion-reduce:transition-none min-h-[28px] min-w-[28px] leading-[15px] select-none {classes} {classNames}"
-  class:border-[var(--pd-button-tab-border-selected)]={type === 'tab' && selected && !disabled && !inProgress}
-  class:hover:border-[var(--pd-button-tab-hover-border)]={type === 'tab' && !selected && !disabled && !inProgress}
-  class:text-[var(--pd-button-tab-text-selected)]={type === 'tab' && selected && !disabled && !inProgress}
-  class:text-[var(--pd-button-tab-text)]={type === 'tab' && !selected && !disabled && !inProgress}
-  hidden={hidden}
-  title={title}
-  aria-label={ariaLabel}
-  onclick={onclick}
-  disabled={disabled || inProgress}
-  aria-disabled={disabled || inProgress}
-  aria-busy={inProgress}>
-  {#if icon ?? inProgress}
-    <div
-      class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
-      class:py-[3px]={!children}>
-      {#if inProgress}
-        <Spinner size="1em" />
-      {:else if icon}
-        <Icon icon={icon}/>
-      {/if}
-      {#if children}
-        <span>{@render children()}</span>
-      {/if}
-    </div>
-  {:else}
-    {@render children?.()}
-  {/if}
-</button>
+<Tooltip tip={title} containerClass="contents">
+  <button
+    type="button"
+    class="relative {actualPadding} motion-reduce:transition-none min-h-[28px] min-w-[28px] leading-[15px] select-none {classes} {classNames}"
+    class:border-[var(--pd-button-tab-border-selected)]={type === 'tab' && selected && !disabled && !inProgress}
+    class:hover:border-[var(--pd-button-tab-hover-border)]={type === 'tab' && !selected && !disabled && !inProgress}
+    class:text-[var(--pd-button-tab-text-selected)]={type === 'tab' && selected && !disabled && !inProgress}
+    class:text-[var(--pd-button-tab-text)]={type === 'tab' && !selected && !disabled && !inProgress}
+    hidden={hidden}
+    aria-label={ariaLabel ?? (!children ? title : undefined)}
+    onclick={onclick}
+    disabled={disabled || inProgress}
+    aria-disabled={disabled || inProgress}
+    aria-busy={inProgress}>
+    {#if icon ?? inProgress}
+      <div
+        class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
+        class:py-[3px]={!children}>
+        {#if inProgress}
+          <Spinner size="1em" />
+        {:else if icon}
+          <Icon icon={icon}/>
+        {/if}
+        {#if children}
+          <span>{@render children()}</span>
+        {/if}
+      </div>
+    {:else}
+      {@render children?.()}
+    {/if}
+  </button>
+</Tooltip>

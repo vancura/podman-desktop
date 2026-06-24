@@ -58,9 +58,8 @@ test('Expect tooltip is used if not empty', async () => {
     icon: faCircleUp,
   });
 
-  // grab the svg element
-  const span = screen.getByTitle('tooltip');
-  expect(span).toBeInTheDocument();
+  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  expect(tooltipTrigger).toBeInTheDocument();
 });
 
 test('Expect font awesome icon to have class w-4 text-md', async () => {

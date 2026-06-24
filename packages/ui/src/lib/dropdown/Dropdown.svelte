@@ -4,6 +4,7 @@ import { faCaretDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { type Component, onMount, type Snippet } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
+import Tooltip from '../tooltip/Tooltip.svelte';
 
 interface Option {
   value: string;
@@ -202,14 +203,14 @@ function onWindowClick(e: Event): void {
           class="flex w-full p-2.5 hover:bg-[var(--pd-dropdown-item-hover-bg)] hover:text-[var(--pd-dropdown-item-hover-text)] hover:rounded-md text-[var(--pd-dropdown-item-text)] hover:cursor-pointer text-start"
           class:bg-[var(--pd-dropdown-item-hover-bg)]={highlightIndex === i}
           class:text-[var(--pd-dropdown-item-hover-text)]={highlightIndex === i}>
-          <span
-            title={option.label}
-            class="group flex items-center no-underline whitespace-nowrap h-4">
-            {#if option.icon}
-              <Icon class="w-4 text-md" icon={option.icon} />
-            {/if}
-            <span class={option.icon ? 'ml-2' : ''}>{option.label}</span>
-          </span>
+          <Tooltip tip={option.label}>
+            <span class="group flex items-center no-underline whitespace-nowrap h-4">
+              {#if option.icon}
+                <Icon class="w-4 text-md" icon={option.icon} />
+              {/if}
+              <span class={option.icon ? 'ml-2' : ''}>{option.label}</span>
+            </span>
+          </Tooltip>
         </button>
       {/each}
     </div>

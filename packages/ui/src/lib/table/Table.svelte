@@ -15,6 +15,7 @@ import Checkbox from '../checkbox/Checkbox.svelte';
 import ChevronExpander from '../icons/ChevronExpander.svelte';
 import type { ListOrganizerItem } from '../layouts/ListOrganizer';
 import ListOrganizer from '../layouts/ListOrganizer.svelte';
+import Tooltip from '../tooltip/Tooltip.svelte';
 /* eslint-enable import/no-duplicates */
 import type { Column, Row } from './table';
 import { tablePersistence } from './table-persistence-store.svelte';
@@ -455,16 +456,18 @@ async function resetColumns(): Promise<void> {
           aria-label={label(object)}>
           <div class="whitespace-nowrap place-self-center" role="cell">
             {#if children.length > 0}
-              <button
-                title={collapsed.includes(itemKey) ? 'Expand Row' : 'Collapse Row'}
-                aria-expanded={!collapsed.includes(itemKey)}
-                on:click={toggleChildren.bind(undefined, itemKey)}
-              >
-                <ChevronExpander
-                  expanded={!collapsed.includes(itemKey)}
-                  size="0.8x"
-                  class="text-[var(--pd-table-body-text)] cursor-pointer" />
-              </button>
+              <Tooltip tip={collapsed.includes(itemKey) ? 'Expand Row' : 'Collapse Row'}>
+                <button
+                  aria-label={collapsed.includes(itemKey) ? 'Expand Row' : 'Collapse Row'}
+                  aria-expanded={!collapsed.includes(itemKey)}
+                  on:click={toggleChildren.bind(undefined, itemKey)}
+                >
+                  <ChevronExpander
+                    expanded={!collapsed.includes(itemKey)}
+                    size="0.8x"
+                    class="text-[var(--pd-table-body-text)] cursor-pointer" />
+                </button>
+              </Tooltip>
             {/if}
           </div>
           {#if row.info.selectable}

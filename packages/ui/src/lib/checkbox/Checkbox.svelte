@@ -4,6 +4,7 @@ import { faCheckSquare, faMinusSquare, faSquare } from '@fortawesome/free-solid-
 import { createEventDispatcher, type Snippet } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
+import Tooltip from '../tooltip/Tooltip.svelte';
 
 const dispatch = createEventDispatcher<{ click: boolean }>();
 
@@ -48,12 +49,12 @@ function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLInpu
 </script>
 
 <label class="flex flex-row items-center {className}">
-  <div class="relative p-2 self-start" class:mt-0.5={!!children} class:mr-1={!!children}>
-    <div
-      class="grid absolute left-0 top-0"
-      title={disabled ? disabledTooltip : title}
-      class:cursor-pointer={!disabled}
-      class:cursor-not-allowed={disabled}>
+  <Tooltip tip={disabled ? disabledTooltip : title}>
+    <div class="relative p-2 self-start" class:mt-0.5={!!children} class:mr-1={!!children}>
+      <div
+        class="grid absolute left-0 top-0"
+        class:cursor-pointer={!disabled}
+        class:cursor-not-allowed={disabled}>
       {#if disabled}
         <Icon size={faSize} icon={faSquare} class="text-[var(--pd-input-checkbox-disabled)]"/>
       {:else if indeterminate}
@@ -69,19 +70,20 @@ function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLInpu
           icon={faOutlineSquare}
           class="text-[var(--pd-input-checkbox-unchecked)] hover:text-[var(--pd-input-checkbox-focused-unchecked)]"/>
       {/if}
+      </div>
+      <input
+        aria-label={title}
+        type="checkbox"
+        id={id}
+        name={name}
+        bind:checked={checked}
+        disabled={disabled}
+        required={required}
+        class:cursor-pointer={!disabled}
+        class:cursor-not-allowed={disabled}
+        class="opacity-0 absolute top-0 left-0 w-px h-px text-xl"
+        onclick={handleClick} />
     </div>
-    <input
-      aria-label={title}
-      type="checkbox"
-      id={id}
-      name={name}
-      bind:checked={checked}
-      disabled={disabled}
-      required={required}
-      class:cursor-pointer={!disabled}
-      class:cursor-not-allowed={disabled}
-      class="opacity-0 absolute top-0 left-0 w-px h-px text-xl"
-      onclick={handleClick} />
-  </div>
+  </Tooltip>
   {@render children?.()}
 </label>

@@ -3,6 +3,7 @@ import { faCheck, faGripVertical, faPen, faUndo } from '@fortawesome/free-solid-
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 import { Icon } from '../icons';
+import Tooltip from '../tooltip/Tooltip.svelte';
 import type { ListOrganizerItem } from './ListOrganizer';
 
 /**
@@ -245,15 +246,17 @@ function handleReset(): void {
 <svelte:body class:cursor-grabbing={isDraggingActive} />
 
 <div class="relative inline-block {className}" bind:this={containerElement}>
-  <button
-    class="cursor-pointer text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)] transition-all duration-150 hover:scale-110 active:scale-95 flex items-center justify-center p-1"
-    class:text-[var(--pd-action-button-hover-text)]={isOpen}
-    onclick={toggleDropdown}
-    title={title}
-    tabindex="0"
-  >
-    <Icon icon={faPen} />
-  </button>
+  <Tooltip tip={title}>
+    <button
+      class="cursor-pointer text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)] transition-all duration-150 hover:scale-110 active:scale-95 flex items-center justify-center p-1"
+      class:text-[var(--pd-action-button-hover-text)]={isOpen}
+      onclick={toggleDropdown}
+      aria-label={title}
+      tabindex="0"
+    >
+      <Icon icon={faPen} />
+    </button>
+  </Tooltip>
 
   {#if isOpen}
     <div
@@ -285,23 +288,24 @@ function handleReset(): void {
               </div>
 
               {#if enableReorder}
-              <div
-                class="text-[var(--pd-dropdown-item-text)] flex-shrink-0 rounded-sm p-1"
-                class:cursor-grab={!isDraggingActive}
-                class:cursor-grabbing={isDraggingActive}
-                draggable={true}
-                role="button"
-                tabindex="0"
-                data-grip-index={originalIndex}
-                onmousedown={(e): void => startDrag(e, originalIndex)}
-                onclick={(e): void => e.stopPropagation()}
-                onkeydown={(e): void => handleGripKeydown(e, originalIndex)}
-                onmouseenter={(): void => {isGripHovered = true;}}
-                onmouseleave={(): void => {isGripHovered = false;}}
-                title="Use arrow keys to reorder, or drag with mouse"
-              >
-                <Icon icon={faGripVertical} class="text-[var(--pd-dropdown-item-text)]"/>
-              </div>
+              <Tooltip tip="Use arrow keys to reorder, or drag with mouse" right>
+                <div
+                  class="text-[var(--pd-dropdown-item-text)] flex-shrink-0 rounded-sm p-1"
+                  class:cursor-grab={!isDraggingActive}
+                  class:cursor-grabbing={isDraggingActive}
+                  draggable={true}
+                  role="button"
+                  tabindex="0"
+                  data-grip-index={originalIndex}
+                  onmousedown={(e): void => startDrag(e, originalIndex)}
+                  onclick={(e): void => e.stopPropagation()}
+                  onkeydown={(e): void => handleGripKeydown(e, originalIndex)}
+                  onmouseenter={(): void => {isGripHovered = true;}}
+                  onmouseleave={(): void => {isGripHovered = false;}}
+                >
+                  <Icon icon={faGripVertical} class="text-[var(--pd-dropdown-item-text)]"/>
+                </div>
+              </Tooltip>
             {/if}
           </button>
         {/each}

@@ -44,9 +44,9 @@ test('Basic check', async () => {
   expect(parent).toBeInTheDocument();
   expect(parent).toHaveClass('relative p-2 self-start');
 
-  const grandParent = parent?.parentElement;
-  expect(grandParent).toBeInTheDocument();
-  expect(grandParent).toHaveClass('flex flex-row items-center');
+  const label = checkbox.closest('label');
+  expect(label).toBeInTheDocument();
+  expect(label).toHaveClass('flex flex-row items-center');
 
   const peer = getPeer(checkbox);
   expect(peer).toBeInTheDocument();
@@ -120,14 +120,12 @@ test('Check tooltips', async () => {
   const title = 'My title';
   render(Checkbox, { title: title });
 
-  // check for one element of the styling
   const checkbox = screen.getByRole('checkbox');
   expect(checkbox).toBeInTheDocument();
+  expect(checkbox).toHaveAttribute('aria-label', title);
 
-  // check the peer, since we do our own styling
-  const peer = getPeer(checkbox);
-  expect(peer).toBeInTheDocument();
-  expect(peer).toHaveAttribute('title', title);
+  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  expect(tooltipTrigger).toBeInTheDocument();
 });
 
 test('Check disabled tooltips', async () => {
@@ -137,8 +135,6 @@ test('Check disabled tooltips', async () => {
   const checkbox = screen.getByRole('checkbox');
   expect(checkbox).toBeInTheDocument();
 
-  // check the peer, since we do our own styling
-  const peer = getPeer(checkbox);
-  expect(peer).toBeInTheDocument();
-  expect(peer).toHaveAttribute('title', title);
+  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  expect(tooltipTrigger).toBeInTheDocument();
 });

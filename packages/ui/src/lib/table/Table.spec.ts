@@ -622,7 +622,7 @@ describe('Table#collapsed', () => {
     expect(headers.length).toBe(5);
 
     // Should have layout management button
-    const layoutButton = screen.getByTitle('Configure Columns');
+    const layoutButton = screen.getByRole('button', { name: 'Configure Columns' });
     expect(layoutButton).toBeInTheDocument();
   });
 
@@ -646,7 +646,7 @@ describe('Table#collapsed', () => {
     expect(headers.length).toBe(4);
 
     // Should not have layout management button
-    const layoutButton = screen.queryByTitle('Configure Columns');
+    const layoutButton = screen.queryByRole('button', { name: 'Configure Columns' });
     expect(layoutButton).not.toBeInTheDocument();
   });
 });
