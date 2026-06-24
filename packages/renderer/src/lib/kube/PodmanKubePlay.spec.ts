@@ -37,7 +37,6 @@ test('Expect button to be visible with correct text and title', () => {
   const button = getByRole('button', { name: 'Podman Kube Play' });
   expect(button).toBeInTheDocument();
   expect(button).toHaveTextContent('Podman Kube Play');
-  expect(button).toHaveAttribute('title', 'Create containers, pods and volumes based on Kubernetes YAML');
 });
 
 test('Expect click on button to navigate to kube play page', async () => {

@@ -505,7 +505,7 @@ test('expect redirect to saveImage page when at least one image is selected and 
 
   await waitRender({});
 
-  const toggleAll = screen.getByTitle('Toggle all');
+  const toggleAll = screen.getByRole('checkbox', { name: 'Toggle all' });
   await fireEvent.click(toggleAll);
 
   const saveImages = screen.getByRole('button', { name: 'Save images' });

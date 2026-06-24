@@ -5,7 +5,7 @@ import {
   type ProviderInfo,
   type SystemOverviewStatus,
 } from '@podman-desktop/core-api';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 
 import IconImage from '/@/lib/appearance/IconImage.svelte';
 import { handleNavigation } from '/@/navigation';
@@ -86,14 +86,15 @@ function navigateToConnection(): void {
       </div>
     </Button>
   {:else}
-    <button
-      class="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer bg-[var(--pd-content-card-bg)] hover:bg-[var(--pd-content-card-carousel-card-hover-bg)] transition-colors"
-      onclick={navigateToConnection}
-      aria-label="Navigate to {connectionName}"
-      title="Navigate to {connectionName}">
-      <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center">
-        <IconImage image={provider.images?.icon} alt={provider.name} class="max-w-7 max-h-7 object-contain" />
-      </div>
-    </button>
+    <Tooltip tip="Navigate to {connectionName}">
+      <button
+        class="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer bg-[var(--pd-content-card-bg)] hover:bg-[var(--pd-content-card-carousel-card-hover-bg)] transition-colors"
+        onclick={navigateToConnection}
+        aria-label="Navigate to {connectionName}">
+        <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center">
+          <IconImage image={provider.images?.icon} alt={provider.name} class="max-w-7 max-h-7 object-contain" />
+        </div>
+      </button>
+    </Tooltip>
   {/if}
 </div>

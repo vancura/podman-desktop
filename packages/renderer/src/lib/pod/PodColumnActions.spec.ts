@@ -83,7 +83,8 @@ test('Expect error message', async () => {
 
   render(PodColumnActions, { object: pod });
 
-  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  const tooltipTriggers = screen.getAllByTestId('tooltip-trigger');
+  const tooltipTrigger = tooltipTriggers[0];
   await fireEvent.mouseEnter(tooltipTrigger);
 
   const error = await screen.findByText('Pod failed');

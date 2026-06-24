@@ -79,7 +79,8 @@ test('Expect default tooltip', async () => {
     icon: undefined,
   });
 
-  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  const tooltipTriggers = screen.getAllByTestId('tooltip-trigger');
+  const tooltipTrigger = tooltipTriggers[tooltipTriggers.length - 1];
   expect(tooltipTrigger).toBeInTheDocument();
   await fireEvent.mouseEnter(tooltipTrigger);
 

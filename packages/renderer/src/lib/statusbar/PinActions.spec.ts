@@ -92,7 +92,7 @@ test('should register windows#events#receive', async () => {
  * utility function to directly get the render result with the menu opened (default is hidden/closed)
  */
 async function getOpenedPinActions(): Promise<RenderResult<Component<ComponentProps<typeof PinActions>>>> {
-  const { getByTitle, ...result } = render(PinActions);
+  const { getByLabelText, ...result } = render(PinActions);
 
   // call toggle listener (will open the menu)
   const listener = getListener();
@@ -100,12 +100,12 @@ async function getOpenedPinActions(): Promise<RenderResult<Component<ComponentPr
 
   // wait for the menu to be open
   await vi.waitFor(() => {
-    const element = getByTitle('Pin Menu');
+    const element = getByLabelText('Pin Menu');
     expect(element).toBeInTheDocument();
   });
 
   return {
-    getByTitle,
+    getByLabelText,
     ...result,
   };
 }
@@ -123,12 +123,12 @@ test('opened menu should render provider based on pin options', async () => {
 
 test('escape should hide the menu', async () => {
   // render
-  const { queryByTitle } = await getOpenedPinActions();
+  const { queryByLabelText } = await getOpenedPinActions();
 
   await userEvent.keyboard('{Escape}');
 
   await vi.waitFor(() => {
-    expect(queryByTitle('Pin Menu')).toBeNull();
+    expect(queryByLabelText('Pin Menu')).toBeNull();
   });
 });
 

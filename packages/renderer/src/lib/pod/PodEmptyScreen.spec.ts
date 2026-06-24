@@ -137,6 +137,6 @@ test('button click shows error message if there is no active provider connection
 });
 
 testComponent(`${copyToClipboard} button click puts starting pod command to clipboard`, async () => {
-  await fireEvent.click(screen.getByTitle(copyToClipboard));
+  await fireEvent.click(screen.getByRole('button', { name: copyToClipboard }));
   expect(window.clipboardWriteText).toBeCalledWith(podCreateCommand);
 });

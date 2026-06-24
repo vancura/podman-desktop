@@ -29,7 +29,7 @@ test('Expect to have CLI command that can be copied', async () => {
   expect(screen.getByText('No networks')).toBeInTheDocument();
   expect(screen.getByText('Create your first network using the following command line:')).toBeInTheDocument();
 
-  const copyButton = screen.getByTitle('Copy To Clipboard');
+  const copyButton = screen.getByRole('button', { name: 'Copy To Clipboard' });
   expect(copyButton).toBeDefined();
 
   await fireEvent.click(copyButton);

@@ -798,7 +798,7 @@ describe('container provider connections', () => {
 
     const typeDiv = within(region).getByLabelText(`${defaultContainerConnectionName} type`);
     expect(typeDiv.textContent).toBe('Podman endpoint');
-    const endpointSpan = await vi.waitFor(() => within(region).getByTitle('unix://socket'));
+    const endpointSpan = await vi.waitFor(() => within(region).getByLabelText('unix://socket copy to clipboard'));
     expect(endpointSpan.textContent).toBe('unix://socket');
     const connectionType = within(region).getByLabelText('Connection Type');
     expect(connectionType.textContent).equal('Libkrun');
@@ -815,7 +815,7 @@ describe('container provider connections', () => {
 
     const typeDiv = within(region).getByLabelText(`${defaultContainerConnectionName} type`);
     expect(typeDiv.textContent).toBe('Docker endpoint');
-    const endpointSpan = await vi.waitFor(() => within(region).getByTitle('unix://socket'));
+    const endpointSpan = await vi.waitFor(() => within(region).getByLabelText('unix://socket copy to clipboard'));
     expect(endpointSpan.textContent).toBe('unix://socket');
   });
 

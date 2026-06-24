@@ -46,7 +46,7 @@ const DUMMY_FORWARD_CONFIG: ForwardConfig = {
 
 describe('port forwarding', () => {
   test('forward button should be visible and unique for each container port', async () => {
-    const { getByTitle } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -58,12 +58,12 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const port80 = getByTitle('Forward port 80');
+    const port80 = getByRole('button', { name: 'Forward...' });
     expect(port80).toBeDefined();
   });
 
   test('forward button should call ', async () => {
-    const { getByTitle } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -75,7 +75,7 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const forwardBtn = getByTitle('Forward port 80');
+    const forwardBtn = getByRole('button', { name: 'Forward...' });
     await fireEvent.click(forwardBtn);
 
     await vi.waitFor(() => {
@@ -93,7 +93,7 @@ describe('port forwarding', () => {
   });
 
   test('existing forward should display actions', async () => {
-    const { getByTitle } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -105,15 +105,15 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const openBtn = getByTitle('Open in browser');
+    const openBtn = getByRole('button', { name: 'Open' });
     expect(openBtn).toBeDefined();
 
-    const removeBtn = getByTitle('Remove port forward');
+    const removeBtn = getByRole('button', { name: 'Remove' });
     expect(removeBtn).toBeDefined();
   });
 
   test('open button should use window.openExternal with proper local port', async () => {
-    const { getByTitle } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -125,7 +125,7 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const openBtn = getByTitle('Open in browser');
+    const openBtn = getByRole('button', { name: 'Open' });
     await fireEvent.click(openBtn);
 
     await vi.waitFor(() => {
@@ -134,7 +134,7 @@ describe('port forwarding', () => {
   });
 
   test('remove button should use window.deleteKubernetesPortForward with proper local port', async () => {
-    const { getByTitle } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -146,7 +146,7 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const removeBtn = getByTitle('Remove port forward');
+    const removeBtn = getByRole('button', { name: 'Remove' });
     await fireEvent.click(removeBtn);
 
     await vi.waitFor(() => {
@@ -157,7 +157,7 @@ describe('port forwarding', () => {
   test('error from createKubernetesPortForward should be displayed', async () => {
     vi.mocked(window.createKubernetesPortForward).mockRejectedValue('Dummy error');
 
-    const { getByTitle, getByRole } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -169,7 +169,7 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const port80 = getByTitle('Forward port 80');
+    const port80 = getByRole('button', { name: 'Forward...' });
     await fireEvent.click(port80);
 
     await vi.waitFor(() => {
@@ -179,7 +179,7 @@ describe('port forwarding', () => {
   });
 
   test('non-TCP port should not display the forward action', async () => {
-    const { queryByTitle, getByText } = render(KubePort, {
+    const { queryByRole, getByText } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/UDP',
@@ -191,7 +191,7 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const port80 = queryByTitle('Forward port 80');
+    const port80 = queryByRole('button', { name: 'Forward...' });
     expect(port80).toBeNull();
 
     const tooltipTrigger = screen.getByTestId('tooltip-trigger');
@@ -203,7 +203,7 @@ describe('port forwarding', () => {
 
   // kubernetes default to TCP
   test('undefined protocol should display the forward action', async () => {
-    const { getByTitle } = render(KubePort, {
+    const { getByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80',
@@ -215,7 +215,7 @@ describe('port forwarding', () => {
       kind: WorkloadKind.POD,
     });
 
-    const port80 = getByTitle('Forward port 80');
+    const port80 = getByRole('button', { name: 'Forward...' });
     expect(port80).not.toBeNull();
   });
 
@@ -223,7 +223,7 @@ describe('port forwarding', () => {
     // only reject ONCE
     vi.mocked(window.deleteKubernetesPortForward).mockRejectedValueOnce('Dummy error');
 
-    const { getByTitle, getByRole, queryByRole } = render(KubePort, {
+    const { getByRole, queryByRole } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -236,7 +236,7 @@ describe('port forwarding', () => {
     });
 
     // first click will raise an error
-    const removeBtn = getByTitle('Remove port forward');
+    const removeBtn = getByRole('button', { name: 'Remove' });
     await fireEvent.click(removeBtn);
 
     await vi.waitFor(() => {
@@ -256,7 +256,7 @@ describe('port forwarding', () => {
   test('existing forward should display localhost port and copy', async () => {
     const clipboardWriteTextMock = vi.fn().mockImplementation(() => {});
     Object.defineProperty(window, 'clipboardWriteText', { value: clipboardWriteTextMock });
-    const { getByTitle, getByRole } = render(KubePort, {
+    const { getByRole, getByText } = render(KubePort, {
       namespace: 'dummy-ns',
       port: {
         displayValue: '80/TCP',
@@ -269,7 +269,7 @@ describe('port forwarding', () => {
     });
 
     const expected = 'http://localhost:55076';
-    const copySpan = getByTitle(expected);
+    const copySpan = getByText(expected);
     expect(copySpan).toBeDefined();
 
     const button = getByRole('button', { name: 'Copy To Clipboard' });

@@ -88,8 +88,8 @@ test('Expect that featured extensions are displayed', async () => {
 
   render(FeaturedExtensions);
 
-  // get by title
-  const firstExtension = screen.getByTitle('This is FooBar description');
+  // get by aria-label (displayName)
+  const firstExtension = screen.getByLabelText('FooBar');
   expect(firstExtension).toBeInTheDocument();
 
   // Not installed so it should have a button to install
@@ -97,7 +97,7 @@ test('Expect that featured extensions are displayed', async () => {
   // expect the button to be there
   expect(installButton).toBeInTheDocument();
 
-  // get by title
-  const thirdExtension = screen.getByTitle('FooBar not fetchable description');
+  // get by aria-label (displayName)
+  const thirdExtension = screen.getByLabelText('Bar');
   expect(thirdExtension).toBeInTheDocument();
 });

@@ -3,7 +3,7 @@ import { faPlusCircle, faTrash, faUser, faUserPen } from '@fortawesome/free-soli
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import { PreferredRegistriesSettings } from '@podman-desktop/core-api';
 import type { IConfigurationPropertyRecordedSchema } from '@podman-desktop/core-api/configuration';
-import { Button, DropdownMenu, ErrorMessage, Input } from '@podman-desktop/ui-svelte';
+import { Button, DropdownMenu, ErrorMessage, Input, Tooltip } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 
 import IconImage from '/@/lib/appearance/IconImage.svelte';
@@ -345,29 +345,31 @@ async function removeExistingRegistry(registry: containerDesktopAPI.Registry): P
                 <!-- Show/hide password start -->
                 {#if registry.username && registry.secret}
                   {#if showPasswordForServerUrls.some(r => r === registry.serverUrl)}
-                    <button
-                      type="button"
-                      class="justify-center"
-                      id="hide-password"
-                      title="Hide password"
-                      aria-label="Hide password"
-                      aria-expanded="true"
-                      aria-haspopup="true"
-                      onclick={(): void => setPasswordForRegistryVisible(registry, false)}>
-                      <i class="fa fa-eye-slash"></i>
-                    </button>
+                    <Tooltip tip="Hide password">
+                      <button
+                        type="button"
+                        class="justify-center"
+                        id="hide-password"
+                        aria-label="Hide password"
+                        aria-expanded="true"
+                        aria-haspopup="true"
+                        onclick={(): void => setPasswordForRegistryVisible(registry, false)}>
+                        <i class="fa fa-eye-slash"></i>
+                      </button>
+                    </Tooltip>
                   {:else}
-                    <button
-                      type="button"
-                      class="justify-center"
-                      id="show-password"
-                      title="Show password"
-                      aria-label="Show password"
-                      aria-expanded="true"
-                      aria-haspopup="true"
-                      onclick={(): void => setPasswordForRegistryVisible(registry, true)}>
-                      <i class="fa fa-eye"></i>
-                    </button>
+                    <Tooltip tip="Show password">
+                      <button
+                        type="button"
+                        class="justify-center"
+                        id="show-password"
+                        aria-label="Show password"
+                        aria-expanded="true"
+                        aria-haspopup="true"
+                        onclick={(): void => setPasswordForRegistryVisible(registry, true)}>
+                        <i class="fa fa-eye"></i>
+                      </button>
+                    </Tooltip>
                   {/if}
                 {/if}
 

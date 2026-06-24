@@ -78,14 +78,14 @@ function onCancelClick(e: Event): void {
   {/if}
 
   {#if !editingInProgress}
-    <Button on:click={onSwitchToInProgress} title="Edit" class="ml-1" padding="p-2" type="link">
+    <Button on:click={onSwitchToInProgress} title="Edit" aria-label="Edit" class="ml-1" padding="p-2" type="link">
       <Icon size="0.8x" icon={faPencil} />
     </Button>
   {:else}
-    <Button on:click={onCancelClick} title="Cancel" class="ml-3" padding="p-2" type="link">
+    <Button on:click={onCancelClick} title="Cancel" aria-label="Cancel" class="ml-3" padding="p-2" type="link">
       <Icon size="0.9x" class="text-[var(--pd-state-error)]" icon={faXmark} />
     </Button>
-    <Button on:click={onSaveClick} title="Save" padding="p-2" disabled={disableSaveButton} type="link">
+    <Button on:click={onSaveClick} title="Save" aria-label="Save" padding="p-2" disabled={disableSaveButton} type="link">
       <Icon size="0.9x" class={`${disableSaveButton ? 'text-[var(--pd-button-disabled-text)]' : 'text-[var(--pd-state-success)]'}`} icon={faCheck} />
     </Button>
   {/if}

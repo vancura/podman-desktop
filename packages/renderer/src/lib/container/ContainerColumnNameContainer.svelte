@@ -1,5 +1,6 @@
 <script lang="ts">
 import { NavigationPage } from '@podman-desktop/core-api';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 
 import { handleNavigation } from '/@/navigation';
 
@@ -21,11 +22,12 @@ function openContainerDetails(container: ContainerInfoUI): void {
   <div class="flex items-center max-w-full">
     <div class="max-w-full">
       <div class="flex flex-nowrap max-w-full">
-        <div
-          class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-[var(--pd-link)]"
-          title={object.name}>
-          {object.name}
-        </div>
+        <Tooltip tip={object.name}>
+          <div
+            class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis group-hover:text-[var(--pd-link)]">
+            {object.name}
+          </div>
+        </Tooltip>
       </div>
       <div class="flex flex-nowrap text-xs font-extra-light text-[var(--pd-table-body-text)] items-center max-w-full">
         <div>{object.state}</div>

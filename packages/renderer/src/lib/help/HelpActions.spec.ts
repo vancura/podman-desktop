@@ -47,9 +47,9 @@ describe('HelpActions component', () => {
     vi.mocked(window.isExperimentalConfigurationEnabled).mockResolvedValue(true);
     const title = 'Title 1';
     vi.mocked(window.helpMenuGetItems).mockResolvedValue([{ enabled: true, title, icon: 'fas fa-lightbulb' }]);
-    const { getByTitle } = render(HelpActions);
+    const { getByText } = render(HelpActions);
     await vi.waitUntil(() => !!toggleMenuCallback);
     toggleMenuCallback?.();
-    await vi.waitFor(() => expect(getByTitle(title)).toBeVisible());
+    await vi.waitFor(() => expect(getByText(title)).toBeVisible());
   });
 });

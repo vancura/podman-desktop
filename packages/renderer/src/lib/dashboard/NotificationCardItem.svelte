@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import type { NotificationCard } from '@podman-desktop/core-api';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 import Markdown from '/@/lib/markdown/Markdown.svelte';
@@ -58,13 +59,14 @@ const notificationStyle = notificationStyleMap[notification.type];
       </div>
     {/if}
     <div class="text-[var(--pd-content-card-carousel-card-header-text)]">
-      <button
-        class="p-1 hover:bg-[var(--pd-button-close-hover-bg)] hover:bg-opacity-10 transition-all rounded-[4px]"
-        on:click={(): Promise<void> => window.removeNotification(notification.id)}
-        aria-label={`Delete notification ${notification.id}`}
-        title="Delete notification">
-        <Icon icon={faXmark}/>
-      </button>
+      <Tooltip tip="Delete notification">
+        <button
+          class="p-1 hover:bg-[var(--pd-button-close-hover-bg)] hover:bg-opacity-10 transition-all rounded-[4px]"
+          on:click={(): Promise<void> => window.removeNotification(notification.id)}
+          aria-label={`Delete notification ${notification.id}`}>
+          <Icon icon={faXmark}/>
+        </button>
+      </Tooltip>
     </div>
   </div>
 </div>

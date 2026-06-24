@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import { ErrorMessage } from '@podman-desktop/ui-svelte';
+import { ErrorMessage, Tooltip } from '@podman-desktop/ui-svelte';
 
 import LoadingIcon from '/@/lib/ui/LoadingIcon.svelte';
 
@@ -72,18 +72,19 @@ async function installExtension(): Promise<void> {
 </script>
 
 <ErrorMessage icon wrapMessage class="-top-[15px] right-0 absolute" error={errorInstall}/>
-<button
-  aria-label="Install {extension.id} Extension"
-  on:click={installExtension}
-  hidden={!extension.fetchable}
-  title="Install {extension.displayName} v{extension.fetchVersion} Extension"
-  class="border-2 relative rounded-sm border-[var(--pd-button-secondary-border)] text-[var(--pd-button-secondary-text)] hover:bg-[var(--pd-button-secondary-hover-bg)] w-10 p-2 text-center cursor-pointer flex flex-row justify-center">
-  <LoadingIcon
-    icon={faDownload}
-    iconSize="1x"
-    loading={installInProgress} />
-  <span
-    class:hidden={!installInProgress}
-    class="absolute -top-[15px] right-0 text-[var(--pd-action-button-spinner)]"
-    style="font-size: 8px">{percentage}</span>
-</button>
+<Tooltip tip="Install {extension.displayName} v{extension.fetchVersion} Extension">
+  <button
+    aria-label="Install {extension.id} Extension"
+    on:click={installExtension}
+    hidden={!extension.fetchable}
+    class="border-2 relative rounded-sm border-[var(--pd-button-secondary-border)] text-[var(--pd-button-secondary-text)] hover:bg-[var(--pd-button-secondary-hover-bg)] w-10 p-2 text-center cursor-pointer flex flex-row justify-center">
+    <LoadingIcon
+      icon={faDownload}
+      iconSize="1x"
+      loading={installInProgress} />
+    <span
+      class:hidden={!installInProgress}
+      class="absolute -top-[15px] right-0 text-[var(--pd-action-button-spinner)]"
+      style="font-size: 8px">{percentage}</span>
+  </button>
+</Tooltip>

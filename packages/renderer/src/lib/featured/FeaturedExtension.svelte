@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faCheckCircle, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import type { FeaturedExtension } from '@podman-desktop/core-api/featured';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 import FeaturedExtensionDownload from './FeaturedExtensionDownload.svelte';
@@ -10,8 +11,8 @@ export let variant: 'primary' | 'secondary' = 'primary';
 export let displayTitle: boolean = false;
 </script>
 
+<Tooltip tip={featuredExtension.description} containerClass="contents">
 <div
-  title={featuredExtension.description}
   class:bg-[var(--pd-card-bg)]={variant === 'primary'}
   class:border-[var(--pd-card-bg)]={variant === 'primary'}
   class:bg-[var(--pd-invert-content-card-bg)]={variant === 'secondary'}
@@ -47,3 +48,4 @@ export let displayTitle: boolean = false;
     </div>
   </div>
 </div>
+</Tooltip>

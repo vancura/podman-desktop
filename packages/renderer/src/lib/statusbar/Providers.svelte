@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { ProviderInfo } from '@podman-desktop/core-api';
 import { STATUS_BAR_PIN_CONSTANTS } from '@podman-desktop/core-api/status-bar';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 
 import ProviderWidget from '/@/lib/statusbar/ProviderWidget.svelte';
 import { providerInfos } from '/@/stores/providers';
@@ -19,13 +20,14 @@ function onclick(): void {
 
 {#if $statusBarPinned.length > 0}
   <!-- We cannot use <Fa> object here, as we detect click on this button and outside to toggle the menu -->
-  <button
-    data-task-button="Pin"
-    onclick={onclick}
-    class="px-1 py-px flex h-full items-center relative hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer z-1 fa-solid fa-thumbtack"
-    title="Pin"
-    aria-label="Pin">
-  </button>
+  <Tooltip tip="Pin" bottom>
+    <button
+      data-task-button="Pin"
+      onclick={onclick}
+      class="px-1 py-px flex h-full items-center relative hover:bg-[var(--pd-statusbar-hover-bg)] hover:cursor-pointer z-1 fa-solid fa-thumbtack"
+      aria-label="Pin">
+    </button>
+  </Tooltip>
 {/if}
 
 {#each providers as entry, i (entry.id)}

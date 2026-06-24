@@ -64,7 +64,7 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
   includeSystemInfo?: HTMLElement;
   includeExtensionInfo?: HTMLElement;
 } & RenderResult<Component<ComponentProps<typeof GitHubIssueFeedback>>> {
-  const { getByRole, queryByTitle, ...restResult } = render(GitHubIssueFeedback, props);
+  const { getByRole, queryByRole, ...restResult } = render(GitHubIssueFeedback, props);
 
   // text inputs
   const title = getByRole('textbox', { name: 'Issue Title' });
@@ -82,9 +82,9 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
   expect(cancel).toBeInstanceOf(HTMLButtonElement);
 
   // checkbox
-  const includeSystemInfo = queryByTitle('Include system information') ?? undefined;
+  const includeSystemInfo = queryByRole('checkbox', { name: 'Include system information' }) ?? undefined;
 
-  const includeExtensionInfo = queryByTitle('Include enabled extensions') ?? undefined;
+  const includeExtensionInfo = queryByRole('checkbox', { name: 'Include enabled extensions' }) ?? undefined;
 
   return {
     title: title as HTMLInputElement,
@@ -94,7 +94,7 @@ function renderGitHubIssueFeedback(props: ComponentProps<typeof GitHubIssueFeedb
     includeSystemInfo,
     includeExtensionInfo,
     getByRole,
-    queryByTitle,
+    queryByRole,
     ...restResult,
   };
 }
@@ -257,7 +257,7 @@ describe('includeSystemInfo', () => {
     expect(includeSystemInfo).toBeInTheDocument();
 
     // enabled by default
-    expect(includeSystemInfo?.children?.[0]).toHaveClass('text-[var(--pd-input-checkbox-checked)]');
+    expect(includeSystemInfo).toBeChecked();
   });
 
   test('uncheck the Include system information should set includeSystemInfo to false', async () => {
@@ -318,7 +318,7 @@ describe('includeExtensionInfo', () => {
     expect(includeExtensionInfo).toBeInTheDocument();
 
     // enabled by default
-    expect(includeExtensionInfo?.children?.[0]).toHaveClass('text-[var(--pd-input-checkbox-checked)]');
+    expect(includeExtensionInfo).toBeChecked();
   });
 
   test('uncheck the Include system information should set includeSystemInfo to false', async () => {

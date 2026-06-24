@@ -1,5 +1,6 @@
 <script lang="ts">
 import { faEraser } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import type { Terminal } from '@xterm/xterm';
 import { SvelteDate } from 'svelte/reactivity';
@@ -54,10 +55,12 @@ async function clear(): Promise<void> {
 </script>
 
 <div class="absolute top-0 right-2 px-1 z-50 m-1 opacity-50 space-x-1">
-  <button title="Clear logs" onclick={clear} class="">
-    <Icon
-      class="cursor-pointer rounded-full bg-[var(--pd-button-disabled)] min-h-8 w-8 p-1.5 hover:bg-[var(--pd-button-close-hover-bg)]"
-      icon={faEraser}
-    />
-  </button>
+  <Tooltip tip="Clear logs">
+    <button onclick={clear} class="" aria-label="Clear logs">
+      <Icon
+        class="cursor-pointer rounded-full bg-[var(--pd-button-disabled)] min-h-8 w-8 p-1.5 hover:bg-[var(--pd-button-close-hover-bg)]"
+        icon={faEraser}
+      />
+    </button>
+  </Tooltip>
 </div>

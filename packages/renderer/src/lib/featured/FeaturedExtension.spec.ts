@@ -132,8 +132,8 @@ test('Expect featured extension to show install button', () => {
     featuredExtension: fetchableFeaturedExtension,
   });
 
-  // get by title
-  const description = screen.getByTitle('This is FooBar description');
+  // get by aria-label (displayName)
+  const description = screen.getByLabelText('FooBar');
   expect(description).toBeInTheDocument();
 
   const image = screen.getByRole('img', { name: 'FooBar logo' });
@@ -153,8 +153,8 @@ test('Expect featured extension to show installed info', () => {
     featuredExtension: installedFeaturedExtension,
   });
 
-  // get by title
-  const description = screen.getByTitle('Foobaz description');
+  // get by aria-label (displayName)
+  const description = screen.getByLabelText('FooBaz');
   expect(description).toBeInTheDocument();
   // contains the text installed
   expect(description).toHaveTextContent(/.*installed/);
@@ -171,8 +171,8 @@ test('Expect featured extension to show NAN when not fetchable', () => {
     featuredExtension: notFetchableFeaturedExtension,
   });
 
-  // get by title
-  const description = screen.getByTitle('FooBar not fetchable description');
+  // get by aria-label (displayName)
+  const description = screen.getByLabelText('Bar');
   expect(description).toBeInTheDocument();
   // contains the text installed
   expect(description).toHaveTextContent(/.*N\/A/);

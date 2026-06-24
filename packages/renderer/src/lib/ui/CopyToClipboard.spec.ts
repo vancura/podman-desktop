@@ -32,7 +32,7 @@ test('Expect text to be copied to clipboard', async () => {
 
   render(CopyToClipboard, { clipboardData: textToCopy, title });
 
-  const componentText = screen.getByTitle(title);
+  const componentText = screen.getByText(title);
   expect(componentText).toBeInTheDocument();
 
   const button = screen.getByRole('button', { name: 'Copy To Clipboard' });

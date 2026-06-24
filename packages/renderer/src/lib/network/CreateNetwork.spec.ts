@@ -363,7 +363,7 @@ test('Expect createNetwork to be called with IPv6 enabled', async () => {
   await fireEvent.click(advancedTab);
 
   // Enable IPv6
-  const ipv6Checkbox = screen.getByTitle('Enable IPv6');
+  const ipv6Checkbox = screen.getByRole('checkbox', { name: 'Enable IPv6' });
   await userEvent.click(ipv6Checkbox);
 
   const createButton = screen.getByRole('button', { name: 'Create' });
@@ -390,7 +390,7 @@ test('Expect createNetwork to be called with Internal network enabled', async ()
   await fireEvent.click(advancedTab);
 
   // Enable Internal network
-  const internalCheckbox = screen.getByTitle('Internal network');
+  const internalCheckbox = screen.getByRole('checkbox', { name: 'Internal network' });
   await userEvent.click(internalCheckbox);
 
   const createButton = screen.getByRole('button', { name: 'Create' });
@@ -575,10 +575,10 @@ test('Expect createNetwork to be called with all advanced options combined', asy
   await userEvent.type(ipRange, '10.50.0.128/25');
 
   // Enable IPv6 and Internal
-  const ipv6Checkbox = screen.getByTitle('Enable IPv6');
+  const ipv6Checkbox = screen.getByRole('checkbox', { name: 'Enable IPv6' });
   await userEvent.click(ipv6Checkbox);
 
-  const internalCheckbox = screen.getByTitle('Internal network');
+  const internalCheckbox = screen.getByRole('checkbox', { name: 'Internal network' });
   await userEvent.click(internalCheckbox);
 
   // Enter DNS server
@@ -664,10 +664,10 @@ test('Expect DNS checkbox to disable DNS servers input when unchecked', async ()
   await fireEvent.click(advancedTab);
 
   // DNS should be enabled by default for Podman bridge
-  expect(screen.getByTitle('Enable DNS')).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', { name: 'Enable DNS' })).toBeInTheDocument();
 
   // Disable DNS
-  const dnsCheckbox = screen.getByTitle('Enable DNS');
+  const dnsCheckbox = screen.getByRole('checkbox', { name: 'Enable DNS' });
   await userEvent.click(dnsCheckbox);
 
   // DNS server inputs should no longer be visible

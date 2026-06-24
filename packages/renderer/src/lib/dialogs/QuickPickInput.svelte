@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Button, Checkbox, Modal } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Modal, Tooltip } from '@podman-desktop/ui-svelte';
 import { onDestroy, onMount, tick } from 'svelte';
 
 import Markdown from '/@/lib/markdown/Markdown.svelte';
@@ -370,26 +370,28 @@ async function handleKeydown(e: KeyboardEvent): Promise<void> {
               {#if quickPickCanPickMany}
                 <Checkbox class="mx-1 my-auto" bind:checked={item.checkbox} />
               {/if}
-              <button
-                title="Select {item.value}"
-                on:click={async (): Promise<void> => await clickQuickPickItem(item, i)}
-                class="text-[var(--pd-modal-dropdown-text)] text-left relative my-1 w-full px-1">
-                <div class="flex flex-col w-full">
-                  <!-- first row is Value + optional description-->
-                  <div class="flex flex-row w-full max-w-[700px] truncate">
-                    <div class="font-bold overflow-hidden text-ellipsis">{item.value}</div>
-                    {#if item.description}
-                      <div class="text-[var(--pd-modal-dropdown-text)] text-xs ml-2">{item.description}</div>
+              <Tooltip tip="Select {item.value}">
+                <button
+                  on:click={async (): Promise<void> => await clickQuickPickItem(item, i)}
+                  aria-label="Select {item.value}"
+                  class="text-[var(--pd-modal-dropdown-text)] text-left relative my-1 w-full px-1">
+                  <div class="flex flex-col w-full">
+                    <!-- first row is Value + optional description-->
+                    <div class="flex flex-row w-full max-w-[700px] truncate">
+                      <div class="font-bold overflow-hidden text-ellipsis">{item.value}</div>
+                      {#if item.description}
+                        <div class="text-[var(--pd-modal-dropdown-text)] text-xs ml-2">{item.description}</div>
+                      {/if}
+                    </div>
+                    <!-- second row is optional detail -->
+                    {#if item.detail}
+                      <div class="w-full max-w-[700px] truncate text-[var(--pd-modal-dropdown-text)] text-xs">
+                        {item.detail}
+                      </div>
                     {/if}
                   </div>
-                  <!-- second row is optional detail -->
-                  {#if item.detail}
-                    <div class="w-full max-w-[700px] truncate text-[var(--pd-modal-dropdown-text)] text-xs">
-                      {item.detail}
-                    </div>
-                  {/if}
-                </div>
-              </button>
+                </button>
+              </Tooltip>
             </div>
           {/each}
         {/if}

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { faCheckCircle, faCircleExclamation, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import type { TaskInfo } from '@podman-desktop/core-api';
-import { CloseButton, Spinner } from '@podman-desktop/ui-svelte';
+import { CloseButton, Spinner, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { toast } from '@zerodevx/svelte-toast';
 
@@ -28,9 +28,9 @@ const closeAction = (): void => {
 };
 </script>
 
+<Tooltip tip={taskInfo.name}>
 <div
   class="flex flex-nowrap min-h-10 select-none pointer-events-auto cursor-default max-h-50 max-w-[var(--toastWidth)] flex-row p-2 border-[var(--pd-content-divider)] border rounded bg-[var(--pd-modal-bg)] gap-2 justify-between text-base"
-  title={taskInfo.name}
 >
   <div class="flex flex-row gap-1 items-start">
     <div
@@ -62,3 +62,4 @@ const closeAction = (): void => {
   </div>
 
 </div>
+</Tooltip>

@@ -91,7 +91,7 @@ test('Expect error dialog with correct message when image deletion fails', async
     onRenameImage: vi.fn(),
     image,
   });
-  const button = screen.getByTitle('Delete Image');
+  const button = screen.getByRole('button', { name: 'Delete Image' });
   expect(button).toBeDefined();
   await fireEvent.click(button);
 
@@ -128,9 +128,10 @@ test('Expect no dropdown when one contribution and dropdownMenu off', async () =
   expect(getContributedMenusMock).toHaveBeenCalled();
 
   await waitFor(() => {
-    const div = screen.getByTitle('dummy-contrib').parentElement;
-    expect(div).toBeDefined();
-    expect(div?.classList).toHaveLength(0);
+    const button = screen.getByRole('button', { name: 'dummy-contrib' });
+    expect(button).toBeDefined();
+    // With one contribution and no grouping, the button is directly visible (not behind a kebab menu)
+    expect(screen.queryByLabelText('kebab menu')).toBeNull();
   });
 });
 
@@ -185,15 +186,17 @@ test('Expect no dropdown when several contributions and dropdownMenu mode on', a
   await fireEvent.click(screen.getByLabelText('kebab menu'));
 
   await waitFor(async () => {
-    const button = screen.getByTitle('dummy-contrib');
-    expect(button).toBeDefined();
-    const img = within(button).getByRole('img', { hidden: true });
+    const textSpan = screen.getByText('dummy-contrib');
+    const itemSpan = textSpan.parentElement;
+    expect(itemSpan).toBeDefined();
+    const img = within(itemSpan!).getByRole('img', { hidden: true });
     expect(img).toBeDefined();
     expect(img.nodeName.toLowerCase()).toBe('svg');
 
-    const button2 = screen.getByTitle('dummy-contrib-2');
-    expect(button2).toBeDefined();
-    const img2 = within(button2).getByRole('img', { hidden: true });
+    const textSpan2 = screen.getByText('dummy-contrib-2');
+    const itemSpan2 = textSpan2.parentElement;
+    expect(itemSpan2).toBeDefined();
+    const img2 = within(itemSpan2!).getByRole('img', { hidden: true });
     expect(img2).toBeDefined();
     expect(img2.nodeName.toLowerCase()).toBe('svg');
   });
@@ -213,7 +216,7 @@ test('Expect Push image to be there', async () => {
     image,
   });
 
-  const button = screen.getByTitle('Push Image');
+  const button = screen.getByRole('button', { name: 'Push Image' });
   expect(button).toBeDefined();
 });
 
@@ -232,7 +235,7 @@ test('Expect Save image to be there', async () => {
     image,
   });
 
-  const button = screen.getByTitle('Save Image');
+  const button = screen.getByRole('button', { name: 'Save Image' });
   expect(button).toBeDefined();
 
   await userEvent.click(button);
@@ -254,7 +257,7 @@ test('Expect withConfirmation to indicate image name and tag', async () => {
     onRenameImage: vi.fn(),
     image,
   });
-  const button = screen.getByTitle('Delete Image');
+  const button = screen.getByRole('button', { name: 'Delete Image' });
   expect(button).toBeDefined();
   await fireEvent.click(button);
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
 
 import type { ContainerGroupInfoUI } from './ContainerInfoUI';
@@ -26,14 +27,15 @@ function openGroupDetails(containerGroup: ContainerGroupInfoUI): void {
 }
 </script>
 
-<button
-  class="flex flex-col text-[var(--pd-table-body-text-highlight)] max-w-full text-left"
-  title={object.type}
-  on:click={(): void => openGroupDetails(object)}>
-  <div class="max-w-full overflow-hidden text-ellipsis">
-    {object.name} ({object.type})
-  </div>
-  <div class="text-sm font-extra-light text-[var(--pd-table-body-text)]">
-    {displayContainersCount(object)}
-  </div>
-</button>
+<Tooltip tip={object.type}>
+  <button
+    class="flex flex-col text-[var(--pd-table-body-text-highlight)] max-w-full text-left"
+    on:click={(): void => openGroupDetails(object)}>
+    <div class="max-w-full overflow-hidden text-ellipsis">
+      {object.name} ({object.type})
+    </div>
+    <div class="text-sm font-extra-light text-[var(--pd-table-body-text)]">
+      {displayContainersCount(object)}
+    </div>
+  </button>
+</Tooltip>

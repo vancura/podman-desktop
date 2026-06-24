@@ -57,7 +57,7 @@ describe('HelpActionsItems component', () => {
 
   test('by default is not visible', () => {
     const ha = render(HelpActionsItems, { items: Items });
-    const items = ha.queryAllByTitle(Items[0].title);
+    const items = ha.queryAllByText(Items[0].title);
     expect(items).toHaveLength(0);
   });
 
@@ -106,7 +106,7 @@ describe('HelpActionsItems component', () => {
     const ha = render(HelpActionsItems, { items: Items });
     toggleMenuCallback();
     await vi.waitFor(async () => {
-      const item = await ha.findByTitle(tooltip ?? title);
+      const item = await ha.findByText(tooltip ?? title);
       expect(item).toBeVisible();
     });
   });

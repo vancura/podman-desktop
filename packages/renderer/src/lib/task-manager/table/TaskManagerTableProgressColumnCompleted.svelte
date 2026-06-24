@@ -1,6 +1,7 @@
 <script lang="ts">
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { faCancel, faSquareCheck, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 import type { TaskInfoUI } from '/@/stores/tasks';
@@ -43,8 +44,10 @@ const { icon, iconColor } = $derived.by(() => {
   <div class="ml-1 text-[var(--pd-table-body-text)]">{task.status}</div>
 
   {#if task.status === 'failure' && task.error}
-    <div class="cursor-default ml-1 text-[var(--pd-state-error)] overflow-hidden text-ellipsis" title={task.error}>
-      ({task.error})
-    </div>
+    <Tooltip tip={task.error}>
+      <div class="cursor-default ml-1 text-[var(--pd-state-error)] overflow-hidden text-ellipsis">
+        ({task.error})
+      </div>
+    </Tooltip>
   {/if}
 </div>

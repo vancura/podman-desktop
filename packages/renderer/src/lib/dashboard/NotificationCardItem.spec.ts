@@ -50,7 +50,7 @@ test('Expect notification card to show notification title, description and close
 
   const deleteButton = screen.getByRole('button', { name: 'Delete notification 1' });
   expect(deleteButton).toBeInTheDocument();
-  expect(deleteButton).toHaveAttribute('title', 'Delete notification');
+  expect(deleteButton).toHaveAttribute('aria-label', 'Delete notification 1');
 
   await fireEvent.click(deleteButton);
 

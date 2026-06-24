@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
@@ -46,7 +46,9 @@ test('check default on arm64', async () => {
   const button = screen.getByRole('button', { name: 'linux/arm64' });
   expect(button).toBeInTheDocument();
 
-  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  // The "Default platform" tooltip trigger is inside the default card button
+  const tooltipTriggers = within(button).getAllByTestId('tooltip-trigger');
+  const tooltipTrigger = tooltipTriggers[tooltipTriggers.length - 1];
   expect(tooltipTrigger).toBeInTheDocument();
   await fireEvent.mouseEnter(tooltipTrigger);
 
@@ -67,7 +69,9 @@ test('check default on amd64', async () => {
   const button = screen.getByRole('button', { name: 'linux/amd64' });
   expect(button).toBeInTheDocument();
 
-  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  // The "Default platform" tooltip trigger is inside the default card button
+  const tooltipTriggers = within(button).getAllByTestId('tooltip-trigger');
+  const tooltipTrigger = tooltipTriggers[tooltipTriggers.length - 1];
   expect(tooltipTrigger).toBeInTheDocument();
   await fireEvent.mouseEnter(tooltipTrigger);
 

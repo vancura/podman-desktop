@@ -10,7 +10,7 @@ import type {
   NetworkInspectInfo,
 } from '@podman-desktop/core-api';
 import { NavigationPage } from '@podman-desktop/core-api';
-import { Button, Checkbox, Dropdown, ErrorMessage, Input, NumberInput, Tab } from '@podman-desktop/ui-svelte';
+import { Button, Checkbox, Dropdown, ErrorMessage, Input, NumberInput, Tab, Tooltip } from '@podman-desktop/ui-svelte';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
@@ -878,9 +878,10 @@ const envDialogOptions: OpenDialogOptions = {
                 class="flex flex-row justify-center items-center w-full py-1 {restartPolicyName === 'on-failure'
                   ? 'opacity-100'
                   : 'opacity-20'}">
-                <span
-                  class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]"
-                  title="Number of times to retry before giving up.">Retries:</span>
+                <Tooltip tip="Number of times to retry before giving up.">
+                  <span
+                    class="text-sm w-28 inline-block align-middle whitespace-nowrap text-[var(--pd-content-card-text)]">Retries:</span>
+                </Tooltip>
                 <NumberInput
                   minimum={0}
                   bind:value={restartPolicyMaxRetryCount}
