@@ -15,8 +15,8 @@ interface Props {
 
 let { icon, size, class: className, title, ariaHidden }: Props = $props();
 
-const role = ariaHidden ? undefined : 'img';
-const ariaHiddenAttr = ariaHidden ? 'true' : undefined;
+const role = $derived(ariaHidden ? undefined : 'img');
+const ariaHiddenAttr = $derived(ariaHidden ? 'true' : undefined);
 const IconComponent = icon;
 </script>
 
