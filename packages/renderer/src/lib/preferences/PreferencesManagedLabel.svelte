@@ -7,7 +7,7 @@ import Label from '/@/lib/ui/Label.svelte';
 
 <Label tip="This setting is managed by your organization." right>
   <div class="flex flex-row space-x-1 items-center">
-    <Icon icon={faLock} size="xs"/>
+    <Icon icon={faLock} size="xs" ariaHidden={true}/>
     <span>Managed</span>
   </div>
 </Label>
