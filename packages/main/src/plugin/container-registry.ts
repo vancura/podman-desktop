@@ -215,6 +215,12 @@ export class ContainerProviderRegistry {
       } else if (status === 'start' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been started
         this.apiSender.send('container-started-event', id);
+      } else if (status === 'pause' && jsonEvent?.Type === 'container') {
+        // need to notify that a container has been paused
+        this.apiSender.send('container-paused-event', id);
+      } else if (status === 'unpause' && jsonEvent?.Type === 'container') {
+        // need to notify that a container has been unpaused
+        this.apiSender.send('container-unpaused-event', id);
       } else if (status === 'destroy' && jsonEvent?.Type === 'container') {
         // need to notify that a container has been destroyed
         this.apiSender.send('container-stopped-event', id);
@@ -1384,6 +1390,18 @@ export class ContainerProviderRegistry {
       throw error;
     } finally {
       this.telemetryService.track('startContainer', telemetryOptions);
+    }
+  }
+
+  async unpauseContainer(engineId: string, id: string, abortController?: AbortController): Promise<void> {
+    let telemetryOptions = {};
+    try {
+      return await this.getMatchingContainer(engineId, id).unpause({ abortSignal: abortController?.signal });
+    } catch (error) {
+      telemetryOptions = { error: error };
+      throw error;
+    } finally {
+      this.telemetryService.track('unpauseContainer', telemetryOptions);
     }
   }
 
