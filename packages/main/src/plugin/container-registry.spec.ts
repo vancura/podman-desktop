@@ -5087,6 +5087,7 @@ test('pass options to compat api when using podmanListImages', async () => {
 
   expect(vi.mocked(listImagesSpy)).toHaveBeenCalledWith({
     all: true,
+    digests: true,
     filters: '{"dangling":["false"]}',
   });
 });
