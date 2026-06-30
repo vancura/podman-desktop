@@ -67,10 +67,15 @@ export async function activate(extensionContext: extensionApi.ExtensionContext):
   handler.handleConfigurationChanges(extensionContext);
 
   // Create new classes to handle the onboarding sequence
-  const octokit = new Octokit();
   const detect = new Detect(os, extensionContext.storagePath);
 
-  const composeGitHubReleases = new ComposeGitHubReleases(octokit);
+  // Create the Octokit factory for GitHub authentication
+  const octokitFactory = async (): Promise<Octokit> => {
+    const auth = await extensionApi.authentication.getSession('github-authentication', []);
+    return new Octokit({ auth: auth?.accessToken });
+  };
+
+  const composeGitHubReleases = new ComposeGitHubReleases(octokitFactory);
   const composeDownload = new ComposeDownload(extensionContext, composeGitHubReleases, os);
 
   // Need to "ADD" a provider so we can actually press the button!
