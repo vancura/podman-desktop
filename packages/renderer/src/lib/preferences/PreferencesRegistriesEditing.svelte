@@ -182,7 +182,7 @@ async function loginToRegistry(registry: containerDesktopAPI.Registry): Promise<
 
   const newRegistry = registry === newRegistryRequest;
   if (newRegistry) {
-    registry.serverUrl = registry.serverUrl.trim();
+    registry.serverUrl = registry.serverUrl.trim().replace(/^https?:\/\//, '');
     registry.username = registry.username.trim();
     registry.secret = registry.secret.trim();
   }
