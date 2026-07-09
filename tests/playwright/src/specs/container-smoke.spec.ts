@@ -145,6 +145,10 @@ test.describe
       await playExpect(containersDetails.terminalContent).toContainText('/bin/sh');
 
       await containersDetails.executeCommandInTty('echo "Hello World"');
+      // Wait for the echo output to appear in the Logs tab before searching,
+      // the log stream delivery can be delayed in sandboxed environments (Flatpak)
+      await containersDetails.activateTab('Logs');
+      await playExpect(containersDetails.terminalContent).toContainText('Hello World', { timeout: 15_000 });
       await containersDetails.findInLogs('Hello World');
       await playExpect
         .poll(async () => containersDetails.getCountOfSearchResults(), { timeout: 10_000 })
