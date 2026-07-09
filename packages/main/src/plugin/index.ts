@@ -3428,6 +3428,13 @@ export class PluginSystem {
     );
 
     this.ipcHandle(
+      'extension-development:getExtensionDevelopmentDocsLink',
+      async (_listener): Promise<string | undefined> => {
+        return product.extensions.developmentDocumentation;
+      },
+    );
+
+    this.ipcHandle(
       'kubernetes:getTroubleshootingInformation',
       async (_listener: unknown): Promise<KubernetesTroubleshootingInformation> => {
         return kubernetesClient.getTroubleshootingInformation();
