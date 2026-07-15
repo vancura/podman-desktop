@@ -18,8 +18,12 @@
 
 import { RunnerOptions } from '/@/runner/runner-options';
 import { expect as playExpect, test } from '/@/utility/fixtures';
-import { handleConfirmationDialog } from '/@/utility/operations';
 import { isLinux } from '/@/utility/platform';
+
+const pluginsInitializationRegexp = new RegExp('PluginSystem: initialization done');
+const applicationDisabledRegexp = new RegExp(
+  'Application update is disabled with preferences.update.appUpdate settings',
+);
 
 test.skip(isLinux, 'Applicaton update is not supported on Linux');
 
@@ -29,7 +33,7 @@ test.use({
      * For performance reasons, disable extensions which are not necessary for the e2e
      */
     customSettings: {
-      'preferences.update.reminder': 'never',
+      'preferences.update.appUpdate': false,
       'extensions.disabled': [
         'podman-desktop.compose',
         'podman-desktop.docker',
@@ -37,7 +41,6 @@ test.use({
         'podman-desktop.kube-context',
         'podman-desktop.kubectl-cli',
         'podman-desktop.lima',
-        'podman-desktop.minikube',
         'podman-desktop.registries',
       ],
     },
@@ -45,7 +48,13 @@ test.use({
 });
 
 test.beforeAll(async ({ runner }) => {
-  runner.setVideoAndTraceName('reminder-never-update-e2e');
+  runner.setVideoAndTraceName('disabled-update-e2e');
+  await playExpect
+    .poll(() => runner.getConsoleMessages().some((msg: string) => pluginsInitializationRegexp.test(msg)), {
+      timeout: 30_000,
+      intervals: [500],
+    })
+    .toBeTruthy();
 });
 
 test.afterAll(async ({ runner }) => {
@@ -54,20 +63,28 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe
-  .serial('Application update reminder preferences set to Never', { tag: '@update-install' }, () => {
+  .serial('Application update can be disabled', { tag: '@update-install' }, () => {
+    test('Application update disabled message appears in console log', async ({ runner }) => {
+      await playExpect
+        .poll(() => runner.getConsoleMessages().some((msg: string) => applicationDisabledRegexp.test(msg)), {
+          timeout: 10_000,
+          intervals: [500],
+        })
+        .toBeTruthy();
+    });
+
     test('No update on startup', async ({ page, welcomePage }) => {
       const updateAvailableDialog = page.getByRole('dialog', { name: 'Update Podman Desktop?' });
-      await playExpect(updateAvailableDialog).not.toBeVisible({ timeout: 20_000 });
+      await playExpect(updateAvailableDialog).not.toBeVisible({ timeout: 5_000 });
       await welcomePage.handleWelcomePage(true);
     });
+
     test('Version button is visible', async ({ statusBar }) => {
       await playExpect(statusBar.content).toBeVisible();
       await playExpect(statusBar.versionButton).toBeVisible();
     });
 
-    test('User initiated update option is available', async ({ page, statusBar }) => {
-      await playExpect(statusBar.updateButtonTitle).toHaveText(await statusBar.versionButton.innerText());
-      await statusBar.updateButtonTitle.click();
-      await handleConfirmationDialog(page, 'Update Podman Desktop?', false, '', 'Cancel');
+    test('Update button option is not available', async ({ statusBar }) => {
+      await playExpect(statusBar.updateButtonTitle).not.toBeVisible();
     });
   });
