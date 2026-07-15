@@ -2519,6 +2519,7 @@ declare module '@podman-desktop/api' {
   export interface ImageInfo {
     engineId: string;
     engineName: string;
+    engineType: 'podman' | 'docker';
     Id: string;
     ParentId: string;
     RepoTags: string[] | undefined;
@@ -2544,6 +2545,7 @@ declare module '@podman-desktop/api' {
   export interface ImageInspectInfo {
     engineId: string;
     engineName: string;
+    engineType: 'podman' | 'docker';
     Id: string;
     RepoTags: string[];
     RepoDigests: string[];
