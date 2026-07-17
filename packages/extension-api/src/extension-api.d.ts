@@ -2716,6 +2716,30 @@ declare module '@podman-desktop/api' {
     Status: string;
   }
 
+  interface SecretCreateOptions {
+    labels?: Record<string, string>;
+    // Set the provider to use, if not we will try select the first one available (sorted in favor of Podman).
+    provider?: ContainerProviderConnection;
+  }
+
+  interface SecretCreateResult {
+    id: string;
+    engineId: string;
+  }
+
+  interface SecretInfo {
+    engineId: string;
+    engineName: string;
+    engineType: 'podman' | 'docker';
+    Id: string;
+    Name: string;
+    CreatedAt?: string; // datetime
+    UpdatedAt?: string; // datetime
+    Labels?: Record<string, string>;
+  }
+
+  type SecretInspectInfo = SecretInfo;
+
   interface PodInfo {
     engineId: string;
     engineName: string;
@@ -4212,6 +4236,16 @@ declare module '@podman-desktop/api' {
     export function inspectManifest(engineId: string, id: string): Promise<ManifestInspectInfo>;
     export function pushManifest(options: ManifestPushOptions): Promise<void>;
     export function removeManifest(engineId: string, id: string): Promise<void>;
+
+    // Secret related methods
+    export function listSecrets(): Promise<SecretInfo[]>;
+    export function removeSecret(engineId: string, secretId: string): Promise<void>;
+    export function inspectSecret(engineId: string, id: string): Promise<SecretInspectInfo>;
+    export function createSecret(
+      name: string,
+      data: string,
+      options?: SecretCreateOptions,
+    ): Promise<SecretCreateResult>;
   }
 
   /**
