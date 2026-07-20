@@ -1375,12 +1375,8 @@ export class ContainerProviderRegistry {
         platform,
         abortSignal: abortController?.signal,
       });
-      let resolve: () => void;
-      let reject: (err: Error) => void;
-      const promise = new Promise<void>((res, rej) => {
-        resolve = res;
-        reject = rej;
-      });
+
+      const { resolve, reject, promise } = Promise.withResolvers<void>();
 
       const onFinished = (err: Error | null): void => {
         if (err) {
