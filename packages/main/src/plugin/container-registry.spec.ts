@@ -4735,6 +4735,93 @@ describe('createContainerLibPod', () => {
     await containerRegistry.createContainer('podman1', options);
     expect(createPodmanContainerMock).toBeCalledWith(expectedOptions);
   });
+
+  test('expect createContainer to use compat api for non-podman options', async () => {
+    vi.spyOn(containerRegistry, 'attachToContainer').mockResolvedValue();
+
+    const dockerAPI = {
+      createContainer: vi.fn(),
+    } as unknown as Dockerode;
+    const libpodAPI = {
+      createPodmanContainer: vi.fn(),
+    } as unknown as LibPod;
+
+    vi.mocked(dockerAPI.createContainer).mockResolvedValue({
+      start: () => {},
+      inspect: () => {},
+    } as unknown as Dockerode.Container);
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: libpodAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    await containerRegistry.createContainer('podman1', {
+      Image: 'image',
+      name: 'name',
+    });
+
+    expect(dockerAPI.createContainer).toHaveBeenCalledExactlyOnceWith({
+      Image: 'image',
+      name: 'name',
+    });
+    expect(libpodAPI.createPodmanContainer).not.toHaveBeenCalled();
+  });
+
+  test('check that secrets and secret_env are passed to createPodmanContainer', async () => {
+    vi.spyOn(containerRegistry, 'attachToContainer').mockResolvedValue();
+
+    const dockerAPI = {
+      createContainer: vi.fn(),
+      getContainer: vi.fn(),
+    } as unknown as Dockerode;
+    const libpodAPI = {
+      createPodmanContainer: vi.fn(),
+    } as unknown as LibPod;
+
+    containerRegistry.addInternalProvider('podman1', {
+      name: 'podman',
+      id: 'podman1',
+      api: dockerAPI,
+      libpodApi: libpodAPI,
+      connection: {
+        type: 'podman',
+      },
+    } as unknown as InternalContainerProvider);
+
+    vi.mocked(dockerAPI.getContainer).mockResolvedValue({
+      start: vi.fn(),
+    } as unknown as Dockerode.Container);
+
+    vi.mocked(libpodAPI.createPodmanContainer).mockResolvedValue({
+      Id: 'id',
+      Warnings: [],
+    });
+
+    vi.spyOn(containerRegistry, 'attachToContainer').mockResolvedValue();
+
+    const options: ContainerCreateOptions = {
+      Image: 'image',
+      name: 'name',
+      Secrets: [{ Source: 'my-secret', Target: '/run/secrets/my-secret' }],
+      SecretEnv: { FOO_DATA: 'foo-data' },
+    };
+
+    await containerRegistry.createContainer('podman1', options);
+
+    expect(dockerAPI.createContainer).not.toHaveBeenCalled();
+    expect(libpodAPI.createPodmanContainer).toBeCalledWith(
+      expect.objectContaining({
+        secrets: [{ Source: 'my-secret', Target: '/run/secrets/my-secret' }],
+        secret_env: { FOO_DATA: 'foo-data' },
+      }),
+    );
+  });
 });
 
 describe('getContainerCreateMountOptionFromBind', () => {

@@ -2206,7 +2206,7 @@ export class ContainerProviderRegistry {
     let telemetryOptions = {};
     try {
       let container: Dockerode.Container;
-      let forceLibPod = false;
+      let forceLibPod = (options.Secrets?.length ?? 0) > 0 || Object.entries(options.SecretEnv ?? {}).length > 0;
 
       // the device option requesting an nvidia gpu on linux only works
       // if the LibPod API is used. Check if such a device is requested
@@ -2395,6 +2395,8 @@ export class ContainerProviderRegistry {
       hostadd: options.HostConfig?.ExtraHosts,
       userns: options.HostConfig?.UsernsMode,
       devices: updatedDevices,
+      secrets: options.Secrets,
+      secret_env: options.SecretEnv,
     };
 
     const container = await engine.libpodApi.createPodmanContainer(podmanOptions);
