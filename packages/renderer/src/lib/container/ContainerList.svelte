@@ -502,8 +502,8 @@ function label(item: ContainerGroupInfoUI | ContainerInfoUI): string {
       {/snippet}
     {#snippet buttons()}
 
-        <Button type="secondary" on:click={fromExistingImage}>Existing image</Button>
-        <Button type="primary" on:click={fromDockerfile}>Containerfile or Dockerfile</Button>
+        <Button type="primary" on:click={fromExistingImage}>Use Existing Image</Button>
+        <Button type="primary" on:click={fromDockerfile}>Use Containerfile</Button>
 
       {/snippet}
   </Dialog>
