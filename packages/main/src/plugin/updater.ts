@@ -400,7 +400,10 @@ export class Updater {
    * @returns the timestamp before which the startup update prompt should stay suppressed.
    */
   private getNextReminderTimestamp(): number {
-    return this.configurationRegistry.getConfiguration('preferences').get<number>('update.nextReminderTimestamp', 0);
+    const value = this.configurationRegistry
+      .getConfiguration('preferences')
+      .get<number>('update.nextReminderTimestamp', 0);
+    return Number.isFinite(value) && value > 0 ? value : 0;
   }
 
   /**
