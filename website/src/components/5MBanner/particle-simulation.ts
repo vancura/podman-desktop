@@ -154,3 +154,20 @@ export function stepParticlePool(pool: ParticlePool, deltaSeconds: number, trave
     pool.t[i] = next;
   }
 }
+
+export interface DrawRect {
+  x: number;
+  y: number;
+  size: number;
+}
+
+export function computeDrawRect(t: number, viewportWidth: number, config: FiveMillionBannerConfig): DrawRect {
+  const size = depthScale(t, config);
+  const centerX = pathX(t, viewportWidth);
+  const centerY = pathY(t, config);
+  return {
+    x: centerX - size / 2,
+    y: centerY - size / 2,
+    size,
+  };
+}

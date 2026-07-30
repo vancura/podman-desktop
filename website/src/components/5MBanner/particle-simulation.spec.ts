@@ -18,6 +18,7 @@
 import { expect, test } from 'vitest';
 
 import {
+  computeDrawRect,
   createParticlePool,
   DEFAULT_CONFIG,
   depthScale,
@@ -133,4 +134,23 @@ test('stepParticlePool wraps t back into [0, 1) at the end of the path', () => {
   pool.t[0] = 0.95;
   stepParticlePool(pool, 1, 10); // advances by 0.1, 0.95 + 0.1 = 1.05 -> wraps to 0.05
   expect(pool.t[0]).toBeCloseTo(0.05, 5);
+});
+
+test('computeDrawRect centers the sprite on the path point (center pivot)', () => {
+  const rect = computeDrawRect(1, 1000, DEFAULT_CONFIG);
+  const expectedSize = depthScale(1, DEFAULT_CONFIG);
+  const expectedCenterX = pathX(1, 1000);
+  const expectedCenterY = pathY(1, DEFAULT_CONFIG);
+  expect(rect.size).toBe(expectedSize);
+  expect(rect.x).toBeCloseTo(expectedCenterX - expectedSize / 2, 5);
+  expect(rect.y).toBeCloseTo(expectedCenterY - expectedSize / 2, 5);
+});
+
+test('computeDrawRect matches manual math at a known point', () => {
+  const rect = computeDrawRect(0, 1000, DEFAULT_CONFIG);
+  // t=0: size is minParticleSize, x is 0 - size/2, y is redZoneHeight/2 - size/2
+  const size = DEFAULT_CONFIG.minParticleSize;
+  expect(rect.size).toBe(size);
+  expect(rect.x).toBeCloseTo(0 - size / 2, 5);
+  expect(rect.y).toBeCloseTo(DEFAULT_CONFIG.redZoneHeight / 2 - size / 2, 5);
 });
