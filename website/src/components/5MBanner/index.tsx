@@ -141,7 +141,7 @@ function Banner(): JSX.Element {
         ref={anchorRef}
         href={BLOG_POST_URL}
         aria-label="Read about Podman Desktop reaching 5 million downloads"
-        className="absolute inset-x-0 top-0 block bg-gradient-to-r from-purple-300 to-purple-700 dark:from-purple-800 dark:to-purple-950"
+        className="absolute inset-x-0 top-0 block bg-gradient-to-r from-purple-300 to-purple-700 dark:from-purple-800 dark:to-purple-900"
       />
       <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none relative block w-full" />
       <img
