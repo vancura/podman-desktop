@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { expect, test } from 'vitest';
 
-import { DEFAULT_CONFIG, depthScale, pathX, pathY, resolveConfig } from './particle-simulation';
+import { DEFAULT_CONFIG, depthScale, getAtlasCellRect, pathX, pathY, resolveConfig } from './particle-simulation';
 
 test('resolveConfig returns the desktop defaults for a wide viewport', () => {
   const config = resolveConfig(1920);
@@ -77,4 +77,26 @@ test('depthScale increases monotonically after bendStart', () => {
   const c = depthScale(1, DEFAULT_CONFIG);
   expect(b).toBeGreaterThan(a);
   expect(c).toBeGreaterThan(b);
+});
+
+test('getAtlasCellRect maps index 0 to the top-left cell', () => {
+  expect(getAtlasCellRect(0, DEFAULT_CONFIG)).toEqual({ sx: 0, sy: 0, sw: 256, sh: 256 });
+});
+
+test('getAtlasCellRect maps index 3 to the last column of the first row', () => {
+  expect(getAtlasCellRect(3, DEFAULT_CONFIG)).toEqual({ sx: 768, sy: 0, sw: 256, sh: 256 });
+});
+
+test('getAtlasCellRect wraps to the next row at the grid width', () => {
+  expect(getAtlasCellRect(4, DEFAULT_CONFIG)).toEqual({ sx: 0, sy: 256, sw: 256, sh: 256 });
+});
+
+test('getAtlasCellRect wraps indices past spriteVariantCount back into range', () => {
+  // spriteVariantCount is 10, so index 15 wraps to index 5 -> column 1, row 1
+  expect(getAtlasCellRect(15, DEFAULT_CONFIG)).toEqual({ sx: 256, sy: 256, sw: 256, sh: 256 });
+});
+
+test('getAtlasCellRect wraps negative indices into range', () => {
+  // -1 wraps to spriteVariantCount - 1 = 9 -> column 1, row 2
+  expect(getAtlasCellRect(-1, DEFAULT_CONFIG)).toEqual({ sx: 256, sy: 512, sw: 256, sh: 256 });
 });

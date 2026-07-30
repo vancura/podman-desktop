@@ -101,3 +101,22 @@ export function depthScale(t: number, config: FiveMillionBannerConfig): number {
   const bendProgress = (t - config.bendStart) / (1 - config.bendStart);
   return config.minParticleSize + easeInCubic(bendProgress) * (config.maxParticleSize - config.minParticleSize);
 }
+
+export interface AtlasRect {
+  sx: number;
+  sy: number;
+  sw: number;
+  sh: number;
+}
+
+export function getAtlasCellRect(spriteIndex: number, config: FiveMillionBannerConfig): AtlasRect {
+  const index = ((spriteIndex % config.spriteVariantCount) + config.spriteVariantCount) % config.spriteVariantCount;
+  const column = index % config.atlasGridSize;
+  const row = Math.floor(index / config.atlasGridSize);
+  return {
+    sx: column * config.atlasCellSize,
+    sy: row * config.atlasCellSize,
+    sw: config.atlasCellSize,
+    sh: config.atlasCellSize,
+  };
+}
