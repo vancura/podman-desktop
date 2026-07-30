@@ -17,7 +17,16 @@
  ***********************************************************************/
 import { expect, test } from 'vitest';
 
-import { DEFAULT_CONFIG, depthScale, getAtlasCellRect, pathX, pathY, resolveConfig } from './particle-simulation';
+import {
+  createParticlePool,
+  DEFAULT_CONFIG,
+  depthScale,
+  getAtlasCellRect,
+  pathX,
+  pathY,
+  resolveConfig,
+  stepParticlePool,
+} from './particle-simulation';
 
 test('resolveConfig returns the desktop defaults for a wide viewport', () => {
   const config = resolveConfig(1920);
@@ -99,4 +108,29 @@ test('getAtlasCellRect wraps indices past spriteVariantCount back into range', (
 test('getAtlasCellRect wraps negative indices into range', () => {
   // -1 wraps to spriteVariantCount - 1 = 9 -> column 1, row 2
   expect(getAtlasCellRect(-1, DEFAULT_CONFIG)).toEqual({ sx: 256, sy: 512, sw: 256, sh: 256 });
+});
+
+test('createParticlePool spreads initial t values evenly across the path', () => {
+  const pool = createParticlePool(4, 10);
+  expect(Array.from(pool.t)).toEqual([0, 0.25, 0.5, 0.75]);
+});
+
+test('createParticlePool assigns sprite indices using the injected rng', () => {
+  const pool = createParticlePool(3, 10, () => 0.95);
+  // floor(0.95 * 10) = 9 for every particle, since the rng is fixed
+  expect(Array.from(pool.spriteIndex)).toEqual([9, 9, 9]);
+});
+
+test('stepParticlePool advances t by deltaSeconds / travelDurationSeconds', () => {
+  const pool = createParticlePool(2, 10, () => 0);
+  stepParticlePool(pool, 1, 10); // 1s of a 10s travel duration = 0.1 progress
+  expect(pool.t[0]).toBeCloseTo(0.1, 5);
+  expect(pool.t[1]).toBeCloseTo(0.6, 5);
+});
+
+test('stepParticlePool wraps t back into [0, 1) at the end of the path', () => {
+  const pool = createParticlePool(1, 10, () => 0);
+  pool.t[0] = 0.95;
+  stepParticlePool(pool, 1, 10); // advances by 0.1, 0.95 + 0.1 = 1.05 -> wraps to 0.05
+  expect(pool.t[0]).toBeCloseTo(0.05, 5);
 });

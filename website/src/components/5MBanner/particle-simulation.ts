@@ -120,3 +120,37 @@ export function getAtlasCellRect(spriteIndex: number, config: FiveMillionBannerC
     sh: config.atlasCellSize,
   };
 }
+
+export interface ParticlePool {
+  readonly count: number;
+  readonly t: Float32Array;
+  readonly spriteIndex: Uint8Array;
+}
+
+export function createParticlePool(
+  count: number,
+  spriteVariantCount: number,
+  rng: () => number = Math.random,
+): ParticlePool {
+  const t = new Float32Array(count);
+  const spriteIndex = new Uint8Array(count);
+  for (let i = 0; i < count; i++) {
+    // Spread evenly rather than starting all at 0, so the very first
+    // rendered frame (including the reduced-motion static frame) is
+    // already fully populated instead of clumped at the left edge.
+    t[i] = i / count;
+    spriteIndex[i] = Math.floor(rng() * spriteVariantCount);
+  }
+  return { count, t, spriteIndex };
+}
+
+export function stepParticlePool(pool: ParticlePool, deltaSeconds: number, travelDurationSeconds: number): void {
+  const advance = deltaSeconds / travelDurationSeconds;
+  for (let i = 0; i < pool.count; i++) {
+    let next = pool.t[i] + advance;
+    if (next >= 1) {
+      next -= 1;
+    }
+    pool.t[i] = next;
+  }
+}
