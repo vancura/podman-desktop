@@ -75,3 +75,29 @@ export function resolveConfig(
   const breakpoint = [...BREAKPOINTS].reverse().find(bp => viewportWidth >= bp.minWidth) ?? BREAKPOINTS[0];
   return { ...DEFAULT_CONFIG, ...breakpoint.overrides, ...overrides };
 }
+
+function easeInCubic(x: number): number {
+  return x * x * x;
+}
+
+export function pathX(t: number, viewportWidth: number): number {
+  return t * viewportWidth;
+}
+
+export function pathY(t: number, config: FiveMillionBannerConfig): number {
+  const baseline = config.redZoneHeight / 2;
+  if (t <= config.bendStart) {
+    return baseline;
+  }
+  const bendProgress = (t - config.bendStart) / (1 - config.bendStart);
+  const maxDrop = config.redZoneHeight / 2 + config.maxBlueZoneIntrusion;
+  return baseline + easeInCubic(bendProgress) * maxDrop;
+}
+
+export function depthScale(t: number, config: FiveMillionBannerConfig): number {
+  if (t <= config.bendStart) {
+    return config.minParticleSize;
+  }
+  const bendProgress = (t - config.bendStart) / (1 - config.bendStart);
+  return config.minParticleSize + easeInCubic(bendProgress) * (config.maxParticleSize - config.minParticleSize);
+}

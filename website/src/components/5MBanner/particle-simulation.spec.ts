@@ -17,7 +17,7 @@
  ***********************************************************************/
 import { expect, test } from 'vitest';
 
-import { DEFAULT_CONFIG, resolveConfig } from './particle-simulation';
+import { DEFAULT_CONFIG, depthScale, pathX, pathY, resolveConfig } from './particle-simulation';
 
 test('resolveConfig returns the desktop defaults for a wide viewport', () => {
   const config = resolveConfig(1920);
@@ -43,4 +43,38 @@ test('resolveConfig lets explicit overrides win over the breakpoint', () => {
   expect(config.particleCount).toBe(999);
   // other mobile-breakpoint values are untouched by the override
   expect(config.redZoneHeight).toBe(72);
+});
+
+test('pathX maps t linearly across the viewport width', () => {
+  expect(pathX(0, 1000)).toBe(0);
+  expect(pathX(0.5, 1000)).toBe(500);
+  expect(pathX(1, 1000)).toBe(1000);
+});
+
+test('pathY stays flat before bendStart', () => {
+  const flatY = pathY(0, DEFAULT_CONFIG);
+  expect(pathY(DEFAULT_CONFIG.bendStart, DEFAULT_CONFIG)).toBe(flatY);
+  expect(pathY(0.1, DEFAULT_CONFIG)).toBe(flatY);
+});
+
+test('pathY increases monotonically after bendStart', () => {
+  const yAtBend = pathY(DEFAULT_CONFIG.bendStart, DEFAULT_CONFIG);
+  const yAtThreeQuarters = pathY(0.75, DEFAULT_CONFIG);
+  const yAtEnd = pathY(1, DEFAULT_CONFIG);
+  expect(yAtThreeQuarters).toBeGreaterThan(yAtBend);
+  expect(yAtEnd).toBeGreaterThan(yAtThreeQuarters);
+});
+
+test('depthScale is minParticleSize before bendStart and maxParticleSize at t=1', () => {
+  expect(depthScale(0, DEFAULT_CONFIG)).toBe(DEFAULT_CONFIG.minParticleSize);
+  expect(depthScale(DEFAULT_CONFIG.bendStart, DEFAULT_CONFIG)).toBe(DEFAULT_CONFIG.minParticleSize);
+  expect(depthScale(1, DEFAULT_CONFIG)).toBe(DEFAULT_CONFIG.maxParticleSize);
+});
+
+test('depthScale increases monotonically after bendStart', () => {
+  const a = depthScale(0.6, DEFAULT_CONFIG);
+  const b = depthScale(0.8, DEFAULT_CONFIG);
+  const c = depthScale(1, DEFAULT_CONFIG);
+  expect(b).toBeGreaterThan(a);
+  expect(c).toBeGreaterThan(b);
 });
