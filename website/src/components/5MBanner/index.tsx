@@ -1,13 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import type { FiveMillionBannerConfig, ParticlePool } from './particle-simulation';
-import {
-  computeDrawRect,
-  createParticlePool,
-  getAtlasCellRect,
-  resolveConfig,
-  stepParticlePool,
-} from './particle-simulation';
+import { ParticleSimulation, resolveConfig } from './particle-simulation';
 
 const ATLAS_SRC = '/img/banner/5m/atlas-placeholder.svg';
 const TITLE_SRC = '/img/banner/5m/title-placeholder.svg';
@@ -51,13 +44,13 @@ function Banner(): JSX.Element {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Recomputed (rather than resized in place) on breakpoint changes, since particleCount
-    // varies by breakpoint and the pool's arrays are fixed-size.
-    function createSimulationState(width: number): { config: FiveMillionBannerConfig; pool: ParticlePool } {
-      const config = resolveConfig(width);
-      return { config, pool: createParticlePool(config.particleCount, config.spriteVariantCount) };
+    // and row layout are fixed at construction time.
+    function createSimulation(width: number): ParticleSimulation {
+      return new ParticleSimulation(resolveConfig(width));
     }
 
-    let { config, pool } = createSimulationState(container.clientWidth);
+    let simulation = createSimulation(container.clientWidth);
+    let config = simulation.config;
 
     let animationFrameId = 0;
     let resizeAnimationFrameId = 0;
@@ -108,14 +101,7 @@ function Banner(): JSX.Element {
         return;
       }
 
-      // Draw each particle in the pool.
-      for (let i = 0; i < pool.count; i++) {
-        const t = pool.t[i];
-        const rect = computeDrawRect(t, width, config);
-        const cell = getAtlasCellRect(pool.spriteIndex[i], config);
-
-        ctx.drawImage(atlas, cell.sx, cell.sy, cell.sw, cell.sh, rect.x, rect.y, rect.size, rect.size);
-      }
+      simulation.draw(ctx, atlas, width);
     }
 
     // Update the simulation state and redraw on each animation frame.
@@ -124,7 +110,7 @@ function Banner(): JSX.Element {
 
       lastTimestamp = timestamp;
 
-      stepParticlePool(pool, deltaSeconds, config.travelDurationSeconds);
+      simulation.step(deltaSeconds);
       draw();
 
       animationFrameId = window.requestAnimationFrame(tick);
@@ -132,7 +118,8 @@ function Banner(): JSX.Element {
 
     // Handle resize events by recreating the simulation state and redrawing.
     function handleResize(): void {
-      ({ config, pool } = createSimulationState(container.clientWidth));
+      simulation = createSimulation(container.clientWidth);
+      config = simulation.config;
 
       resize();
       draw();

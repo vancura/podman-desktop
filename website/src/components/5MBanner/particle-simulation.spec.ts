@@ -24,6 +24,7 @@ import {
   depthScale,
   easePostBendProgress,
   getAtlasCellRect,
+  ParticleSimulation,
   pathX,
   pathY,
   perspectivePathProgress,
@@ -45,7 +46,7 @@ test('resolveConfig returns the desktop defaults for a wide viewport', () => {
   expect(config).toEqual(DEFAULT_CONFIG);
 });
 
-test('resolveConfig applies the mobile breakpoint below 768px', () => {
+test('resolveConfig applies the mobile breakpoint below 640px', () => {
   const config = resolveConfig(320);
   expect(config.particleCount).toBe(DEFAULT_CONFIG.particleCount);
   expect(config.redZoneHeight).toBe(72);
@@ -53,7 +54,7 @@ test('resolveConfig applies the mobile breakpoint below 768px', () => {
   expect(config.maxParticleSize).toBe(56);
 });
 
-test('resolveConfig applies the tablet breakpoint between 768 and 1280px', () => {
+test('resolveConfig applies the tablet breakpoint between 640 and 1280px', () => {
   const config = resolveConfig(900);
   expect(config.particleCount).toBe(DEFAULT_CONFIG.particleCount);
   expect(config.redZoneHeight).toBe(84);
@@ -171,6 +172,23 @@ test('pathY increases monotonically after bendStart', () => {
   expect(yAtEnd).toBeGreaterThan(yAtThreeQuarters);
 });
 
+test('pathY scales the post-bend drop by bendScale', () => {
+  const baseline = pathY(0, DEFAULT_CONFIG, 1);
+  const dropAtOne = pathY(1, DEFAULT_CONFIG, 1) - baseline;
+  expect(pathY(1, DEFAULT_CONFIG, 0.1) - baseline).toBeCloseTo(dropAtOne * 0.1, 5);
+  expect(pathY(1, DEFAULT_CONFIG, 2) - baseline).toBeCloseTo(dropAtOne * 2, 5);
+});
+
+test('pathY with a larger bendScale sits lower at the same post-bend t', () => {
+  expect(pathY(0.8, DEFAULT_CONFIG, 2)).toBeGreaterThan(pathY(0.8, DEFAULT_CONFIG, 1));
+  expect(pathY(0.8, DEFAULT_CONFIG, 1)).toBeGreaterThan(pathY(0.8, DEFAULT_CONFIG, 0.1));
+});
+
+test('pathY adds baselineOffset to the row baseline', () => {
+  expect(pathY(0, DEFAULT_CONFIG, 1, 12)).toBe(pathY(0, DEFAULT_CONFIG) + 12);
+  expect(pathY(1, DEFAULT_CONFIG, 1, 12)).toBe(pathY(1, DEFAULT_CONFIG) + 12);
+});
+
 test('depthScale is minParticleSize before bendStart and maxParticleSize at t=1', () => {
   expect(depthScale(0, DEFAULT_CONFIG)).toBe(DEFAULT_CONFIG.minParticleSize);
   expect(depthScale(DEFAULT_CONFIG.bendStart, DEFAULT_CONFIG)).toBe(DEFAULT_CONFIG.minParticleSize);
@@ -183,6 +201,23 @@ test('depthScale increases monotonically after bendStart', () => {
   const c = depthScale(1, DEFAULT_CONFIG);
   expect(b).toBeGreaterThan(a);
   expect(c).toBeGreaterThan(b);
+});
+
+test('depthScale uses explicit min/max size overrides', () => {
+  expect(depthScale(0, DEFAULT_CONFIG, 20, 80)).toBe(20);
+  expect(depthScale(1, DEFAULT_CONFIG, 20, 80)).toBe(80);
+});
+
+test('computeDrawRect keeps the same horizontal position across bendScales when size range matches', () => {
+  const t = 0.8;
+  const flat = computeDrawRect(t, 1000, DEFAULT_CONFIG, { bendScale: 0 });
+  const mid = computeDrawRect(t, 1000, DEFAULT_CONFIG, { bendScale: 0.5 });
+  const near = computeDrawRect(t, 1000, DEFAULT_CONFIG, { bendScale: 1 });
+
+  expect(flat.size).toBe(mid.size);
+  expect(mid.size).toBe(near.size);
+  expect(flat.x).toBeCloseTo(mid.x, 5);
+  expect(mid.x).toBeCloseTo(near.x, 5);
 });
 
 test('getAtlasCellRect maps index 0 to the top-left cell', () => {
@@ -249,4 +284,46 @@ test('computeDrawRect matches manual math at a known point', () => {
   expect(rect.size).toBe(size);
   expect(rect.x).toBeCloseTo(-PERSPECTIVE_TEST_CONFIG.offscreenMargin - size / 2, 5);
   expect(rect.y).toBeCloseTo(PERSPECTIVE_TEST_CONFIG.redZoneHeight / 2 - size / 2, 5);
+});
+
+test('ParticleSimulation gives each row the same count so columns share a t lattice', () => {
+  const simulation = new ParticleSimulation({ ...DEFAULT_CONFIG, particleCount: 100 }, () => 0);
+  expect(simulation.rows).toHaveLength(3);
+  // 100 is not divisible by 3; drop the remainder rather than densifying one row
+  expect(simulation.rows.map(row => row.pool.count)).toEqual([33, 33, 33]);
+});
+
+test('ParticleSimulation rows share identical t values', () => {
+  const simulation = new ParticleSimulation({ ...DEFAULT_CONFIG, particleCount: 9 }, () => 0);
+  expect(Array.from(simulation.rows[0].pool.t)).toEqual(Array.from(simulation.rows[1].pool.t));
+  expect(Array.from(simulation.rows[1].pool.t)).toEqual(Array.from(simulation.rows[2].pool.t));
+});
+
+test('ParticleSimulation applies per-row bend and baseline offsets', () => {
+  const simulation = new ParticleSimulation({ ...DEFAULT_CONFIG, particleCount: 3 }, () => 0);
+  const [far, mid, near] = simulation.rows;
+
+  expect(far.bendScale).toBe(DEFAULT_CONFIG.rowBendScales[0]);
+  expect(mid.bendScale).toBe(DEFAULT_CONFIG.rowBendScales[1]);
+  expect(near.bendScale).toBe(DEFAULT_CONFIG.rowBendScales[2]);
+
+  expect(far.baselineOffset).toBe(DEFAULT_CONFIG.rowBaselineOffsets[0]);
+  expect(mid.baselineOffset).toBe(DEFAULT_CONFIG.rowBaselineOffsets[1]);
+  expect(near.baselineOffset).toBe(DEFAULT_CONFIG.rowBaselineOffsets[2]);
+  expect(mid.baselineOffset).toBeGreaterThan(far.baselineOffset);
+  expect(near.baselineOffset).toBeGreaterThan(mid.baselineOffset);
+});
+
+test('ParticleSimulation.step advances every row', () => {
+  const simulation = new ParticleSimulation(
+    { ...DEFAULT_CONFIG, particleCount: 3, travelDurationSeconds: 10 },
+    () => 0,
+  );
+  const before = simulation.rows.map(row => row.pool.t[0]);
+
+  simulation.step(1); // +0.1 progress
+
+  simulation.rows.forEach((row, index) => {
+    expect(row.pool.t[0]).toBeCloseTo((before[index] + 0.1) % 1, 5);
+  });
 });

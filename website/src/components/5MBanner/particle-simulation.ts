@@ -64,24 +64,38 @@ export interface FiveMillionBannerConfig {
    * values pack particles tighter on the left and spread them farther apart on the right.
    */
   perspectiveSpacingExponent: number;
+
+  /**
+   * Per-row vertical bend multipliers (far, mid, near). 1 = today's pathY drop; lower stays
+   * flatter, higher drops farther into the blue zone.
+   */
+  rowBendScales: readonly [number, number, number];
+
+  /**
+   * Per-row baseline Y offsets in CSS px (far, mid, near), added to the red-zone midline so
+   * each nearer row sits slightly lower than the one above.
+   */
+  rowBaselineOffsets: readonly [number, number, number];
 }
 
 /** Baseline config, for viewports >= 1280px. BREAKPOINTS below override a subset of these fields for narrower widths. */
 export const DEFAULT_CONFIG: FiveMillionBannerConfig = {
   atlasGridSize: 4,
   atlasCellSize: 256,
-  spriteVariantCount: 10,
-  particleCount: 100,
+  spriteVariantCount: 16,
+  particleCount: 130,
   redZoneHeight: 160,
   blueZoneHeight: 260,
   minParticleSize: 12,
-  maxParticleSize: 150,
-  bendStart: 0.3,
+  maxParticleSize: 250,
+  bendStart: 0.6,
   maxBlueZoneIntrusion: 100,
-  travelDurationSeconds: 20,
+  travelDurationSeconds: 40,
   offscreenMargin: 300,
   perspectiveSpeedExponent: 2.5,
-  perspectiveSpacingExponent: 1.5,
+  perspectiveSpacingExponent: 2.0,
+  rowBendScales: [0.4, 1.4, 2.45],
+  rowBaselineOffsets: [-45, 0, 45],
 };
 
 /** Represents a breakpoint (min width and config overrides) for the 5M banner particle simulation. */
@@ -180,34 +194,38 @@ export function pathX(t: number, viewportWidth: number, config: FiveMillionBanne
 
 /**
  * Vertical position, in CSS px, of a particle at path progress t. Flat at the red zone's
- * midline until config.bendStart, then eases downward, intruding up to maxBlueZoneIntrusion
- * px into the blue zone by t = 1.
+ * midline (+ baselineOffset) until config.bendStart, then eases downward. `bendScale`
+ * multiplies the full drop (red-zone half-height + maxBlueZoneIntrusion); 1 matches the
+ * historical mid-row path.
  */
-export function pathY(t: number, config: FiveMillionBannerConfig): number {
-  const baseline = config.redZoneHeight / 2;
+export function pathY(t: number, config: FiveMillionBannerConfig, bendScale = 1, baselineOffset = 0): number {
+  const baseline = config.redZoneHeight / 2 + baselineOffset;
 
   if (t <= config.bendStart) {
     return baseline; // particles stay flat until the bend starts
   }
 
   // particles bend downwards, intruding into the blue zone as they approach the viewer
-  const maxDrop = config.redZoneHeight / 2 + config.maxBlueZoneIntrusion;
+  const maxDrop = (config.redZoneHeight / 2 + config.maxBlueZoneIntrusion) * bendScale;
   return baseline + easeInCubic(bendProgress(t, config)) * maxDrop;
 }
 
 /**
- * Rendered particle size, in CSS px, at path progress t: constant at minParticleSize until
- * config.bendStart, then eases up to maxParticleSize by t = 1, so particles appear to grow
- * as they approach the viewer.
+ * Rendered particle size, in CSS px, at path progress t: constant at minSize until
+ * config.bendStart, then eases up to maxSize by t = 1. Defaults to the config's global
+ * min/max when overrides are omitted. Shared across rows so columns stay aligned.
  */
-export function depthScale(t: number, config: FiveMillionBannerConfig): number {
+export function depthScale(
+  t: number,
+  config: FiveMillionBannerConfig,
+  minSize = config.minParticleSize,
+  maxSize = config.maxParticleSize,
+): number {
   if (t <= config.bendStart) {
-    return config.minParticleSize;
+    return minSize;
   }
 
-  return (
-    config.minParticleSize + easeInCubic(bendProgress(t, config)) * (config.maxParticleSize - config.minParticleSize)
-  );
+  return minSize + easeInCubic(bendProgress(t, config)) * (maxSize - minSize);
 }
 
 /** A source rect in the sprite atlas image, in the same sx/sy/sw/sh shape CanvasRenderingContext2D.drawImage takes. */
@@ -295,15 +313,120 @@ export interface DrawRect {
   size: number;
 }
 
+/** Optional per-row overrides for computeDrawRect (bend strength, baseline, and size range). */
+export interface DrawRectOptions {
+  bendScale?: number;
+  baselineOffset?: number;
+  minParticleSize?: number;
+  maxParticleSize?: number;
+}
+
 /** Composes pathX/pathY/depthScale into a draw rect for a particle at path progress t. */
-export function computeDrawRect(t: number, viewportWidth: number, config: FiveMillionBannerConfig): DrawRect {
-  const size = depthScale(t, config);
+export function computeDrawRect(
+  t: number,
+  viewportWidth: number,
+  config: FiveMillionBannerConfig,
+  options: DrawRectOptions = {},
+): DrawRect {
+  const bendScale = options.bendScale ?? 1;
+  const baselineOffset = options.baselineOffset ?? 0;
+  const minSize = options.minParticleSize ?? config.minParticleSize;
+  const maxSize = options.maxParticleSize ?? config.maxParticleSize;
+  const size = depthScale(t, config, minSize, maxSize);
   const centerX = pathX(t, viewportWidth, config);
-  const centerY = pathY(t, config);
+  const centerY = pathY(t, config, bendScale, baselineOffset);
 
   return {
     x: centerX - size / 2,
     y: centerY - size / 2,
     size,
   };
+}
+
+/** One depth layer: SoA particle pool plus bend and baseline for that row. */
+export class ParticleRow {
+  readonly pool: ParticlePool;
+  readonly bendScale: number;
+  readonly baselineOffset: number;
+
+  constructor(
+    count: number,
+    spriteVariantCount: number,
+    bendScale: number,
+    baselineOffset: number,
+    rng: () => number = Math.random,
+  ) {
+    this.bendScale = bendScale;
+    this.baselineOffset = baselineOffset;
+    this.pool = createParticlePool(count, spriteVariantCount, rng);
+  }
+
+  /** Advances this row's particles along the shared travel duration. */
+  step(deltaSeconds: number, travelDurationSeconds: number): void {
+    stepParticlePool(this.pool, deltaSeconds, travelDurationSeconds);
+  }
+
+  /** Draws this row's particles into the canvas (caller controls draw order across rows). */
+  draw(
+    ctx: CanvasRenderingContext2D,
+    atlas: CanvasImageSource,
+    viewportWidth: number,
+    config: FiveMillionBannerConfig,
+  ): void {
+    for (let i = 0; i < this.pool.count; i++) {
+      const t = this.pool.t[i];
+
+      const rect = computeDrawRect(t, viewportWidth, config, {
+        bendScale: this.bendScale,
+        baselineOffset: this.baselineOffset,
+      });
+
+      const cell = getAtlasCellRect(this.pool.spriteIndex[i], config);
+
+      ctx.drawImage(atlas, cell.sx, cell.sy, cell.sw, cell.sh, rect.x, rect.y, rect.size, rect.size);
+    }
+  }
+}
+
+/**
+ * Three-row particle simulation (far → mid → near). Each row gets the same particle count
+ * (`floor(particleCount / 3)`) so they share one t lattice and stay horizontally aligned.
+ * Draw order is far first so nearer rows occlude farther ones.
+ */
+export class ParticleSimulation {
+  readonly config: FiveMillionBannerConfig;
+  readonly rows: readonly ParticleRow[];
+
+  constructor(config: FiveMillionBannerConfig, rng: () => number = Math.random) {
+    this.config = config;
+
+    // Same count per row is required for column alignment: t is initialized as i/count, so a
+    // remainder dumped onto one row would use a different spacing and shift that row horizontally.
+    const countPerRow = Math.floor(config.particleCount / 3);
+
+    this.rows = [0, 1, 2].map(
+      index =>
+        new ParticleRow(
+          countPerRow,
+          config.spriteVariantCount,
+          config.rowBendScales[index],
+          config.rowBaselineOffsets[index],
+          rng,
+        ),
+    );
+  }
+
+  /** Advances every row by the same time delta. */
+  step(deltaSeconds: number): void {
+    for (const row of this.rows) {
+      row.step(deltaSeconds, this.config.travelDurationSeconds);
+    }
+  }
+
+  /** Draws all rows far → mid → near. */
+  draw(ctx: CanvasRenderingContext2D, atlas: CanvasImageSource, viewportWidth: number): void {
+    for (const row of this.rows) {
+      row.draw(ctx, atlas, viewportWidth, this.config);
+    }
+  }
 }
