@@ -233,13 +233,13 @@ test('getAtlasCellRect wraps to the next row at the grid width', () => {
 });
 
 test('getAtlasCellRect wraps indices past spriteVariantCount back into range', () => {
-  // spriteVariantCount is 10, so index 15 wraps to index 5 -> column 1, row 1
-  expect(getAtlasCellRect(15, DEFAULT_CONFIG)).toEqual({ sx: 256, sy: 256, sw: 256, sh: 256 });
+  // spriteVariantCount is 16, so index 16 wraps to index 0 -> column 0, row 0
+  expect(getAtlasCellRect(16, DEFAULT_CONFIG)).toEqual({ sx: 0, sy: 0, sw: 256, sh: 256 });
 });
 
 test('getAtlasCellRect wraps negative indices into range', () => {
-  // -1 wraps to spriteVariantCount - 1 = 9 -> column 1, row 2
-  expect(getAtlasCellRect(-1, DEFAULT_CONFIG)).toEqual({ sx: 256, sy: 512, sw: 256, sh: 256 });
+  // -1 wraps to spriteVariantCount - 1 = 15 -> column 3, row 3
+  expect(getAtlasCellRect(-1, DEFAULT_CONFIG)).toEqual({ sx: 768, sy: 768, sw: 256, sh: 256 });
 });
 
 test('createParticlePool spreads initial t values evenly across the path', () => {
