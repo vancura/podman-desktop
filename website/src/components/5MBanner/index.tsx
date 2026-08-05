@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import type { FiveMillionBannerConfig } from './particle-simulation';
+import type { FiveMillionBannerConfig, ParticlePool } from './particle-simulation';
 import {
   computeDrawRect,
   createParticlePool,
@@ -41,8 +41,12 @@ function Banner(): JSX.Element {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    let config: FiveMillionBannerConfig = resolveConfig(container.clientWidth);
-    let pool = createParticlePool(config.particleCount, config.spriteVariantCount);
+    function createSimulationState(width: number): { config: FiveMillionBannerConfig; pool: ParticlePool } {
+      const config = resolveConfig(width);
+      return { config, pool: createParticlePool(config.particleCount, config.spriteVariantCount) };
+    }
+
+    let { config, pool } = createSimulationState(container.clientWidth);
     let animationFrameId = 0;
     let resizeAnimationFrameId = 0;
     let lastTimestamp = 0;
@@ -94,8 +98,7 @@ function Banner(): JSX.Element {
     }
 
     function handleResize(): void {
-      config = resolveConfig(container.clientWidth);
-      pool = createParticlePool(config.particleCount, config.spriteVariantCount);
+      ({ config, pool } = createSimulationState(container.clientWidth));
       resize();
       draw();
     }

@@ -80,6 +80,12 @@ function easeInCubic(x: number): number {
   return x * x * x;
 }
 
+// Progress (0-1) through the post-bend portion of the path, used to ease
+// both the vertical drop (pathY) and the size ramp (depthScale) in lockstep.
+function bendProgress(t: number, config: FiveMillionBannerConfig): number {
+  return (t - config.bendStart) / (1 - config.bendStart);
+}
+
 export function pathX(t: number, viewportWidth: number): number {
   return t * viewportWidth;
 }
@@ -89,17 +95,17 @@ export function pathY(t: number, config: FiveMillionBannerConfig): number {
   if (t <= config.bendStart) {
     return baseline;
   }
-  const bendProgress = (t - config.bendStart) / (1 - config.bendStart);
   const maxDrop = config.redZoneHeight / 2 + config.maxBlueZoneIntrusion;
-  return baseline + easeInCubic(bendProgress) * maxDrop;
+  return baseline + easeInCubic(bendProgress(t, config)) * maxDrop;
 }
 
 export function depthScale(t: number, config: FiveMillionBannerConfig): number {
   if (t <= config.bendStart) {
     return config.minParticleSize;
   }
-  const bendProgress = (t - config.bendStart) / (1 - config.bendStart);
-  return config.minParticleSize + easeInCubic(bendProgress) * (config.maxParticleSize - config.minParticleSize);
+  return (
+    config.minParticleSize + easeInCubic(bendProgress(t, config)) * (config.maxParticleSize - config.minParticleSize)
+  );
 }
 
 export interface AtlasRect {
