@@ -71,17 +71,17 @@ export const DEFAULT_CONFIG: FiveMillionBannerConfig = {
   atlasGridSize: 4,
   atlasCellSize: 256,
   spriteVariantCount: 10,
-  particleCount: 50,
+  particleCount: 100,
   redZoneHeight: 160,
   blueZoneHeight: 260,
   minParticleSize: 12,
   maxParticleSize: 150,
-  bendStart: 0.4,
+  bendStart: 0.3,
   maxBlueZoneIntrusion: 100,
   travelDurationSeconds: 20,
-  offscreenMargin: 200,
-  perspectiveSpeedExponent: 1.2,
-  perspectiveSpacingExponent: 2.5,
+  offscreenMargin: 300,
+  perspectiveSpeedExponent: 2.5,
+  perspectiveSpacingExponent: 1.5,
 };
 
 /** Represents a breakpoint (min width and config overrides) for the 5M banner particle simulation. */
@@ -97,7 +97,7 @@ interface Breakpoint {
 // see the design spec's "Responsive behavior" section.
 const BREAKPOINTS: Breakpoint[] = [
   { minWidth: 0, overrides: { redZoneHeight: 72, blueZoneHeight: 160, maxParticleSize: 56 } },
-  { minWidth: 768, overrides: { redZoneHeight: 84, blueZoneHeight: 210, maxParticleSize: 100 } },
+  { minWidth: 640, overrides: { redZoneHeight: 84, blueZoneHeight: 210, maxParticleSize: 100 } },
   { minWidth: 1280, overrides: {} },
 ];
 

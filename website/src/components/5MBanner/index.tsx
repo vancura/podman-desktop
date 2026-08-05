@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import type { FiveMillionBannerConfig, ParticlePool } from './particle-simulation';
 import {
@@ -184,18 +184,19 @@ function Banner(): JSX.Element {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-18 sm:h-21 xl:h-40">
       <a
         ref={anchorRef}
         href={BLOG_POST_URL}
-        aria-label="Read about Podman Desktop reaching 5 million downloads"
-        className="absolute inset-x-0 top-0 block bg-gradient-to-r from-purple-300 to-purple-700 dark:from-purple-800 dark:to-purple-900"
-      />
-      <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none relative block w-full" />
+        className="absolute inset-x-0 top-0 block bg-linear-to-r from-purple-300 to-purple-700 dark:from-purple-800 dark:to-purple-900">
+        <span className="sr-only">Read about Podman Desktop reaching 5 million downloads</span>
+      </a>
+      <canvas ref={canvasRef} className="pointer-events-none relative block w-full" />
+
       <img
         src={TITLE_SRC}
         alt="5 million downloads"
-        className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2"
+        className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 hidden"
       />
     </div>
   );
