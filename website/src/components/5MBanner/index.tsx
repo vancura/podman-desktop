@@ -1,9 +1,9 @@
+import { useColorMode } from '@docusaurus/theme-common';
+import ThemedImage from '@theme/ThemedImage';
 import { useEffect, useRef } from 'react';
 
 import { ParticleSimulation, resolveConfig } from './particle-simulation';
-
-const ATLAS_SRC = '/img/banner/5m/atlas-placeholder.svg';
-const TITLE_SRC = '/img/banner/5m/title-placeholder.svg';
+import { atlasSrcForColorMode, TITLE_DARK_SRC, TITLE_LIGHT_SRC } from './theme-assets';
 
 // TODO: replace with the published blog post URL once it exists.
 const BLOG_POST_URL = 'https://podman-desktop.io/blog';
@@ -18,6 +18,9 @@ function Banner(): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<HTMLAnchorElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const atlasRef = useRef<HTMLImageElement | null>(null);
+  const atlasReadyRef = useRef(false);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     // Check the refs (and the 2D context below) before binding them to their own
@@ -55,15 +58,15 @@ function Banner(): JSX.Element {
     let animationFrameId = 0;
     let resizeAnimationFrameId = 0;
     let lastTimestamp = 0;
-    let atlasReady = false;
 
-    // Load the atlas image and set up the onload handler.
+    // Load the atlas image and set up the onload handler. The theme effect owns src
+    // assignment (initial mount and later toggles) so this effect stays theme-agnostic.
     const atlas = new Image();
+    atlasRef.current = atlas;
     atlas.onload = (): void => {
-      atlasReady = true;
+      atlasReadyRef.current = true;
       draw();
     };
-    atlas.src = ATLAS_SRC;
 
     // Resize the canvas to match the container's width and height.
     function resize(): void {
@@ -92,16 +95,17 @@ function Banner(): JSX.Element {
     // Draw the canvas.
     function draw(): void {
       const width = container.clientWidth;
+      const atlasImage = atlasRef.current;
 
       // Clear the canvas.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Return early if the atlas is not yet ready.
-      if (!atlasReady) {
+      if (!atlasReadyRef.current || !atlasImage) {
         return;
       }
 
-      simulation.draw(ctx, atlas, width);
+      simulation.draw(ctx, atlasImage, width);
     }
 
     // Update the simulation state and redraw on each animation frame.
@@ -157,6 +161,8 @@ function Banner(): JSX.Element {
 
     return (): void => {
       resizeObserver.disconnect();
+      atlasRef.current = null;
+      atlasReadyRef.current = false;
 
       if (animationFrameId) {
         // Cancel the animation frame if it's still running.
@@ -170,6 +176,17 @@ function Banner(): JSX.Element {
     };
   }, []);
 
+  // Assign atlas.src on mount and on theme change without rebuilding the particle pool.
+  useEffect(() => {
+    const atlas = atlasRef.current;
+    if (!atlas) {
+      return;
+    }
+
+    atlasReadyRef.current = false;
+    atlas.src = atlasSrcForColorMode(colorMode);
+  }, [colorMode]);
+
   return (
     <div ref={containerRef} className="relative w-full h-18 sm:h-21 xl:h-40">
       <a
@@ -180,8 +197,8 @@ function Banner(): JSX.Element {
       </a>
       <canvas ref={canvasRef} className="pointer-events-none relative block w-full" />
 
-      <img
-        src={TITLE_SRC}
+      <ThemedImage
+        sources={{ light: TITLE_LIGHT_SRC, dark: TITLE_DARK_SRC }}
         alt="5 million downloads"
         className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 hidden"
       />
