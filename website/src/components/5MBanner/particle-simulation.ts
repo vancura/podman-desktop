@@ -49,6 +49,21 @@ export interface FiveMillionBannerConfig {
 
   /** Seconds for a particle to travel the full path before wrapping (t: 0 -> 1). */
   travelDurationSeconds: number;
+
+  /** Extra horizontal distance, in CSS px, beyond each viewport edge before a particle wraps or enters. */
+  offscreenMargin: number;
+
+  /**
+   * Controls post-bend horizontal acceleration. 2 = same speed throughout the bend; higher
+   * values increase the final speed while keeping entry speed matched to the pre-bend phase.
+   */
+  perspectiveSpeedExponent: number;
+
+  /**
+   * Expands horizontal gaps between particles toward the right. 1 = even spacing; higher
+   * values pack particles tighter on the left and spread them farther apart on the right.
+   */
+  perspectiveSpacingExponent: number;
 }
 
 /** Baseline config, for viewports >= 1280px. BREAKPOINTS below override a subset of these fields for narrower widths. */
@@ -56,14 +71,17 @@ export const DEFAULT_CONFIG: FiveMillionBannerConfig = {
   atlasGridSize: 4,
   atlasCellSize: 256,
   spriteVariantCount: 10,
-  particleCount: 400,
-  redZoneHeight: 96,
+  particleCount: 50,
+  redZoneHeight: 160,
   blueZoneHeight: 260,
   minParticleSize: 12,
-  maxParticleSize: 96,
-  bendStart: 0.5,
-  maxBlueZoneIntrusion: 80,
-  travelDurationSeconds: 14,
+  maxParticleSize: 150,
+  bendStart: 0.4,
+  maxBlueZoneIntrusion: 100,
+  travelDurationSeconds: 20,
+  offscreenMargin: 200,
+  perspectiveSpeedExponent: 1.2,
+  perspectiveSpacingExponent: 2.5,
 };
 
 /** Represents a breakpoint (min width and config overrides) for the 5M banner particle simulation. */
@@ -78,8 +96,8 @@ interface Breakpoint {
 // Numeric values below are a visual-tuning starting point, not final –
 // see the design spec's "Responsive behavior" section.
 const BREAKPOINTS: Breakpoint[] = [
-  { minWidth: 0, overrides: { particleCount: 150, redZoneHeight: 72, blueZoneHeight: 160, maxParticleSize: 56 } },
-  { minWidth: 768, overrides: { particleCount: 260, redZoneHeight: 84, blueZoneHeight: 210, maxParticleSize: 76 } },
+  { minWidth: 0, overrides: { redZoneHeight: 72, blueZoneHeight: 160, maxParticleSize: 56 } },
+  { minWidth: 768, overrides: { redZoneHeight: 84, blueZoneHeight: 210, maxParticleSize: 100 } },
   { minWidth: 1280, overrides: {} },
 ];
 
@@ -100,15 +118,64 @@ function easeInCubic(x: number): number {
   return x * x * x;
 }
 
+/**
+ * Maps post-bend progress (0-1) to eased progress (0-1). Keeps unit slope at t = 0 so
+ * horizontal speed matches the pre-bend phase, then adds an x^2 - x^3 bump for acceleration.
+ */
+export function easePostBendProgress(postBendProgress: number, exponent: number): number {
+  if (exponent <= 2) {
+    return postBendProgress;
+  }
+
+  const strength = exponent - 2;
+  const x = postBendProgress;
+
+  return x + strength * (x * x - x * x * x);
+}
+
+/** Maps uniform path progress to horizontal progress; linear before bendStart, then ease-in for perspective. */
+export function perspectivePathProgress(t: number, config: FiveMillionBannerConfig): number {
+  if (t <= config.bendStart || config.perspectiveSpeedExponent <= 1) {
+    return t;
+  }
+
+  const easedPostBend = easePostBendProgress(bendProgress(t, config), config.perspectiveSpeedExponent);
+
+  return config.bendStart + easedPostBend * (1 - config.bendStart);
+}
+
+/** Warps horizontal progress so adjacent particles sit closer on the left and farther apart on the right. */
+export function perspectiveSpacingProgress(progress: number, exponent: number): number {
+  if (exponent <= 1) {
+    return progress;
+  }
+
+  return progress ** exponent;
+}
+
+/** Composes speed and spacing perspective into the final horizontal progress (0-1). */
+export function pathHorizontalProgress(t: number, config: FiveMillionBannerConfig): number {
+  const speedProgress = perspectivePathProgress(t, config);
+
+  return perspectiveSpacingProgress(speedProgress, config.perspectiveSpacingExponent);
+}
+
 // Progress (0-1) through the post-bend portion of the path, used to ease
 // both the vertical drop (pathY) and the size ramp (depthScale) in lockstep.
 function bendProgress(t: number, config: FiveMillionBannerConfig): number {
   return (t - config.bendStart) / (1 - config.bendStart);
 }
 
+/** Total horizontal travel, in CSS px, from the off-screen entry point through the off-screen exit point. */
+export function pathTravelWidth(viewportWidth: number, config: FiveMillionBannerConfig): number {
+  return viewportWidth + 2 * config.offscreenMargin;
+}
+
 /** Horizontal position, in CSS px, of a particle at path progress t (0-1): a straight left-to-right sweep. */
-export function pathX(t: number, viewportWidth: number): number {
-  return t * viewportWidth;
+export function pathX(t: number, viewportWidth: number, config: FiveMillionBannerConfig): number {
+  const horizontalProgress = pathHorizontalProgress(t, config);
+
+  return -config.offscreenMargin + horizontalProgress * pathTravelWidth(viewportWidth, config);
 }
 
 /**
@@ -231,7 +298,7 @@ export interface DrawRect {
 /** Composes pathX/pathY/depthScale into a draw rect for a particle at path progress t. */
 export function computeDrawRect(t: number, viewportWidth: number, config: FiveMillionBannerConfig): DrawRect {
   const size = depthScale(t, config);
-  const centerX = pathX(t, viewportWidth);
+  const centerX = pathX(t, viewportWidth, config);
   const centerY = pathY(t, config);
 
   return {
