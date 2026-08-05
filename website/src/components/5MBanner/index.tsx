@@ -11,9 +11,16 @@ import {
 
 const ATLAS_SRC = '/img/banner/5m/atlas-placeholder.svg';
 const TITLE_SRC = '/img/banner/5m/title-placeholder.svg';
+
 // TODO: replace with the published blog post URL once it exists.
 const BLOG_POST_URL = 'https://podman-desktop.io/blog';
 
+/**
+ * Canvas-based animated banner celebrating 5 million downloads: a pool of particles streams
+ * left-to-right and grows as it approaches the viewer, under a static title image and a
+ * full-width link to the announcement post. Falls back to a static first frame when the user
+ * prefers reduced motion.
+ */
 function Banner(): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<HTMLAnchorElement>(null);
@@ -23,35 +30,41 @@ function Banner(): JSX.Element {
     // Check the refs (and the 2D context below) before binding them to their own
     // consts, rather than binding then checking. TypeScript's narrowing from an
     // early-return guard doesn't carry into the nested function declarations
-    // below (resize, draw, tick, handleResize) -- only the type each const has
+    // below (resize, draw, tick, handleResize) – only the type each const has
     // at its own declaration does, so the guard must run first.
     if (!containerRef.current || !anchorRef.current || !canvasRef.current) {
       return;
     }
+
     const container = containerRef.current;
     const anchor = anchorRef.current;
     const canvas = canvasRef.current;
 
+    // Get the 2D canvas context and return early if it's not available.
     const canvasContext = canvas.getContext('2d');
     if (!canvasContext) {
-      return;
+      return; // 2D context not available
     }
-    const ctx = canvasContext;
 
+    const ctx = canvasContext;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Recomputed (rather than resized in place) on breakpoint changes, since particleCount
+    // varies by breakpoint and the pool's arrays are fixed-size.
     function createSimulationState(width: number): { config: FiveMillionBannerConfig; pool: ParticlePool } {
       const config = resolveConfig(width);
       return { config, pool: createParticlePool(config.particleCount, config.spriteVariantCount) };
     }
 
     let { config, pool } = createSimulationState(container.clientWidth);
+
     let animationFrameId = 0;
     let resizeAnimationFrameId = 0;
     let lastTimestamp = 0;
     let atlasReady = false;
 
+    // Load the atlas image and set up the onload handler.
     const atlas = new Image();
     atlas.onload = (): void => {
       atlasReady = true;
@@ -59,46 +72,68 @@ function Banner(): JSX.Element {
     };
     atlas.src = ATLAS_SRC;
 
+    // Resize the canvas to match the container's width and height.
     function resize(): void {
       const width = container.clientWidth;
       const height = config.redZoneHeight + config.blueZoneHeight;
+
       // Set the container's own height explicitly rather than letting it be
-      // derived from the canvas (its only normal-flow child) -- keeps the
+      // derived from the canvas (its only normal-flow child) – keeps the
       // box the ResizeObserver below watches from moving as a side effect
       // of this same function resizing that canvas.
       container.style.height = `${height}px`;
+
+      // Set the anchor's height to match the red zone height.
       anchor.style.height = `${config.redZoneHeight}px`;
+
+      // Set the canvas's size and style to match the container.
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
+
+      // Set the canvas's transform to scale by the device pixel ratio.
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
+    // Draw the canvas.
     function draw(): void {
       const width = container.clientWidth;
+
+      // Clear the canvas.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Return early if the atlas is not yet ready.
       if (!atlasReady) {
         return;
       }
+
+      // Draw each particle in the pool.
       for (let i = 0; i < pool.count; i++) {
         const t = pool.t[i];
         const rect = computeDrawRect(t, width, config);
         const cell = getAtlasCellRect(pool.spriteIndex[i], config);
+
         ctx.drawImage(atlas, cell.sx, cell.sy, cell.sw, cell.sh, rect.x, rect.y, rect.size, rect.size);
       }
     }
 
+    // Update the simulation state and redraw on each animation frame.
     function tick(timestamp: number): void {
       const deltaSeconds = lastTimestamp === 0 ? 0 : (timestamp - lastTimestamp) / 1000;
+
       lastTimestamp = timestamp;
+
       stepParticlePool(pool, deltaSeconds, config.travelDurationSeconds);
       draw();
+
       animationFrameId = window.requestAnimationFrame(tick);
     }
 
+    // Handle resize events by recreating the simulation state and redrawing.
     function handleResize(): void {
       ({ config, pool } = createSimulationState(container.clientWidth));
+
       resize();
       draw();
     }
@@ -114,25 +149,35 @@ function Banner(): JSX.Element {
     // Deferring the actual work to the next animation frame breaks that loop.
     const resizeObserver = new ResizeObserver(() => {
       if (resizeAnimationFrameId) {
+        // Cancel the existing animation frame if it's still running.
         window.cancelAnimationFrame(resizeAnimationFrameId);
       }
+
+      // Request an animation frame to handle the resize.
       resizeAnimationFrameId = window.requestAnimationFrame(() => {
         resizeAnimationFrameId = 0;
         handleResize();
       });
     });
+
+    // Observe the container for resize events.
     resizeObserver.observe(container);
 
     if (!prefersReducedMotion) {
+      // Request an animation frame to start the simulation.
       animationFrameId = window.requestAnimationFrame(tick);
     }
 
     return (): void => {
       resizeObserver.disconnect();
+
       if (animationFrameId) {
+        // Cancel the animation frame if it's still running.
         window.cancelAnimationFrame(animationFrameId);
       }
+
       if (resizeAnimationFrameId) {
+        // Cancel the resize animation frame if it's still running.
         window.cancelAnimationFrame(resizeAnimationFrameId);
       }
     };
