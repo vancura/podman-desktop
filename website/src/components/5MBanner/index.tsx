@@ -200,7 +200,7 @@ function Banner(): JSX.Element {
       <ThemedImage
         sources={{ light: TITLE_LIGHT_SRC, dark: TITLE_DARK_SRC }}
         alt="5 million downloads"
-        className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 hidden"
+        className="pointer-events-none absolute left-1/2 top-0 h-18 sm:h-21 xl:h-40 -translate-x-1/2"
       />
     </div>
   );

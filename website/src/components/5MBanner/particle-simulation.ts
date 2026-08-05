@@ -110,9 +110,27 @@ interface Breakpoint {
 // Numeric values below are a visual-tuning starting point, not final –
 // see the design spec's "Responsive behavior" section.
 const BREAKPOINTS: Breakpoint[] = [
-  { minWidth: 0, overrides: { redZoneHeight: 72, blueZoneHeight: 160, maxParticleSize: 56 } },
-  { minWidth: 640, overrides: { redZoneHeight: 84, blueZoneHeight: 210, maxParticleSize: 100 } },
-  { minWidth: 1280, overrides: {} },
+  {
+    minWidth: 0,
+    overrides: {
+      redZoneHeight: 72,
+      blueZoneHeight: 160,
+      maxParticleSize: 56,
+      rowBaselineOffsets: [-22, 0, 22],
+      particleCount: 180,
+    },
+  },
+  {
+    minWidth: 640,
+    overrides: {
+      redZoneHeight: 84,
+      blueZoneHeight: 210,
+      maxParticleSize: 100,
+      rowBaselineOffsets: [-25, 0, 25],
+      particleCount: 180,
+    },
+  },
+  { minWidth: 1280, overrides: { maxParticleSize: 200 } },
 ];
 
 /**
