@@ -59,7 +59,7 @@ export class ContainersPage extends MainPage {
       name: 'Use Containerfile',
     });
     this.createDialogExistingImageButton = this.createDialog.getByRole('button', {
-      name: 'Use Existing Image',
+      name: 'Use existing image',
     });
   }
 

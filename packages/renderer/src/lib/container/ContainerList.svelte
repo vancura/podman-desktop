@@ -502,7 +502,7 @@ function label(item: ContainerGroupInfoUI | ContainerInfoUI): string {
       {/snippet}
     {#snippet buttons()}
 
-        <Button type="primary" on:click={fromExistingImage}>Use Existing Image</Button>
+        <Button type="primary" on:click={fromExistingImage}>Use existing image</Button>
         <Button type="primary" on:click={fromDockerfile}>Use Containerfile</Button>
 
       {/snippet}

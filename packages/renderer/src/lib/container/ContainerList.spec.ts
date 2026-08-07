@@ -1229,7 +1229,7 @@ test('Expect create container dialog has both choice buttons styled as primary',
   await fireEvent.click(createButton);
 
   const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));
-  const existingImageButton = within(dialog).getByRole('button', { name: 'Use Existing Image' });
+  const existingImageButton = within(dialog).getByRole('button', { name: 'Use existing image' });
   const containerfileButton = within(dialog).getByRole('button', { name: 'Use Containerfile' });
 
   expect(existingImageButton.className).toContain('bg-[var(--pd-button-primary-bg)]');
@@ -1272,7 +1272,7 @@ test('Expect clicking Existing image button closes dialog', async () => {
   await fireEvent.click(createButton);
 
   const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));
-  const existingImageButton = within(dialog).getByRole('button', { name: 'Use Existing Image' });
+  const existingImageButton = within(dialog).getByRole('button', { name: 'Use existing image' });
   await fireEvent.click(existingImageButton);
 
   await waitFor(() => {
