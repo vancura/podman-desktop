@@ -720,6 +720,44 @@ test('clicking on "Later" then "Remind me tomorrow" should snooze the prompt for
   );
 });
 
+test('expect an error to be logged if saving the next reminder timestamp fails', async () => {
+  vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+
+  vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
+    response: 'Later',
+    dropdownIndex: 0,
+  });
+
+  vi.mocked(configurationMock.update).mockRejectedValueOnce(new Error('write failed'));
+
+  let mListener: ((context?: 'startup' | 'status-bar-entry') => Promise<void>) | undefined;
+  vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
+    (channel: string, listener: () => Promise<void>) => {
+      if (channel === 'update') mListener = listener;
+      return Disposable.noop();
+    },
+  );
+
+  new Updater(
+    messageBoxMock,
+    configurationRegistryMock,
+    statusBarRegistryMock,
+    commandRegistryMock,
+    taskManagerMock,
+    apiSenderMock,
+  ).init();
+  expect(mListener).toBeDefined();
+
+  await mListener?.('startup');
+
+  await vi.waitFor(() =>
+    expect(console.error).toHaveBeenCalledWith(
+      'Something went wrong while trying to update update.nextReminderTimestamp preference',
+      new Error('write failed'),
+    ),
+  );
+});
+
 describe('expect update command to depends on context', async () => {
   type UpdateCommandListener = (context: 'startup' | 'status-bar-entry') => Promise<void>;
   const getUpdateListener = async (): Promise<UpdateCommandListener> => {
