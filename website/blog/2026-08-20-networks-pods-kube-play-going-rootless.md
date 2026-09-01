@@ -306,7 +306,7 @@ $ kubectl label --overwrite ns default pod-security.kubernetes.io/enforce=restri
 
 Now try deploying `myapp` again. On the **Pods** page, open `myapp`'s overflow menu and select **Deploy to Kubernetes**, pick the `kind-kind-cluster` context, and click **Deploy**, exactly like before. This time the cluster rejects it because the pod has no `securityContext`.
 
-The [Hummingbird](https://hummingbird-project.io/docs/using/overview/) images `myapp` uses already run as non-root, so the containers themselves are fine. What's missing is the `securityContext` that tells Kubernetes the pod *intends* to run that way.
+The [Hummingbird](https://hummingbird-project.io/docs/using/overview/) images `myapp` uses already run as non-root, so the containers themselves are fine. What's missing is the `securityContext` that tells Kubernetes the pod _intends_ to run that way.
 
 Start from the generated YAML. On the **Pods** page, open `myapp`'s overflow menu and select **Generate Kube**:
 
@@ -329,23 +329,23 @@ metadata:
   name: myapp
 spec:
   containers:
-  - args:
-    - postgres
-    env:
-    - name: POSTGRES_PASSWORD
-      value: secret
-    image: quay.io/hummingbird/postgresql:18
-    name: db
-    ports:
-    - containerPort: 5432
-    securityContext: {}
-  - args:
-    - sh
-    - -c
-    - 'while true; do pg_isready -h localhost && echo "web: connected to db"; sleep 2; done'
-    image: quay.io/hummingbird/postgresql:18
-    name: web
-    securityContext: {}
+    - args:
+        - postgres
+      env:
+        - name: POSTGRES_PASSWORD
+          value: secret
+      image: quay.io/hummingbird/postgresql:18
+      name: db
+      ports:
+        - containerPort: 5432
+      securityContext: {}
+    - args:
+        - sh
+        - -c
+        - 'while true; do pg_isready -h localhost && echo "web: connected to db"; sleep 2; done'
+      image: quay.io/hummingbird/postgresql:18
+      name: web
+      securityContext: {}
 ```
 
 Notice the empty `securityContext: {}` on each container. Two things need fixing before this YAML can pass a restricted namespace:
@@ -364,37 +364,37 @@ metadata:
   name: myapp
 spec:
   containers:
-  - args:
-    - postgres
-    env:
-    - name: POSTGRES_PASSWORD
-      value: secret
-    image: quay.io/hummingbird/postgresql:18
-    name: db
-    ports:
-    - containerPort: 5432
-    securityContext:
-      allowPrivilegeEscalation: false
-      runAsNonRoot: true
-      runAsUser: 999
-      capabilities:
-        drop: ["ALL"]
-      seccompProfile:
-        type: RuntimeDefault
-  - args:
-    - sh
-    - -c
-    - 'while true; do pg_isready -h localhost && echo "web: connected to db"; sleep 2; done'
-    image: quay.io/hummingbird/postgresql:18
-    name: web
-    securityContext:
-      allowPrivilegeEscalation: false
-      runAsNonRoot: true
-      runAsUser: 999
-      capabilities:
-        drop: ["ALL"]
-      seccompProfile:
-        type: RuntimeDefault
+    - args:
+        - postgres
+      env:
+        - name: POSTGRES_PASSWORD
+          value: secret
+      image: quay.io/hummingbird/postgresql:18
+      name: db
+      ports:
+        - containerPort: 5432
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        runAsUser: 999
+        capabilities:
+          drop: ['ALL']
+        seccompProfile:
+          type: RuntimeDefault
+    - args:
+        - sh
+        - -c
+        - 'while true; do pg_isready -h localhost && echo "web: connected to db"; sleep 2; done'
+      image: quay.io/hummingbird/postgresql:18
+      name: web
+      securityContext:
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        runAsUser: 999
+        capabilities:
+          drop: ['ALL']
+        seccompProfile:
+          type: RuntimeDefault
 ```
 
 Save it to a file, then import it from **Kubernetes > Pods > Apply YAML**:
