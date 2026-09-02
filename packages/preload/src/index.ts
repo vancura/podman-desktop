@@ -95,6 +95,7 @@ import type {
   MessageBoxOptions,
   MessageBoxReturnValue,
   NavigationRequest,
+  NavigationSearchEntryInfo,
   NetworkCreateOptions,
   NetworkCreateResult,
   NetworkInspectInfo,
@@ -291,6 +292,10 @@ export function initExposure(): void {
       return ipcRenderer.invoke('navigation:navigateToHistoryEntry', extensionId, entryId);
     },
   );
+
+  contextBridge.exposeInMainWorld('getSearchableNavigationRoutes', async (): Promise<NavigationSearchEntryInfo[]> => {
+    return ipcInvoke('navigation:getSearchableRoutes');
+  });
 
   contextBridge.exposeInMainWorld('listContainers', async (): Promise<ContainerInfo[]> => {
     return ipcInvoke('container-provider-registry:listContainers');
@@ -1507,12 +1512,9 @@ export function initExposure(): void {
     return ipcInvoke('command-registry:executeCommand', command, ...args);
   });
 
-  contextBridge.exposeInMainWorld(
-    'clipboardWriteText',
-    async (text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
-      return ipcInvoke('clipboard:writeText', text, type);
-    },
-  );
+  contextBridge.exposeInMainWorld('clipboardWriteText', async (text: string): Promise<void> => {
+    return ipcInvoke('clipboard:writeText', text);
+  });
 
   let onDidUpdateProviderStatusId = 0;
   const onDidUpdateProviderStatuses = new Map<number, (providerInfo: ProviderInfo) => void>();

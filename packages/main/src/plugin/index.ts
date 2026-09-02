@@ -481,7 +481,7 @@ export class PluginSystem {
         await shell.openExternal(url);
         return true;
       } else if (result.response === 'Copy Link') {
-        clipboard.writeText(url);
+        await clipboard.writeText(url);
       }
       return false;
     };
@@ -1966,8 +1966,8 @@ export class PluginSystem {
       },
     );
 
-    this.ipcHandle('clipboard:writeText', async (_, text: string, type?: 'selection' | 'clipboard'): Promise<void> => {
-      return clipboard.writeText(text, type);
+    this.ipcHandle('clipboard:writeText', async (_, text: string): Promise<void> => {
+      return clipboard.writeText(text);
     });
 
     this.ipcHandle(
@@ -3268,6 +3268,10 @@ export class PluginSystem {
         navigationManager.navigateToHistoryEntry(extensionId, entryId);
       },
     );
+
+    this.ipcHandle('navigation:getSearchableRoutes', async () => {
+      return navigationManager.getSearchableRoutes();
+    });
 
     this.ipcHandle('onboardingRegistry:listOnboarding', async (): Promise<OnboardingInfo[]> => {
       return onboardingRegistry.listOnboarding();
