@@ -1,11 +1,12 @@
 <script lang="ts">
-import type { OnboardingInfo, TelemetryMessages, WelcomeMessages } from '@podman-desktop/core-api';
-import { Button, Checkbox, Link, Tooltip } from '@podman-desktop/ui-svelte';
+import type { OnboardingInfo, WelcomeMessages } from '@podman-desktop/core-api';
+import { Button, Checkbox, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
 import { router } from 'tinro';
 
 import DesktopIcon from '/@/lib/images/DesktopIcon.svelte';
+import OnboardingWelcomeTelemetry from '/@/lib/onboarding/OnboardingWelcomeTelemetry.svelte';
 import { onboardingList } from '/@/stores/onboarding';
 import { providerInfos } from '/@/stores/providers';
 
@@ -13,10 +14,6 @@ import bgImage from './background.png';
 import { WelcomeUtils } from './welcome-utils';
 
 export let showWelcome = false;
-export let showTelemetry = false;
-
-let telemetry = true;
-let telemetryMessages: TelemetryMessages;
 
 const welcomeUtils = new WelcomeUtils();
 let podmanDesktopVersion: string;
@@ -59,11 +56,6 @@ onMount(async () => {
   router.goto('/');
   welcomeMessages = await window.getWelcomeMessages();
 
-  const telemetryPrompt = await welcomeUtils.havePromptedForTelemetry();
-  if (!telemetryPrompt) {
-    telemetryMessages = await window.getTelemetryMessages();
-    showTelemetry = true;
-  }
   podmanDesktopVersion = await window.getPodmanDesktopVersion();
 
   if (showWelcome) {
@@ -73,9 +65,6 @@ onMount(async () => {
 
 async function closeWelcome(): Promise<void> {
   showWelcome = false;
-  if (showTelemetry) {
-    await welcomeUtils.setTelemetry(telemetry);
-  }
 }
 
 // Function to toggle provider selection
@@ -157,34 +146,7 @@ function startOnboardingQueue(): void {
     </div>
 
     <!-- Telemetry -->
-    {#if showTelemetry}
-      <div class="flex flex-col justify-end flex-none p-4">
-        <div class="flex flex-row justify-center items-start p-1 text-sm">
-          <Checkbox
-            id="toggle-telemetry"
-            bind:checked={telemetry}
-            name="Enable telemetry"
-            class="text-lg px-2"
-            title="Enable telemetry"><div class="text-base font-medium">Telemetry:</div></Checkbox>
-          <div class="w-2/5 text-[var(--pd-content-card-text)]">
-            {#if telemetryMessages}
-              {telemetryMessages.acceptMessage}
-              {#if telemetryMessages?.info}
-                <Link
-                  on:click={async (): Promise<void> => {
-                    await window.openExternal(telemetryMessages.info?.url ?? '');
-                  }}>{telemetryMessages?.info.link}</Link>
-              {/if}
-            {/if}
-          </div>
-        </div>
-        <div class="flex justify-center p-1 text-sm text-[var(--pd-content-card-text)]">
-          <div>
-            You can always modify this preference later in Settings &gt; Preferences
-          </div>
-        </div>
-      </div>
-    {/if}
+    <OnboardingWelcomeTelemetry />
 
     <!-- Footer - button bar -->
     <div class="flex justify-end flex-none bg-[var(--pd-content-bg)] p-8">
