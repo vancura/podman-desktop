@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { OnboardingInfo, WelcomeMessages } from '@podman-desktop/core-api';
+import type { WelcomeMessages } from '@podman-desktop/core-api';
 import { Button, Checkbox, Tooltip } from '@podman-desktop/ui-svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 import { onMount } from 'svelte';
@@ -11,6 +11,7 @@ import { onboardingList } from '/@/stores/onboarding';
 import { providerInfos } from '/@/stores/providers';
 
 import bgImage from './background.png';
+import type { OnboardingInfoWithAdditionalInfo } from './welcome-utils';
 import { WelcomeUtils } from './welcome-utils';
 
 export let showWelcome = false;
@@ -18,34 +19,10 @@ export let showWelcome = false;
 const welcomeUtils = new WelcomeUtils();
 let podmanDesktopVersion: string;
 
-// Extend ProviderInfo to have a selected property
-interface OnboardingInfoWithAdditionalInfo extends OnboardingInfo {
-  selected?: boolean;
-  containerEngine?: boolean;
-}
-
 let onboardingProviders: OnboardingInfoWithAdditionalInfo[] = [];
 let welcomeMessages: WelcomeMessages;
 
-// Get every provider that has a container connections
-$: providersWithContainerConnections = $providerInfos.filter(provider => provider.containerConnections.length > 0);
-
-// Using providerInfos as well as the information we have from onboarding,
-// we will by default auto-select as well as add containerEngine to the list as true/false
-// so we can make sure that extensions with container engines are listed first
-$: onboardingProviders = $onboardingList
-  .map(provider => {
-    // Check if it's in the list, if it is, then it has a container engine
-    const hasContainerConnection = providersWithContainerConnections.some(
-      connectionProvider => connectionProvider.extensionId === provider.extension,
-    );
-    return {
-      ...provider,
-      selected: true,
-      containerEngine: hasContainerConnection,
-    };
-  })
-  .toSorted((a, b) => Number(b.containerEngine) - Number(a.containerEngine)); // Sort by containerEngine (true first)
+$: onboardingProviders = welcomeUtils.getSortedOnboardingExtensions($onboardingList, $providerInfos);
 
 onMount(async () => {
   const ver = await welcomeUtils.getVersion();
