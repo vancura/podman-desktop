@@ -25,19 +25,11 @@ let welcomeMessages: WelcomeMessages;
 $: onboardingProviders = welcomeUtils.getSortedOnboardingExtensions($onboardingList, $providerInfos);
 
 onMount(async () => {
-  const ver = await welcomeUtils.getVersion();
-  if (!ver) {
-    await welcomeUtils.updateVersion('initial');
-    showWelcome = true;
-  }
+  const result = await welcomeUtils.enforceFirstRun();
+  podmanDesktopVersion = result.version;
+  showWelcome = result.firstRun;
   router.goto('/');
   welcomeMessages = await window.getWelcomeMessages();
-
-  podmanDesktopVersion = await window.getPodmanDesktopVersion();
-
-  if (showWelcome) {
-    await window.updateConfigurationValue(`releaseNotesBanner.show`, podmanDesktopVersion);
-  }
 });
 
 async function closeWelcome(): Promise<void> {

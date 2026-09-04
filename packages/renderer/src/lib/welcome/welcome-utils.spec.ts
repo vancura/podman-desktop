@@ -119,3 +119,30 @@ describe('getSortedOnboardingExtensions', () => {
     expect(extensions).toEqual(original);
   });
 });
+
+describe('enforceFirstRun', () => {
+  test('returns firstRun true and sets version on first run', async () => {
+    vi.mocked(window.getPodmanDesktopVersion).mockResolvedValue('1.2.3');
+    vi.mocked(window.getConfigurationValue).mockResolvedValue(undefined);
+
+    const result = await welcomeUtils.enforceFirstRun();
+
+    expect(result).toEqual({ version: '1.2.3', firstRun: true });
+    expect(vi.mocked(window.updateConfigurationValue)).toHaveBeenCalledWith(
+      WelcomeSettings.SectionName + '.' + WelcomeSettings.Version,
+      'initial',
+      'DEFAULT',
+    );
+    expect(vi.mocked(window.updateConfigurationValue)).toHaveBeenCalledWith('releaseNotesBanner.show', '1.2.3');
+  });
+
+  test('returns firstRun false when version already set', async () => {
+    vi.mocked(window.getPodmanDesktopVersion).mockResolvedValue('1.2.3');
+    vi.mocked(window.getConfigurationValue).mockResolvedValue('initial');
+
+    const result = await welcomeUtils.enforceFirstRun();
+
+    expect(result).toEqual({ version: '1.2.3', firstRun: false });
+    expect(vi.mocked(window.updateConfigurationValue)).not.toHaveBeenCalled();
+  });
+});

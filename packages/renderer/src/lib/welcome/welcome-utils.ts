@@ -92,4 +92,21 @@ export class WelcomeUtils {
       }))
       .toSorted((a, b) => Number(b.containerEngine) - Number(a.containerEngine)); // Sort by containerEngine (true first)
   }
+
+  /**
+   * Checks if this is the first run. Fetches the current app version,
+   * and if no previous version is stored, marks it as 'initial' and
+   * suppresses the release notes banner.
+   * Returns the app version and whether this is the first run.
+   */
+  async enforceFirstRun(): Promise<{ version: string; firstRun: boolean }> {
+    const version = await window.getPodmanDesktopVersion();
+    const ver = await this.getVersion();
+    if (!ver) {
+      await this.updateVersion('initial');
+      await window.updateConfigurationValue('releaseNotesBanner.show', version);
+      return { version, firstRun: true };
+    }
+    return { version, firstRun: false };
+  }
 }
