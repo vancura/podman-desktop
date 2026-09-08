@@ -315,25 +315,42 @@ else
 fi
 
 # Launch pnpm watch and wait for CDP
-echo "[4/4] Launching pnpm watch (output → /tmp/pnpm-watch.log)…"
-if [[ "$(uname -s)" == "Linux" && -n "${WAYLAND_DISPLAY:-}" ]]; then
-  ELECTRON_OZONE_PLATFORM_HINT=x11 pnpm --dir "$REPO" watch &>/tmp/pnpm-watch.log &
-else
-  pnpm --dir "$REPO" watch &>/tmp/pnpm-watch.log &
-fi
-WATCH_PID=$!
-echo "$WATCH_PID" > /tmp/pnpm-watch.pid
-echo "      pnpm watch started (pid $WATCH_PID)"
+UI_DIST_ENTRY="$REPO/packages/ui/dist/index.js"
+VITE_STALE_IMPORT_PATTERN='Failed to resolve import .*@podman-desktop/ui-svelte'
 
-echo "      Waiting for CDP on port ${DEV_PORT}..."
-for i in $(seq 1 120); do
-  if cdp_ready; then
-    echo "      CDP ready after ${i}s"
-    break
+launch_pnpm_watch() {
+  if [[ "$(uname -s)" == "Linux" && -n "${WAYLAND_DISPLAY:-}" ]]; then
+    ELECTRON_OZONE_PLATFORM_HINT=x11 pnpm --dir "$REPO" watch &>/tmp/pnpm-watch.log &
+  else
+    pnpm --dir "$REPO" watch &>/tmp/pnpm-watch.log &
   fi
-  sleep 1
-done
-if ! cdp_ready; then
+  WATCH_PID=$!
+  echo "$WATCH_PID" > /tmp/pnpm-watch.pid
+}
+
+wait_for_ui_package_build() {
+  echo "      Waiting for packages/ui build (svelte-package)…"
+  for i in $(seq 1 60); do
+    if [[ -f "$UI_DIST_ENTRY" ]]; then
+      echo "      packages/ui built after ${i}s"
+      return 0
+    fi
+    sleep 1
+  done
+  echo "ERROR: packages/ui did not build (missing dist/index.js) within 60s"
+  tail -20 /tmp/pnpm-watch.log
+  return 1
+}
+
+wait_for_dev_cdp() {
+  echo "      Waiting for CDP on port ${DEV_PORT}..."
+  for i in $(seq 1 120); do
+    if cdp_ready; then
+      echo "      CDP ready after ${i}s"
+      return 0
+    fi
+    sleep 1
+  done
   echo "ERROR: App did not expose CDP within 120s"
   if detect_production_pd; then
     echo "HINT: A production Podman Desktop is running — it holds the"
@@ -342,7 +359,43 @@ if ! cdp_ready; then
     echo "        podman-desktop --remote-debugging-port=9222"
   fi
   tail -20 /tmp/pnpm-watch.log
-  exit 1
+  return 1
+}
+
+stop_pnpm_watch() {
+  kill "$WATCH_PID" 2>/dev/null || true
+  pgrep -f 'pnpm.*watch' | xargs kill 2>/dev/null || true
+  sleep 2
+}
+
+echo "[4/4] Launching pnpm watch (output → /tmp/pnpm-watch.log)…"
+launch_pnpm_watch
+echo "      pnpm watch started (pid $WATCH_PID)"
+
+# packages/ui (svelte-package -w) and the renderer's Vite dev server start
+# concurrently. If Vite's initial dependency scan runs before packages/ui/dist
+# exists, it permanently caches a "Failed to resolve import '@podman-desktop/
+# ui-svelte'" error — reloading the page does not clear it. Waiting for the
+# ui package's first build narrows that startup race.
+wait_for_ui_package_build || exit 1
+
+wait_for_dev_cdp || exit 1
+
+if grep -qE "$VITE_STALE_IMPORT_PATTERN" /tmp/pnpm-watch.log 2>/dev/null; then
+  echo "      Detected stale Vite dependency-scan error for @podman-desktop/ui-svelte — restarting pnpm watch once…"
+  stop_pnpm_watch
+  rm -f /tmp/pnpm-watch.pid
+  : > /tmp/pnpm-watch.log
+
+  launch_pnpm_watch
+  echo "      pnpm watch restarted (pid $WATCH_PID)"
+
+  wait_for_dev_cdp || exit 1
+
+  if grep -qE "$VITE_STALE_IMPORT_PATTERN" /tmp/pnpm-watch.log 2>/dev/null; then
+    echo "ERROR: Vite still fails to resolve @podman-desktop/ui-svelte after automatic restart — see /tmp/pnpm-watch.log"
+    exit 1
+  fi
 fi
 
 close_devtools_targets
