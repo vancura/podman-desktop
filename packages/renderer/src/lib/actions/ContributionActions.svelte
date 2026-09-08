@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import { faPlug } from '@fortawesome/free-solid-svg-icons';
+import { faCircleArrowUp, faPlug } from '@fortawesome/free-solid-svg-icons';
 import type { Menu } from '@podman-desktop/core-api';
 import { onDestroy } from 'svelte';
 import type { Unsubscriber } from 'svelte/store';
@@ -74,6 +74,12 @@ $effect(() => {
   }
 });
 
+// Built-in icons that a contributed menu can reference by name, for actions that don't
+// warrant an extension shipping its own custom icon font (see ${...} handling below).
+const wellKnownIcons: Record<string, IconDefinition> = {
+  'circle-arrow-up': faCircleArrowUp,
+};
+
 function getIcon(menu: Menu): IconDefinition | string {
   const defaultIcon = faPlug;
   if (!menu.icon) {
@@ -85,6 +91,12 @@ function getIcon(menu: Menu): IconDefinition | string {
     const className = match[1];
     return menu.icon.replace(match[0], `podman-desktop-icon-${className}`);
   }
+
+  const wellKnownIcon = wellKnownIcons[menu.icon];
+  if (wellKnownIcon) {
+    return wellKnownIcon;
+  }
+
   console.error(`Invalid icon name: ${menu.icon}`);
   return defaultIcon;
 }

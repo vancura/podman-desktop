@@ -58,7 +58,8 @@
       "dashboard/image": [
         {
           "command": "lima.image.move",
-          "title": "Push image to Lima cluster"
+          "title": "Push image to Lima cluster",
+          "icon": "circle-arrow-up"
         }
       ]
     },

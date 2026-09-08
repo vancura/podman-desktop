@@ -85,6 +85,7 @@
         {
           "command": "kind.image.move",
           "title": "Push image to Kind cluster",
+          "icon": "circle-arrow-up",
           "disabled": "selectedImageId in imagesPushInProgressToKind"
         }
       ]

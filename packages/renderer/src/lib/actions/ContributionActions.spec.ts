@@ -18,6 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
+import { faCircleArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeAll, expect, test, vi } from 'vitest';
 
@@ -265,4 +266,25 @@ test('Expect custom icon on the contributed action', async () => {
   // expect to have the podman desktop icon class
 
   expect(iconItem).toHaveClass('fas fa-podman-desktop-icon-dummyIcon');
+});
+
+test('Expect well-known icon on the contributed action', async () => {
+  render(ContributionActions, {
+    args: [],
+    contributions: [
+      {
+        command: 'dummy.command',
+        title: 'dummy-title',
+        icon: 'circle-arrow-up',
+      },
+    ],
+    onError: () => {},
+    dropdownMenu: true,
+  });
+
+  const iconItem = screen.getByRole('img', { hidden: true });
+  expect(iconItem).toBeInTheDocument();
+  // expect the rendered svg path to match the faCircleArrowUp glyph, not the faPlug default
+  const path = iconItem.querySelector('path');
+  expect(path).toHaveAttribute('d', faCircleArrowUp.icon[4] as string);
 });
