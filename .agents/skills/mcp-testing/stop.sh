@@ -20,17 +20,22 @@ if $SESSION_ONLY; then
 fi
 
 MODE=""
-[ -f "$STATE" ] && MODE=$(cat "$STATE" | tr -d '[:space:]')
+WATCH_DIR=""
+if [ -f "$STATE" ]; then
+  MODE=$(sed -n '1p' "$STATE" | tr -d '[:space:]')
+  WATCH_DIR=$(sed -n '2p' "$STATE")
+fi
 
 case "$MODE" in
   dev)
     echo "Stopping dev session…"
 
-    # Kill pnpm watch process tree via PID file
-    if [ -f /tmp/pnpm-watch.pid ]; then
-      PID=$(cat /tmp/pnpm-watch.pid)
+    # Kill pnpm watch process tree via the PID file in this session's private
+    # watch directory (see start.sh — the directory's location is recorded as
+    # the second line of $STATE)
+    if [ -n "$WATCH_DIR" ] && [ -f "$WATCH_DIR/pnpm-watch.pid" ]; then
+      PID=$(cat "$WATCH_DIR/pnpm-watch.pid")
       kill "$PID" 2>/dev/null || true
-      rm -f /tmp/pnpm-watch.pid
       echo "  Killed pnpm watch (pid $PID)"
     fi
 
@@ -46,7 +51,7 @@ case "$MODE" in
       fi
     fi
 
-    rm -f /tmp/pnpm-watch.log
+    [ -n "$WATCH_DIR" ] && [ -d "$WATCH_DIR" ] && rm -rf "$WATCH_DIR"
     ;;
 
   prod)
