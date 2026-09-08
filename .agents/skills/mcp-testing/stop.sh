@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 # stop.sh — Stop everything started by the mcp-testing skill.
-# Reads /tmp/mcp-testing-session to determine what to kill.
+# Reads the session file in this user's private state directory (see
+# MCP_STATE_DIR below) to determine what to kill.
 # Safe to run even if nothing is running.
 
 set -euo pipefail
 
-STATE=/tmp/mcp-testing-session
+# Must match the private, per-user directory start.sh creates (0700, owned by
+# this uid) — a fixed /tmp/mcp-testing-session path was world-writable, so a
+# local attacker could pre-create it with a second line that ends up in the
+# `rm -rf "$WATCH_DIR"` below.
+MCP_STATE_DIR="${TMPDIR:-/tmp}/mcp-testing-$(id -u)"
+STATE="$MCP_STATE_DIR/session"
 DEV_PORT=9223
 
 SESSION_ONLY=false
@@ -19,11 +25,19 @@ if $SESSION_ONLY; then
   exit 0
 fi
 
+# Only trust $STATE if the directory holding it is a real (non-symlinked)
+# directory this user actually owns with the expected restrictive mode.
 MODE=""
 WATCH_DIR=""
-if [ -f "$STATE" ]; then
-  MODE=$(sed -n '1p' "$STATE" | tr -d '[:space:]')
-  WATCH_DIR=$(sed -n '2p' "$STATE")
+if [ -d "$MCP_STATE_DIR" ] && [ ! -L "$MCP_STATE_DIR" ] && [ -f "$STATE" ]; then
+  owner_uid=$(stat -c %u "$MCP_STATE_DIR" 2>/dev/null || stat -f %u "$MCP_STATE_DIR" 2>/dev/null || echo -1)
+  perms=$(stat -c %a "$MCP_STATE_DIR" 2>/dev/null || stat -f %Lp "$MCP_STATE_DIR" 2>/dev/null || echo 000)
+  if [ "$owner_uid" = "$(id -u)" ] && [ "$perms" = "700" ]; then
+    MODE=$(sed -n '1p' "$STATE" | tr -d '[:space:]')
+    WATCH_DIR=$(sed -n '2p' "$STATE")
+  else
+    echo "WARNING: $MCP_STATE_DIR is not a private directory you own — ignoring session state" >&2
+  fi
 fi
 
 case "$MODE" in
@@ -70,7 +84,7 @@ case "$MODE" in
     ;;
 
   "")
-    echo "No active session found (/tmp/mcp-testing-session not present)"
+    echo "No active session found ($STATE not present)"
     ;;
 
   *)

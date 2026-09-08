@@ -13,6 +13,25 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
 DEV_PORT=9223
 
+# Private, per-user state directory. A fixed /tmp/mcp-testing-session path is
+# world-writable: a local attacker could pre-create it (as a file, directory,
+# or symlink) with content this script — and stop.sh — later trust, including
+# a path fed straight into `rm -rf`. Create a 0700 directory scoped to this
+# uid and refuse to use it unless we can confirm we actually own it.
+MCP_STATE_DIR="${TMPDIR:-/tmp}/mcp-testing-$(id -u)"
+if [[ -L "$MCP_STATE_DIR" ]] || { [[ -e "$MCP_STATE_DIR" ]] && [[ ! -d "$MCP_STATE_DIR" ]]; }; then
+  echo "ERROR: $MCP_STATE_DIR exists and is not a plain private directory — remove it and re-run: rm -f '$MCP_STATE_DIR'"
+  exit 1
+fi
+mkdir -m 700 "$MCP_STATE_DIR" 2>/dev/null || true
+mcp_state_owner=$(stat -c %u "$MCP_STATE_DIR" 2>/dev/null || stat -f %u "$MCP_STATE_DIR" 2>/dev/null || echo -1)
+mcp_state_perms=$(stat -c %a "$MCP_STATE_DIR" 2>/dev/null || stat -f %Lp "$MCP_STATE_DIR" 2>/dev/null || echo 000)
+if [[ "$mcp_state_owner" != "$(id -u)" || "$mcp_state_perms" != "700" ]]; then
+  echo "ERROR: $MCP_STATE_DIR is not a private directory you own (uid=$mcp_state_owner perms=$mcp_state_perms) — remove it and re-run: rm -rf '$MCP_STATE_DIR'"
+  exit 1
+fi
+STATE_FILE="$MCP_STATE_DIR/session"
+
 # VS Code (and other Electron-based editors) set ELECTRON_RUN_AS_NODE=1 in child
 # processes. This makes the Electron binary run as plain Node.js, breaking the
 # Electron API and Chromium flags like --remote-debugging-port. Unset it so that
@@ -156,7 +175,7 @@ if [[ "$MODE" == "prod" ]]; then
         sleep 1
       done
       if [[ -n "$app_title" ]]; then
-        echo "prod" > /tmp/mcp-testing-session
+        echo "prod" > "$STATE_FILE"
         echo "Already running — $app_title (port $p)"
         echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $p })"
         exit 0
@@ -202,7 +221,7 @@ if [[ "$MODE" == "prod" ]]; then
     exit 1
   fi
 
-  echo "prod" > /tmp/mcp-testing-session
+  echo "prod" > "$STATE_FILE"
   echo "Connected to production Podman Desktop — $app_title (port $PROD_PORT)"
   echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $PROD_PORT })"
   exit 0
@@ -227,7 +246,7 @@ if [[ "$MODE" == "dev-fast" ]]; then
 
   close_devtools_targets
 
-  echo "dev" > /tmp/mcp-testing-session
+  echo "dev" > "$STATE_FILE"
   echo "pnpm watch already running — $app_title"
   echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $DEV_PORT })"
   exit 0
@@ -271,8 +290,8 @@ fi
 
 # Remove the private watch-state directory (log + pid file) left by a
 # previous dev session, if the session file still points to one.
-if [[ -f /tmp/mcp-testing-session ]]; then
-  prior_watch_dir=$(sed -n '2p' /tmp/mcp-testing-session)
+if [[ -f "$STATE_FILE" ]]; then
+  prior_watch_dir=$(sed -n '2p' "$STATE_FILE")
   [[ -n "$prior_watch_dir" && -d "$prior_watch_dir" ]] && rm -rf "$prior_watch_dir"
 fi
 
@@ -327,8 +346,8 @@ VITE_STALE_IMPORT_PATTERN='Failed to resolve import .*@podman-desktop/ui-svelte'
 # Private, unpredictable directory for this run's log/pid files — a fixed
 # /tmp path would let a local attacker pre-create it (or a symlink) and
 # hijack what gets written there. Its location is recorded as the second
-# line of /tmp/mcp-testing-session so stop.sh (and the next start.sh run,
-# for cleanup) can find it later.
+# line of $STATE_FILE (itself in the private $MCP_STATE_DIR set up above) so
+# stop.sh, and the next start.sh run, can find it later.
 WATCH_DIR="$(mktemp -d "${TMPDIR:-/tmp}/mcp-testing-watch.XXXXXX")"
 WATCH_LOG="$WATCH_DIR/pnpm-watch.log"
 WATCH_PID_FILE="$WATCH_DIR/pnpm-watch.pid"
@@ -430,5 +449,5 @@ fi
 
 close_devtools_targets
 
-printf '%s\n%s\n' "dev" "$WATCH_DIR" > /tmp/mcp-testing-session
+printf '%s\n%s\n' "dev" "$WATCH_DIR" > "$STATE_FILE"
 echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $DEV_PORT })"
