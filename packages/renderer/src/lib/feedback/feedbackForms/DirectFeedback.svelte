@@ -82,8 +82,14 @@ async function openGitHub(): Promise<void> {
   <svelte:fragment slot="content">
     <label for="smiley" class="block mt-4 mb-2 text-sm font-medium text-[var(--pd-modal-text)]"
       >{feedbackMessages?.experienceLabel}</label>
-    <div class="flex space-x-4">
-      <button aria-label="very-sad-smiley" onclick={(): void => selectSmiley(1)}>
+    <div class="flex space-x-4" role="group" aria-label={feedbackMessages?.experienceLabel}>
+      <button
+        aria-label="very-sad-smiley"
+        aria-pressed={smileyRating === 1 ? 'true' : 'false'}
+        class="rounded-full p-1 border-2 {smileyRating === 1
+          ? 'border-(--pd-content-card-border-selected)'
+          : 'border-transparent'}"
+        onclick={(): void => selectSmiley(1)}>
         <Icon
           size="1.5x"
           class="cursor-pointer {smileyRating === 1
@@ -91,7 +97,13 @@ async function openGitHub(): Promise<void> {
             : 'text-(--pd-button-disabled-text)'}"
           icon={faFrown} />
       </button>
-      <button aria-label="sad-smiley" onclick={(): void => selectSmiley(2)}>
+      <button
+        aria-label="sad-smiley"
+        aria-pressed={smileyRating === 2 ? 'true' : 'false'}
+        class="rounded-full p-1 border-2 {smileyRating === 2
+          ? 'border-(--pd-content-card-border-selected)'
+          : 'border-transparent'}"
+        onclick={(): void => selectSmiley(2)}>
         <Icon
           size="1.5x"
           class="cursor-pointer {smileyRating === 2
@@ -99,7 +111,13 @@ async function openGitHub(): Promise<void> {
             : 'text-(--pd-button-disabled-text)'}"
           icon={faMeh} />
       </button>
-      <button aria-label="happy-smiley" onclick={(): void => selectSmiley(3)}>
+      <button
+        aria-label="happy-smiley"
+        aria-pressed={smileyRating === 3 ? 'true' : 'false'}
+        class="rounded-full p-1 border-2 {smileyRating === 3
+          ? 'border-(--pd-content-card-border-selected)'
+          : 'border-transparent'}"
+        onclick={(): void => selectSmiley(3)}>
         <Icon
           size="1.5x"
           class="cursor-pointer {smileyRating === 3
@@ -107,7 +125,13 @@ async function openGitHub(): Promise<void> {
             : 'text-(--pd-button-disabled-text)'}"
           icon={faSmile} />
       </button>
-      <button aria-label="very-happy-smiley" onclick={(): void => selectSmiley(4)}>
+      <button
+        aria-label="very-happy-smiley"
+        aria-pressed={smileyRating === 4 ? 'true' : 'false'}
+        class="rounded-full p-1 border-2 {smileyRating === 4
+          ? 'border-(--pd-content-card-border-selected)'
+          : 'border-transparent'}"
+        onclick={(): void => selectSmiley(4)}>
         <Icon
           size="1.5x"
           class="cursor-pointer {smileyRating === 4
