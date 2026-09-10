@@ -222,15 +222,18 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
   });
 };
 
+/** Printed by `svelte-package -w` once, right after its first build completes (e.g. `src/lib -> dist`). */
+const SVELTE_PACKAGE_INITIAL_BUILD_DONE = /->\s*dist/;
+
 /**
- * Build `packages/ui` once (blocking) and then start its incremental watcher.
+ * Start `packages/ui`'s incremental watcher and wait for its first build to complete.
  *
  * The renderer's Vite dev server resolves bare imports of `@podman-desktop/ui-svelte`
  * against `packages/ui/dist`. Vite runs its dependency scan as soon as it starts
- * listening, independent of the `-w` watcher below, which only rebuilds incrementally
- * and gives no signal for when its first build completes. Without a blocking build
- * first, that scan can run before `dist` exists and permanently cache a resolution
- * failure for the session (reloading the page does not clear it).
+ * listening. Without waiting for the first build here, that scan can run before
+ * `dist` exists and permanently cache a resolution failure for the session
+ * (reloading the page does not clear it).
+ * @returns {Promise<void>} resolves once the first build has produced `dist`
  */
 const setupUiPackageWatcher = () => {
   const logger = createLogger(LOG_LEVEL, {
@@ -240,36 +243,41 @@ const setupUiPackageWatcher = () => {
   const dirname = join(__dirname, '..', 'node_modules', '.bin');
   const exe = 'svelte-package'.concat(process.platform === 'win32' ? '.cmd' : '');
   const newPath = `${process.env.PATH}${delimiter}${dirname}`;
-  const spawnOptions = {
+  const spawnProcess = spawn(exe, ['-w'], {
     cwd: './packages/ui/',
     env: { PATH: newPath, ...process.env },
     shell: process.platform === 'win32',
-  };
-
-  const initialBuild = spawnSync(exe, [], spawnOptions);
-  if (initialBuild.status !== 0) {
-    throw new Error(`Initial packages/ui build (svelte-package) failed with status ${initialBuild.status}`);
-  }
-
-  const spawnProcess = spawn(exe, ['-w'], {
-    ...spawnOptions,
     detached: process.platform !== 'win32',
   });
 
-  spawnProcess.stdout.on('data', d => d.toString().trim() && logger.warn(d.toString(), { timestamp: true }));
-  spawnProcess.stderr.on('data', d => {
-    const data = d.toString().trim();
-    if (!data) return;
-    const mayIgnore = stderrFilterPatterns.some(r => r.test(data));
-    if (mayIgnore) return;
-    logger.error(data, { timestamp: true });
+  return new Promise((resolvePromise, rejectPromise) => {
+    // resolve/reject are no-ops once the promise has settled, so no extra
+    // bookkeeping is needed to stop the exit handler from rejecting after
+    // a successful first build.
+    spawnProcess.stdout.on('data', d => {
+      const data = d.toString();
+      if (data.trim()) logger.warn(data, { timestamp: true });
+      if (SVELTE_PACKAGE_INITIAL_BUILD_DONE.test(data)) resolvePromise();
+    });
+
+    spawnProcess.stderr.on('data', d => {
+      const data = d.toString().trim();
+      if (!data) return;
+
+      const mayIgnore = stderrFilterPatterns.some(r => r.test(data));
+      if (mayIgnore) return;
+
+      logger.error(data, { timestamp: true });
+    });
+
+    spawnProcess.on('exit', (code, signal) => {
+      rejectPromise(new Error('packages/ui build (svelte-package -w) exited before its first build completed'));
+      cleanupOnChildExit(code, signal);
+    });
+
+    trackChildProcess(spawnProcess);
+    spawnProcess.unref();
   });
-
-  // Stops the watch script when the application has been quit
-  spawnProcess.on('exit', cleanupOnChildExit);
-
-  trackChildProcess(spawnProcess);
-  spawnProcess.unref();
 };
 
 /**
@@ -389,7 +397,7 @@ const setupExtensionApiWatcher = name => {
     }
     // Build packages/ui before starting the renderer's Vite dev server — see
     // setupUiPackageWatcher for why this ordering matters.
-    setupUiPackageWatcher();
+    await setupUiPackageWatcher();
 
     const viteDevServer = await createServer({
       ...sharedConfig,
