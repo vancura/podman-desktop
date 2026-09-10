@@ -222,27 +222,37 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
   });
 };
 
+/**
+ * Build `packages/ui` once (blocking) and then start its incremental watcher.
+ *
+ * The renderer's Vite dev server resolves bare imports of `@podman-desktop/ui-svelte`
+ * against `packages/ui/dist`. Vite runs its dependency scan as soon as it starts
+ * listening, independent of the `-w` watcher below, which only rebuilds incrementally
+ * and gives no signal for when its first build completes. Without a blocking build
+ * first, that scan can run before `dist` exists and permanently cache a resolution
+ * failure for the session (reloading the page does not clear it).
+ */
 const setupUiPackageWatcher = () => {
   const logger = createLogger(LOG_LEVEL, {
     prefix: '[ui]',
   });
 
-  /** @type {ChildProcessWithoutNullStreams | null} */
-  let spawnProcess = null;
-
-  if (spawnProcess !== null) {
-    spawnProcess.off('exit', process.exit);
-    spawnProcess.kill('SIGINT');
-    spawnProcess = null;
-  }
-
   const dirname = join(__dirname, '..', 'node_modules', '.bin');
   const exe = 'svelte-package'.concat(process.platform === 'win32' ? '.cmd' : '');
   const newPath = `${process.env.PATH}${delimiter}${dirname}`;
-  spawnProcess = spawn(exe, ['-w'], {
+  const spawnOptions = {
     cwd: './packages/ui/',
     env: { PATH: newPath, ...process.env },
     shell: process.platform === 'win32',
+  };
+
+  const initialBuild = spawnSync(exe, [], spawnOptions);
+  if (initialBuild.status !== 0) {
+    throw new Error(`Initial packages/ui build (svelte-package) failed with status ${initialBuild.status}`);
+  }
+
+  const spawnProcess = spawn(exe, ['-w'], {
+    ...spawnOptions,
     detached: process.platform !== 'win32',
   });
 
@@ -377,6 +387,10 @@ const setupExtensionApiWatcher = name => {
         extensions.push(resolve(process.argv[++index]));
       }
     }
+    // Build packages/ui before starting the renderer's Vite dev server — see
+    // setupUiPackageWatcher for why this ordering matters.
+    setupUiPackageWatcher();
+
     const viteDevServer = await createServer({
       ...sharedConfig,
       configFile: 'packages/renderer/vite.config.js',
@@ -415,7 +429,6 @@ const setupExtensionApiWatcher = name => {
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupPreloadWebviewPackageWatcher(viteDevServer);
-    await setupUiPackageWatcher();
     await setupMainPackageWatcher(viteDevServer);
   } catch (e) {
     console.error(e);
