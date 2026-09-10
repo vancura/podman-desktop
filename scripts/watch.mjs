@@ -25,7 +25,7 @@ import { generateAsync } from 'dts-for-context-bridge';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { readdirSync, existsSync } from 'node:fs';
-import { delimiter, join } from 'node:path';
+import { join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -222,9 +222,6 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
   });
 };
 
-/** Printed by `svelte-package -w` once, right after its first build completes (e.g. `src/lib -> dist`). */
-const SVELTE_PACKAGE_INITIAL_BUILD_DONE = /->\s*dist/;
-
 /**
  * Start `packages/ui`'s incremental watcher and wait for its first build to complete.
  *
@@ -233,51 +230,35 @@ const SVELTE_PACKAGE_INITIAL_BUILD_DONE = /->\s*dist/;
  * listening. Without waiting for the first build here, that scan can run before
  * `dist` exists and permanently cache a resolution failure for the session
  * (reloading the page does not clear it).
+ *
+ * `@sveltejs/package`'s `watch()` performs and awaits its first build before returning,
+ * so awaiting it here is a direct signal that `dist` is ready — no subprocess or stdout
+ * pattern matching needed. `watch()`/`load_config()` aren't part of its public API (its
+ * package.json only exports `./package.json`), so they're loaded from a path resolved
+ * off that one legitimate export rather than assumed relative to this file — resilient
+ * to `@sveltejs/package` being hoisted, nested, or symlinked differently by the package
+ * manager, since only `packages/ui` (not the workspace root) actually depends on it.
  * @returns {Promise<void>} resolves once the first build has produced `dist`
  */
-const setupUiPackageWatcher = () => {
-  const logger = createLogger(LOG_LEVEL, {
-    prefix: '[ui]',
+const setupUiPackageWatcher = async () => {
+  const svelteKitPackageRoot = new URL('.', import.meta.resolve('@sveltejs/package/package.json'));
+  const { watch: watchUiPackage } = await import(new URL('src/index.js', svelteKitPackageRoot));
+  const { load_config: loadUiPackageConfig } = await import(new URL('src/config.js', svelteKitPackageRoot));
+
+  const cwd = join(__dirname, '..', 'packages/ui');
+  const config = await loadUiPackageConfig({ cwd });
+
+  const { watcher } = await watchUiPackage({
+    cwd,
+    input: config.kit?.files?.lib ?? 'src/lib',
+    output: 'dist',
+    preserve_output: false,
+    types: true,
+    tsconfig: undefined,
+    config,
   });
 
-  const dirname = join(__dirname, '..', 'node_modules', '.bin');
-  const exe = 'svelte-package'.concat(process.platform === 'win32' ? '.cmd' : '');
-  const newPath = `${process.env.PATH}${delimiter}${dirname}`;
-  const spawnProcess = spawn(exe, ['-w'], {
-    cwd: './packages/ui/',
-    env: { PATH: newPath, ...process.env },
-    shell: process.platform === 'win32',
-    detached: process.platform !== 'win32',
-  });
-
-  return new Promise((resolvePromise, rejectPromise) => {
-    // resolve/reject are no-ops once the promise has settled, so no extra
-    // bookkeeping is needed to stop the exit handler from rejecting after
-    // a successful first build.
-    spawnProcess.stdout.on('data', d => {
-      const data = d.toString();
-      if (data.trim()) logger.warn(data, { timestamp: true });
-      if (SVELTE_PACKAGE_INITIAL_BUILD_DONE.test(data)) resolvePromise();
-    });
-
-    spawnProcess.stderr.on('data', d => {
-      const data = d.toString().trim();
-      if (!data) return;
-
-      const mayIgnore = stderrFilterPatterns.some(r => r.test(data));
-      if (mayIgnore) return;
-
-      logger.error(data, { timestamp: true });
-    });
-
-    spawnProcess.on('exit', (code, signal) => {
-      rejectPromise(new Error('packages/ui build (svelte-package -w) exited before its first build completed'));
-      cleanupOnChildExit(code, signal);
-    });
-
-    trackChildProcess(spawnProcess);
-    spawnProcess.unref();
-  });
+  process.once('exit', () => watcher.close());
 };
 
 /**
