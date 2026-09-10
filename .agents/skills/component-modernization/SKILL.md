@@ -2,26 +2,18 @@
 name: component-modernization
 description: >-
   Prepare and execute Design System component modernization. Drafts GitHub
-  subtask issues, applies the Storybook HMR patch, and guides the modernization
-  workflow. Use when starting work on a new component modernization, creating
-  subtask issues, or when the user mentions design system modernization.
+  subtask issues and guides the modernization workflow. Use when starting work
+  on a new component modernization, creating subtask issues, or when the user
+  mentions design system modernization.
 ---
 
 # Component Modernization Workflow
 
 End-to-end workflow for modernizing a Podman Desktop UI component as part of the Design System Modernization initiative (#13479).
 
-## Step 1: Apply Storybook HMR patch
+Storybook hot-reloads `packages/ui` component source changes natively (`storybook/vite.config.ts`'s `ui-package-watcher` rebuilds the package and reloads on save) — no local patch needed before starting.
 
-Before starting, apply the local HMR patch so Storybook hot-reloads when UI component source files change:
-
-```bash
-/usr/bin/git apply .agents/skills/storybook-hmr/patches/storybook-hmr.patch
-```
-
-If it fails due to upstream changes, use `/storybook-hmr` skill to regenerate.
-
-## Step 2: Draft subtask issues
+## Step 1: Draft subtask issues
 
 For each component modernization epic, create two subtasks as GitHub issues (type: Task). The user files these manually - never use the GitHub MCP to create issues.
 
@@ -85,7 +77,7 @@ Modernize the `{ComponentName}` component (`{component_path}`) as part of the De
 {decisions - component-specific choices like rounded corners, dimensions, modes}
 ```
 
-## Step 3: Research the component
+## Step 2: Research the component
 
 Before implementing, investigate:
 
@@ -95,7 +87,7 @@ Before implementing, investigate:
 4. **Related components** - identify inline duplicates or related progress/loading indicators
 5. **The parent epic** - read the issue body for context and screenshots
 
-## Step 4: Implement
+## Step 3: Implement
 
 Follow this order:
 
@@ -105,11 +97,10 @@ Follow this order:
 4. **Update tests** - match new structure
 5. **Verify** - run tests, check all 4 themes in Storybook, check in running app
 
-## Step 5: Before committing
+## Step 4: Before committing
 
-1. **Revert the HMR patch**: `git checkout -- storybook/vite.config.js`
-2. **Run all checks**: `pnpm lint-staged`, `pnpm test:ui`, `pnpm typecheck`, `pnpm lint:check`
-3. The user handles committing, pushing, and filing PRs
+1. **Run all checks**: `pnpm lint-staged`, `pnpm test:ui`, `pnpm typecheck`, `pnpm lint:check`
+2. The user handles committing, pushing, and filing PRs
 
 ## Reference: ProgressBar modernization
 
