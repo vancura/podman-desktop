@@ -29,6 +29,15 @@ import { join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// `@sveltejs/package`'s `watch()`/`load_config()` aren't part of its public API (its
+// package.json only exports `./package.json`), so they're loaded from a path resolved
+// off that one legitimate export rather than assumed relative to this file — resilient
+// to `@sveltejs/package` being hoisted, nested, or symlinked differently by the package
+// manager, since only `packages/ui` (not the workspace root) actually depends on it.
+const svelteKitPackageRoot = new URL('.', import.meta.resolve('@sveltejs/package/package.json'));
+const { watch: watchUiPackage } = await import(new URL('src/index.js', svelteKitPackageRoot));
+const { load_config: loadUiPackageConfig } = await import(new URL('src/config.js', svelteKitPackageRoot));
+
 /**
  * Spawned child processes tracked so we can tear them all down on exit.
  * @type {Set<import('node:child_process').ChildProcess>}
@@ -233,18 +242,10 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
  *
  * `@sveltejs/package`'s `watch()` performs and awaits its first build before returning,
  * so awaiting it here is a direct signal that `dist` is ready — no subprocess or stdout
- * pattern matching needed. `watch()`/`load_config()` aren't part of its public API (its
- * package.json only exports `./package.json`), so they're loaded from a path resolved
- * off that one legitimate export rather than assumed relative to this file — resilient
- * to `@sveltejs/package` being hoisted, nested, or symlinked differently by the package
- * manager, since only `packages/ui` (not the workspace root) actually depends on it.
+ * pattern matching needed.
  * @returns {Promise<void>} resolves once the first build has produced `dist`
  */
 const setupUiPackageWatcher = async () => {
-  const svelteKitPackageRoot = new URL('.', import.meta.resolve('@sveltejs/package/package.json'));
-  const { watch: watchUiPackage } = await import(new URL('src/index.js', svelteKitPackageRoot));
-  const { load_config: loadUiPackageConfig } = await import(new URL('src/config.js', svelteKitPackageRoot));
-
   const cwd = join(__dirname, '..', 'packages/ui');
   const config = await loadUiPackageConfig({ cwd });
 
