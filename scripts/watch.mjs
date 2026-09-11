@@ -26,17 +26,10 @@ import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { watch as watchUiPackage } from '../node_modules/@sveltejs/package/src/index.js';
+import { load_config as loadUiPackageConfig } from '../node_modules/@sveltejs/package/src/config.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// `@sveltejs/package`'s `watch()`/`load_config()` aren't part of its public API (its
-// package.json only exports `./package.json`), so they're loaded from a path resolved
-// off that one legitimate export rather than assumed relative to this file — resilient
-// to `@sveltejs/package` being hoisted, nested, or symlinked differently by the package
-// manager, since only `packages/ui` (not the workspace root) actually depends on it.
-const svelteKitPackageRoot = new URL('.', import.meta.resolve('@sveltejs/package/package.json'));
-const { watch: watchUiPackage } = await import(new URL('src/index.js', svelteKitPackageRoot));
-const { load_config: loadUiPackageConfig } = await import(new URL('src/config.js', svelteKitPackageRoot));
 
 /**
  * Spawned child processes tracked so we can tear them all down on exit.
@@ -235,10 +228,10 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
  * Start `packages/ui`'s incremental watcher and wait for its first build to complete.
  *
  * The renderer's Vite dev server resolves bare imports of `@podman-desktop/ui-svelte`
- * against `packages/ui/dist`. Electron only requests the renderer page once
- * `setupMainPackageWatcher` spawns it, so `dist` just needs to exist by then — this must
- * be awaited before that call, but its position relative to `createServer`/`listen` for
- * the renderer's own Vite dev server doesn't matter.
+ * against `packages/ui/dist`. Vite's dependency optimizer can scan for these as soon as
+ * `createServer`/`listen` runs — independent of when the page is actually requested — and
+ * a failed resolution there is cached for the rest of the dev server's life (reloading the
+ * page does not clear it). This must be awaited before `createServer` is called.
  *
  * `@sveltejs/package`'s `watch()` performs and awaits its first build before returning,
  * so awaiting it here is a direct signal that `dist` is ready — no subprocess or stdout
@@ -249,7 +242,7 @@ const setupUiPackageWatcher = async () => {
   const cwd = join(__dirname, '..', 'packages/ui');
   const config = await loadUiPackageConfig({ cwd });
 
-  const { watcher } = await watchUiPackage({
+  const { watcher, ready, settled } = await watchUiPackage({
     cwd,
     input: config.kit?.files?.lib ?? 'src/lib',
     output: 'dist',
@@ -258,6 +251,8 @@ const setupUiPackageWatcher = async () => {
     tsconfig: undefined,
     config,
   });
+
+  await ready;
 
   process.once('exit', () => watcher.close());
 };
@@ -377,6 +372,8 @@ const setupExtensionApiWatcher = name => {
         extensions.push(resolve(process.argv[++index]));
       }
     }
+    await setupUiPackageWatcher();
+
     const viteDevServer = await createServer({
       ...sharedConfig,
       configFile: 'packages/renderer/vite.config.js',
@@ -415,7 +412,6 @@ const setupExtensionApiWatcher = name => {
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupPreloadWebviewPackageWatcher(viteDevServer);
-    await setupUiPackageWatcher();
     await setupMainPackageWatcher(viteDevServer);
   } catch (e) {
     console.error(e);
