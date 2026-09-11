@@ -244,11 +244,10 @@ const setupUiPackageWatcher = async () => {
 
   const { watcher, ready, settled } = await watchUiPackage({
     cwd,
-    input: config.kit?.files?.lib ?? 'src/lib',
+    input: 'src/lib',
     output: 'dist',
     preserve_output: false,
     types: true,
-    tsconfig: undefined,
     config,
   });
 
