@@ -235,10 +235,10 @@ const setupMainPackageWatcher = ({ config: { server, extensions } }) => {
  * Start `packages/ui`'s incremental watcher and wait for its first build to complete.
  *
  * The renderer's Vite dev server resolves bare imports of `@podman-desktop/ui-svelte`
- * against `packages/ui/dist`. Vite runs its dependency scan as soon as it starts
- * listening. Without waiting for the first build here, that scan can run before
- * `dist` exists and permanently cache a resolution failure for the session
- * (reloading the page does not clear it).
+ * against `packages/ui/dist`. Electron only requests the renderer page once
+ * `setupMainPackageWatcher` spawns it, so `dist` just needs to exist by then — this must
+ * be awaited before that call, but its position relative to `createServer`/`listen` for
+ * the renderer's own Vite dev server doesn't matter.
  *
  * `@sveltejs/package`'s `watch()` performs and awaits its first build before returning,
  * so awaiting it here is a direct signal that `dist` is ready — no subprocess or stdout
@@ -377,10 +377,6 @@ const setupExtensionApiWatcher = name => {
         extensions.push(resolve(process.argv[++index]));
       }
     }
-    // Build packages/ui before starting the renderer's Vite dev server — see
-    // setupUiPackageWatcher for why this ordering matters.
-    await setupUiPackageWatcher();
-
     const viteDevServer = await createServer({
       ...sharedConfig,
       configFile: 'packages/renderer/vite.config.js',
@@ -419,6 +415,7 @@ const setupExtensionApiWatcher = name => {
     await setupPreloadPackageWatcher(viteDevServer);
     await setupPreloadDockerExtensionPackageWatcher(viteDevServer);
     await setupPreloadWebviewPackageWatcher(viteDevServer);
+    await setupUiPackageWatcher();
     await setupMainPackageWatcher(viteDevServer);
   } catch (e) {
     console.error(e);
