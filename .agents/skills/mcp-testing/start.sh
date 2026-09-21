@@ -370,7 +370,12 @@ launch_pnpm_watch() {
   # Detach from bash's job table so it does not print a "Terminated" notice
   # when stop_pnpm_watch kills it.
   disown "$WATCH_PID" 2>/dev/null || true
-  echo "$WATCH_PID" > "$WATCH_PID_FILE"
+  # Record the process start time next to the PID so stop.sh can tell this
+  # process from an unrelated one that later reuses the PID.
+  {
+    echo "$WATCH_PID"
+    ps -o lstart= -p "$WATCH_PID" 2>/dev/null | sed 's/^ *//; s/ *$//' || true
+  } > "$WATCH_PID_FILE"
 }
 
 wait_for_dev_cdp() {

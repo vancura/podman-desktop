@@ -80,10 +80,17 @@ case "$MODE" in
     # directory (see start.sh - the directory's location is the second line of
     # $STATE). Only that tree is touched, never other pnpm watch processes.
     if [ -n "$WATCH_DIR" ] && [ -f "$WATCH_DIR/pnpm-watch.pid" ]; then
-      PID=$(cat "$WATCH_DIR/pnpm-watch.pid")
-      if [[ "$PID" =~ ^[0-9]+$ ]]; then
+      PID=$(sed -n '1p' "$WATCH_DIR/pnpm-watch.pid")
+      STARTED=$(sed -n '2p' "$WATCH_DIR/pnpm-watch.pid")
+      # Only act on the recorded PID if it is still the process start.sh
+      # launched: a PID can be reused by an unrelated process after the
+      # watcher exits, and the whole tree below it would be stopped.
+      if [[ "$PID" =~ ^[0-9]+$ ]] && [ -n "$STARTED" ] \
+        && [ "$(ps -o lstart= -p "$PID" 2>/dev/null | sed 's/^ *//; s/ *$//')" = "$STARTED" ]; then
         stop_process_tree "$PID"
         echo "  Stopped pnpm watch (pid $PID)"
+      else
+        echo "  Recorded pnpm watch (pid $PID) is no longer the watcher start.sh launched, leaving it alone"
       fi
     fi
 
