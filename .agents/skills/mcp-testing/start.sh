@@ -18,7 +18,10 @@ DEV_PORT=9223
 # or symlink) with content this script - and stop.sh - later trust, including
 # a path fed straight into `rm -rf`. Create a 0700 directory scoped to this
 # uid and refuse to use it unless we can confirm we actually own it.
-MCP_STATE_DIR="${TMPDIR:-/tmp}/mcp-testing-$(id -u)"
+# The base is XDG_RUNTIME_DIR when set (per-user and 0700 on Linux), else
+# TMPDIR (already per-user on macOS), else /tmp, where another user could
+# squat the name first and block startup. stop.sh and probe.sh use the same.
+MCP_STATE_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/mcp-testing-$(id -u)"
 if [[ -L "$MCP_STATE_DIR" ]] || { [[ -e "$MCP_STATE_DIR" ]] && [[ ! -d "$MCP_STATE_DIR" ]]; }; then
   echo "ERROR: $MCP_STATE_DIR exists and is not a plain private directory - remove it and re-run: rm -f '$MCP_STATE_DIR'"
   exit 1
@@ -423,6 +426,15 @@ stop_pnpm_watch() {
   for p in $pids; do
     kill -0 "$p" 2>/dev/null && kill -KILL "$p" 2>/dev/null || true
   done
+
+  # Confirm the dev CDP port was released so an immediate retry does not race
+  # the listener's cleanup.
+  for i in $(seq 1 5); do
+    cdp_ready || return 0
+    sleep 1
+  done
+
+  echo "WARNING: port $DEV_PORT is still in use after stopping pnpm watch"
 }
 
 echo "[4/4] Launching pnpm watch (output → $WATCH_LOG)…"

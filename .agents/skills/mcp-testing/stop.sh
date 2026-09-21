@@ -10,9 +10,41 @@ set -euo pipefail
 # this uid) - a fixed /tmp/mcp-testing-session path was world-writable, so a
 # local attacker could pre-create it with a second line that ends up in the
 # `rm -rf "$WATCH_DIR"` below.
-MCP_STATE_DIR="${TMPDIR:-/tmp}/mcp-testing-$(id -u)"
+MCP_STATE_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/mcp-testing-$(id -u)"
 STATE="$MCP_STATE_DIR/session"
 DEV_PORT=9223
+
+# Print every descendant of PID $1, deepest first. Keep in sync with start.sh.
+list_descendants() {
+  local child
+  for child in $(pgrep -P "$1" 2>/dev/null || true); do
+    list_descendants "$child"
+    echo "$child"
+  done
+}
+
+# Stop PID $1 and everything it spawned, and nothing else. pnpm does not
+# forward SIGTERM to the script it runs, and scripts/watch.mjs starts Electron
+# and svelte-package detached, so neither name matching nor process groups
+# reach them; parent PIDs do. Keep in sync with stop_pnpm_watch in start.sh.
+stop_process_tree() {
+  local pids p i alive
+  pids="$(list_descendants "$1") $1"
+  for p in $pids; do
+    kill -TERM "$p" 2>/dev/null || true
+  done
+  for i in $(seq 1 10); do
+    alive=false
+    for p in $pids; do
+      if kill -0 "$p" 2>/dev/null; then alive=true; fi
+    done
+    if [ "$alive" = false ]; then break; fi
+    sleep 1
+  done
+  for p in $pids; do
+    kill -0 "$p" 2>/dev/null && kill -KILL "$p" 2>/dev/null || true
+  done
+}
 
 SESSION_ONLY=false
 for arg in "$@"; do
@@ -44,19 +76,20 @@ case "$MODE" in
   dev)
     echo "Stopping dev session…"
 
-    # Kill pnpm watch process tree via the PID file in this session's private
-    # watch directory (see start.sh - the directory's location is recorded as
-    # the second line of $STATE)
+    # Stop the pnpm watch tree recorded in this session's private watch
+    # directory (see start.sh - the directory's location is the second line of
+    # $STATE). Only that tree is touched, never other pnpm watch processes.
     if [ -n "$WATCH_DIR" ] && [ -f "$WATCH_DIR/pnpm-watch.pid" ]; then
       PID=$(cat "$WATCH_DIR/pnpm-watch.pid")
-      kill "$PID" 2>/dev/null || true
-      echo "  Killed pnpm watch (pid $PID)"
+      if [[ "$PID" =~ ^[0-9]+$ ]]; then
+        stop_process_tree "$PID"
+        echo "  Stopped pnpm watch (pid $PID)"
+      fi
     fi
 
-    # Kill any remaining pnpm watch processes (catches children not in PID file)
-    pkill -f 'pnpm.*watch' 2>/dev/null || true
-
-    # Kill the Electron app listening on the dev CDP port
+    # Kill the Electron app listening on the dev CDP port. This covers a
+    # watcher start.sh did not launch (--mode dev-fast on one started by hand):
+    # watch.mjs exits when its Electron does, and takes its children with it.
     if command -v lsof &>/dev/null; then
       ELECTRON_PIDS=$(lsof -ti :"$DEV_PORT" 2>/dev/null || true)
       if [ -n "$ELECTRON_PIDS" ]; then
