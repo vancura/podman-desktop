@@ -15,19 +15,19 @@ DEV_PORT=9223
 
 # Private, per-user state directory. A fixed /tmp/mcp-testing-session path is
 # world-writable: a local attacker could pre-create it (as a file, directory,
-# or symlink) with content this script — and stop.sh — later trust, including
+# or symlink) with content this script - and stop.sh - later trust, including
 # a path fed straight into `rm -rf`. Create a 0700 directory scoped to this
 # uid and refuse to use it unless we can confirm we actually own it.
 MCP_STATE_DIR="${TMPDIR:-/tmp}/mcp-testing-$(id -u)"
 if [[ -L "$MCP_STATE_DIR" ]] || { [[ -e "$MCP_STATE_DIR" ]] && [[ ! -d "$MCP_STATE_DIR" ]]; }; then
-  echo "ERROR: $MCP_STATE_DIR exists and is not a plain private directory — remove it and re-run: rm -f '$MCP_STATE_DIR'"
+  echo "ERROR: $MCP_STATE_DIR exists and is not a plain private directory - remove it and re-run: rm -f '$MCP_STATE_DIR'"
   exit 1
 fi
 mkdir -m 700 "$MCP_STATE_DIR" 2>/dev/null || true
 mcp_state_owner=$(stat -c %u "$MCP_STATE_DIR" 2>/dev/null || stat -f %u "$MCP_STATE_DIR" 2>/dev/null || echo -1)
 mcp_state_perms=$(stat -c %a "$MCP_STATE_DIR" 2>/dev/null || stat -f %Lp "$MCP_STATE_DIR" 2>/dev/null || echo 000)
 if [[ "$mcp_state_owner" != "$(id -u)" || "$mcp_state_perms" != "700" ]]; then
-  echo "ERROR: $MCP_STATE_DIR is not a private directory you own (uid=$mcp_state_owner perms=$mcp_state_perms) — remove it and re-run: rm -rf '$MCP_STATE_DIR'"
+  echo "ERROR: $MCP_STATE_DIR is not a private directory you own (uid=$mcp_state_owner perms=$mcp_state_perms) - remove it and re-run: rm -rf '$MCP_STATE_DIR'"
   exit 1
 fi
 STATE_FILE="$MCP_STATE_DIR/session"
@@ -246,7 +246,15 @@ if [[ "$MODE" == "dev-fast" ]]; then
 
   close_devtools_targets
 
-  echo "dev" > "$STATE_FILE"
+  # Keep the watch directory a previous `--mode dev` run recorded, so stop.sh
+  # can still find this pnpm watch's pid file and clean the directory up.
+  watch_dir=""
+  if [[ -f "$STATE_FILE" ]]; then watch_dir=$(sed -n '2p' "$STATE_FILE"); fi
+  {
+    echo "dev"
+    if [[ -n "$watch_dir" ]]; then echo "$watch_dir"; fi
+  } > "$STATE_FILE"
+
   echo "pnpm watch already running — $app_title"
   echo "Ready — call mcp__podman-desktop-mcp__connect({ port: $DEV_PORT })"
   exit 0
@@ -339,7 +347,7 @@ else
   exit 1
 fi
 
-# Private, unpredictable directory for this run's log/pid files — a fixed
+# Private, unpredictable directory for this run's log/pid files - a fixed
 # /tmp path would let a local attacker pre-create it (or a symlink) and
 # hijack what gets written there. Its location is recorded as the second
 # line of $STATE_FILE (itself in the private $MCP_STATE_DIR set up above) so
@@ -355,6 +363,10 @@ launch_pnpm_watch() {
     pnpm --dir "$REPO" watch &>"$WATCH_LOG" &
   fi
   WATCH_PID=$!
+
+  # Detach from bash's job table so it does not print a "Terminated" notice
+  # when stop_pnpm_watch kills it.
+  disown "$WATCH_PID" 2>/dev/null || true
   echo "$WATCH_PID" > "$WATCH_PID_FILE"
 }
 
@@ -378,24 +390,39 @@ wait_for_dev_cdp() {
   return 1
 }
 
+# Print every descendant of PID $1, deepest first. This follows parent PIDs
+# rather than process groups: scripts/watch.mjs spawns Electron and the
+# svelte-package watcher with `detached: true`, so they sit in their own
+# process groups, but they still have this launch as an ancestor.
+list_descendants() {
+  local child
+  for child in $(pgrep -P "$1" 2>/dev/null || true); do
+    list_descendants "$child"
+    echo "$child"
+  done
+}
+
+# Stop the pnpm watch this script launched, and only that one. pnpm does not
+# forward SIGTERM to the script it runs, so signalling $WATCH_PID alone would
+# leave watch.mjs, Electron and svelte-package running.
 stop_pnpm_watch() {
-  # scripts/watch.mjs spawns Electron and the svelte-package watcher with
-  # `detached: true`, putting each in its own process group specifically so
-  # watch.mjs's own SIGTERM handler can tear both down (see watch.mjs's
-  # `cleanupAndExit`/`killChildren`). Signalling $WATCH_PID lets that
-  # cascading cleanup run instead of guessing at process groups from here.
-  kill -TERM "${WATCH_PID:-}" 2>/dev/null || true
-  for _i in $(seq 1 10); do
-    cdp_ready || break
+  [[ -n "${WATCH_PID:-}" ]] || return 0
+  local pids p i alive
+  pids="$(list_descendants "$WATCH_PID") $WATCH_PID"
+  for p in $pids; do
+    kill -TERM "$p" 2>/dev/null || true
+  done
+  for i in $(seq 1 10); do
+    alive=false
+    for p in $pids; do
+      if kill -0 "$p" 2>/dev/null; then alive=true; fi
+    done
+    if [[ "$alive" == false ]]; then break; fi
     sleep 1
   done
-  # Fallback only: graceful shutdown didn't release the port in time. This can
-  # still affect an unrelated `pnpm watch` elsewhere on the machine, but it's
-  # the same last-resort this skill already relies on in stop.sh.
-  if cdp_ready; then
-    pgrep -f 'pnpm.*watch' | xargs kill -KILL 2>/dev/null || true
-    sleep 1
-  fi
+  for p in $pids; do
+    kill -0 "$p" 2>/dev/null && kill -KILL "$p" 2>/dev/null || true
+  done
 }
 
 echo "[4/4] Launching pnpm watch (output → $WATCH_LOG)…"

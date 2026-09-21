@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Must match the private, per-user directory start.sh creates (0700, owned by
-# this uid) — a fixed /tmp/mcp-testing-session path was world-writable, so a
+# this uid) - a fixed /tmp/mcp-testing-session path was world-writable, so a
 # local attacker could pre-create it with a second line that ends up in the
 # `rm -rf "$WATCH_DIR"` below.
 MCP_STATE_DIR="${TMPDIR:-/tmp}/mcp-testing-$(id -u)"
@@ -36,7 +36,7 @@ if [ -d "$MCP_STATE_DIR" ] && [ ! -L "$MCP_STATE_DIR" ] && [ -f "$STATE" ]; then
     MODE=$(sed -n '1p' "$STATE" | tr -d '[:space:]')
     WATCH_DIR=$(sed -n '2p' "$STATE")
   else
-    echo "WARNING: $MCP_STATE_DIR is not a private directory you own — ignoring session state" >&2
+    echo "WARNING: $MCP_STATE_DIR is not a private directory you own - ignoring session state" >&2
   fi
 fi
 
@@ -45,7 +45,7 @@ case "$MODE" in
     echo "Stopping dev session…"
 
     # Kill pnpm watch process tree via the PID file in this session's private
-    # watch directory (see start.sh — the directory's location is recorded as
+    # watch directory (see start.sh - the directory's location is recorded as
     # the second line of $STATE)
     if [ -n "$WATCH_DIR" ] && [ -f "$WATCH_DIR/pnpm-watch.pid" ]; then
       PID=$(cat "$WATCH_DIR/pnpm-watch.pid")
