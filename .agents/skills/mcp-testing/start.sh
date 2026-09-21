@@ -339,10 +339,6 @@ else
   exit 1
 fi
 
-# Launch pnpm watch and wait for CDP
-UI_DIST_ENTRY="$REPO/packages/ui/dist/index.js"
-VITE_STALE_IMPORT_PATTERN='Failed to resolve import .*@podman-desktop/ui-svelte'
-
 # Private, unpredictable directory for this run's log/pid files — a fixed
 # /tmp path would let a local attacker pre-create it (or a symlink) and
 # hijack what gets written there. Its location is recorded as the second
@@ -360,20 +356,6 @@ launch_pnpm_watch() {
   fi
   WATCH_PID=$!
   echo "$WATCH_PID" > "$WATCH_PID_FILE"
-}
-
-wait_for_ui_package_build() {
-  echo "      Waiting for packages/ui build (svelte-package)…"
-  for i in $(seq 1 60); do
-    if [[ -f "$UI_DIST_ENTRY" ]]; then
-      echo "      packages/ui built after ${i}s"
-      return 0
-    fi
-    sleep 1
-  done
-  echo "ERROR: packages/ui did not build (missing dist/index.js) within 60s"
-  tail -20 "$WATCH_LOG"
-  return 1
 }
 
 wait_for_dev_cdp() {
@@ -420,32 +402,7 @@ echo "[4/4] Launching pnpm watch (output → $WATCH_LOG)…"
 launch_pnpm_watch
 echo "      pnpm watch started (pid $WATCH_PID)"
 
-# packages/ui (svelte-package -w) and the renderer's Vite dev server start
-# concurrently. If Vite's initial dependency scan runs before packages/ui/dist
-# exists, it permanently caches a "Failed to resolve import '@podman-desktop/
-# ui-svelte'" error — reloading the page does not clear it. Waiting for the
-# ui package's first build narrows that startup race.
-wait_for_ui_package_build || { stop_pnpm_watch; exit 1; }
-
 wait_for_dev_cdp || { stop_pnpm_watch; exit 1; }
-
-if grep -qE "$VITE_STALE_IMPORT_PATTERN" "$WATCH_LOG" 2>/dev/null; then
-  echo "      Detected stale Vite dependency-scan error for @podman-desktop/ui-svelte — restarting pnpm watch once…"
-  stop_pnpm_watch
-  rm -f "$WATCH_PID_FILE"
-  : > "$WATCH_LOG"
-
-  launch_pnpm_watch
-  echo "      pnpm watch restarted (pid $WATCH_PID)"
-
-  wait_for_dev_cdp || { stop_pnpm_watch; exit 1; }
-
-  if grep -qE "$VITE_STALE_IMPORT_PATTERN" "$WATCH_LOG" 2>/dev/null; then
-    echo "ERROR: Vite still fails to resolve @podman-desktop/ui-svelte after automatic restart — see $WATCH_LOG"
-    stop_pnpm_watch
-    exit 1
-  fi
-fi
 
 close_devtools_targets
 
