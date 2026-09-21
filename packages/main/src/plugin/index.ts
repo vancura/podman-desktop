@@ -2527,7 +2527,7 @@ export class PluginSystem {
           action: {
             name: 'Go to task >',
             execute: () => {
-              navigationManager.navigateToResources().catch((err: unknown) => console.error(err));
+              navigationManager.navigateToProviderConnection(providerId, providerConnectionInfo);
             },
           },
         });
@@ -2563,7 +2563,7 @@ export class PluginSystem {
           action: {
             name: 'Go to task >',
             execute: () => {
-              navigationManager.navigateToResources().catch((err: unknown) => console.error(err));
+              navigationManager.navigateToProviderConnection(providerId, providerConnectionInfo);
             },
           },
         });
