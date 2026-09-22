@@ -656,13 +656,10 @@ test('expect command update not to be called when configuration value on never',
   expect(commandRegistryMock.executeCommand).not.toHaveBeenCalled();
 });
 
-test('clicking on "Update Never" should set the configuration value to never', async () => {
-  vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
-    response: 'Later',
-    dropdownIndex: 1,
-  });
+type StartupUpdateListener = (context?: 'startup' | 'status-bar-entry') => Promise<void>;
 
-  let mListener: ((context?: 'startup' | 'status-bar-entry') => Promise<void>) | undefined;
+const initUpdaterAndGetUpdateListener = (): StartupUpdateListener => {
+  let mListener: StartupUpdateListener | undefined;
   vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
     (channel: string, listener: () => Promise<void>) => {
       if (channel === 'update') mListener = listener;
@@ -678,9 +675,20 @@ test('clicking on "Update Never" should set the configuration value to never', a
     taskManagerMock,
     apiSenderMock,
   ).init();
-  expect(mListener).toBeDefined();
 
-  await mListener?.('startup');
+  if (mListener === undefined) throw new Error('mListener undefined');
+  return mListener;
+};
+
+test('clicking on "Later" then "Don\'t show again" should set the configuration value to never', async () => {
+  vi.mocked(messageBoxMock.showMessageBox).mockResolvedValue({
+    response: 'Later',
+    dropdownIndex: 1,
+  });
+
+  const mListener = initUpdaterAndGetUpdateListener();
+
+  await mListener('startup');
 
   expect(configurationMock.update).toHaveBeenCalledWith('update.reminder', 'never');
 });
@@ -693,25 +701,9 @@ test('clicking on "Later" then "Remind me tomorrow" should snooze the prompt for
     dropdownIndex: 0,
   });
 
-  let mListener: ((context?: 'startup' | 'status-bar-entry') => Promise<void>) | undefined;
-  vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
-    (channel: string, listener: () => Promise<void>) => {
-      if (channel === 'update') mListener = listener;
-      return Disposable.noop();
-    },
-  );
+  const mListener = initUpdaterAndGetUpdateListener();
 
-  new Updater(
-    messageBoxMock,
-    configurationRegistryMock,
-    statusBarRegistryMock,
-    commandRegistryMock,
-    taskManagerMock,
-    apiSenderMock,
-  ).init();
-  expect(mListener).toBeDefined();
-
-  await mListener?.('startup');
+  await mListener('startup');
 
   expect(configurationMock.update).not.toHaveBeenCalledWith('update.reminder', 'never');
   expect(configurationMock.update).toHaveBeenCalledWith(
@@ -730,25 +722,9 @@ test('expect an error to be logged if saving the next reminder timestamp fails',
 
   vi.mocked(configurationMock.update).mockRejectedValueOnce(new Error('write failed'));
 
-  let mListener: ((context?: 'startup' | 'status-bar-entry') => Promise<void>) | undefined;
-  vi.mocked(commandRegistryMock.registerCommand).mockImplementation(
-    (channel: string, listener: () => Promise<void>) => {
-      if (channel === 'update') mListener = listener;
-      return Disposable.noop();
-    },
-  );
+  const mListener = initUpdaterAndGetUpdateListener();
 
-  new Updater(
-    messageBoxMock,
-    configurationRegistryMock,
-    statusBarRegistryMock,
-    commandRegistryMock,
-    taskManagerMock,
-    apiSenderMock,
-  ).init();
-  expect(mListener).toBeDefined();
-
-  await mListener?.('startup');
+  await mListener('startup');
 
   await vi.waitFor(() =>
     expect(console.error).toHaveBeenCalledWith(
@@ -825,22 +801,6 @@ describe('expect update command to depends on context', async () => {
     });
   });
 
-  test('status-bar-entry context', async () => {
-    const mListener = await getUpdateListener();
-
-    // Call the `update` command listener
-    await mListener?.('status-bar-entry');
-
-    expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
-      cancelId: 2,
-      buttons: ['Update now', `What's new`, 'Cancel'],
-      message:
-        'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
-      title: 'Update Podman Desktop?',
-      type: 'info',
-    });
-  });
-
   test('startup context, clicking "Update now" should start the download', async () => {
     const mListener = await getUpdateListener();
 
@@ -865,6 +825,22 @@ describe('expect update command to depends on context', async () => {
     await mListener?.('startup');
 
     expect(shell.openExternal).toHaveBeenCalled();
+  });
+
+  test('status-bar-entry context', async () => {
+    const mListener = await getUpdateListener();
+
+    // Call the `update` command listener
+    await mListener?.('status-bar-entry');
+
+    expect(messageBoxMock.showMessageBox).toHaveBeenCalledWith({
+      cancelId: 2,
+      buttons: ['Update now', `What's new`, 'Cancel'],
+      message:
+        'A new version v@debug-next of Podman Desktop is available. Do you want to update your current version v@debug?',
+      title: 'Update Podman Desktop?',
+      type: 'info',
+    });
   });
 });
 

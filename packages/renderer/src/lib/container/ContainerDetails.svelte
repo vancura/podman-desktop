@@ -11,6 +11,7 @@ import { getTabUrl, isTabSelected } from '/@/lib/ui/Util';
 import Route from '/@/Route.svelte';
 import { lastPage } from '/@/stores/breadcrumb';
 import { containersInfos } from '/@/stores/containers';
+import { replaceCurrentUrl } from '/@/stores/navigation-history.svelte';
 
 import ContainerActions from './ContainerActions.svelte';
 import ContainerDetailsInspect from './ContainerDetailsInspect.svelte';
@@ -46,9 +47,9 @@ $effect(() => {
         const currentRouterPath = $router.path;
         if (currentRouterPath.endsWith('/')) {
           if (displayTty) {
-            router.goto(`${currentRouterPath}tty`);
+            replaceCurrentUrl(`${currentRouterPath}tty`);
           } else {
-            router.goto(`${currentRouterPath}logs`);
+            replaceCurrentUrl(`${currentRouterPath}logs`);
           }
         }
       })
@@ -107,7 +108,7 @@ function copyOf(cont: ContainerInfoUI | undefined): ContainerInfoUI | undefined 
           selected={isTabSelected($router.path, 'terminal')}
           url={getTabUrl($router.path, 'terminal')} />
         {#if displayTty}
-          <Tab title="Tty" selected={isTabSelected($router.path, 'tty')} url={getTabUrl($router.path, 'tty')} />
+          <Tab title="TTY" selected={isTabSelected($router.path, 'tty')} url={getTabUrl($router.path, 'tty')} />
         {/if}
       {/if}
     {/snippet}
@@ -128,7 +129,7 @@ function copyOf(cont: ContainerInfoUI | undefined): ContainerInfoUI | undefined 
         <Route path="/terminal" breadcrumb="Terminal" navigationHint="tab">
           <ContainerDetailsTerminal container={container} />
         </Route>
-        <Route path="/tty" breadcrumb="Tty" navigationHint="tab">
+        <Route path="/tty" breadcrumb="TTY" navigationHint="tab">
           <ContainerDetailsTtyTerminal container={container} />
         </Route>
       {/if}

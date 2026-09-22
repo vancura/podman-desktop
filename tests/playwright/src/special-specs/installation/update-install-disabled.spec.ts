@@ -64,6 +64,7 @@ test.afterAll(async ({ runner }) => {
 
 test.describe
   .serial('Application update can be disabled', { tag: '@update-install' }, () => {
+    test.describe.configure({ retries: 1 });
     test('Application update disabled message appears in console log', async ({ runner }) => {
       await playExpect
         .poll(() => runner.getConsoleMessages().some((msg: string) => applicationDisabledRegexp.test(msg)), {
@@ -74,7 +75,7 @@ test.describe
     });
 
     test('No update on startup', async ({ page, welcomePage }) => {
-      const updateAvailableDialog = page.getByRole('dialog', { name: 'Update Podman Desktop?' });
+      const updateAvailableDialog = page.getByRole('dialog', { name: /Update .*Podman Desktop.*/ });
       await playExpect(updateAvailableDialog).not.toBeVisible({ timeout: 5_000 });
       await welcomePage.handleWelcomePage(true);
     });

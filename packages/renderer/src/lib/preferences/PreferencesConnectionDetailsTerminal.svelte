@@ -7,8 +7,7 @@ import { TerminalSettings } from '@podman-desktop/core-api/terminal';
 import { EmptyScreen } from '@podman-desktop/ui-svelte';
 import { FitAddon } from '@xterm/addon-fit';
 import { SerializeAddon } from '@xterm/addon-serialize';
-import { Terminal } from '@xterm/xterm';
-import type { IDisposable } from 'monaco-editor';
+import { type IDisposable, Terminal } from '@xterm/xterm';
 import { onDestroy, onMount } from 'svelte';
 
 import { getTerminalTheme } from '/@/lib/terminal/terminal-theme';
@@ -59,7 +58,7 @@ function receiveEndCallback(): void {
         window
           .shellInProviderConnection(
             provider.internalId,
-            connectionInfo,
+            $state.snapshot(connectionInfo),
             receiveDataCallback,
             () => {},
             receiveEndCallback,
@@ -94,7 +93,7 @@ async function executeShellIntoProviderConnection(): Promise<void> {
   // grab logs of the provider
   const callbackId = await window.shellInProviderConnection(
     provider.internalId,
-    connectionInfo,
+    $state.snapshot(connectionInfo),
     receiveDataCallback,
     () => {},
     receiveEndCallback,

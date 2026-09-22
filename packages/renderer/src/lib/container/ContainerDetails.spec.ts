@@ -105,6 +105,11 @@ const myInfraContainerUI: ContainerInfoUI = {
 
 vi.mock(import('@xterm/xterm'));
 vi.mock(import('@xterm/addon-search'));
+vi.mock(import('/@/stores/navigation-history.svelte'), () => ({
+  replaceCurrentUrl: (url: string): void => {
+    router.goto(url);
+  },
+}));
 
 const getConfigurationValueMock = vi.fn().mockReturnValue(12);
 
@@ -244,7 +249,7 @@ test('Expect Terminal tab to be hidden for infra containers', async () => {
     expect(screen.getByText('Logs')).toBeInTheDocument();
     expect(screen.getByText('Inspect')).toBeInTheDocument();
     expect(screen.queryByText('Terminal')).not.toBeInTheDocument();
-    expect(screen.queryByText('Tty')).not.toBeInTheDocument();
+    expect(screen.queryByText('TTY')).not.toBeInTheDocument();
   });
 });
 

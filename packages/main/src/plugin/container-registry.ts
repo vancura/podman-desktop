@@ -22,8 +22,9 @@ import * as fs from 'node:fs';
 import { readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { Readable, Writable } from 'node:stream';
+import { PassThrough, Readable, Writable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { StringDecoder } from 'node:string_decoder';
 
 import type * as containerDesktopAPI from '@podman-desktop/api';
 import type {
@@ -83,7 +84,7 @@ import Dockerode from 'dockerode';
 import { inject, injectable } from 'inversify';
 import moment from 'moment';
 import { coerce, gtr, lt } from 'semver';
-import { withParserAsStream } from 'stream-json/streamers/stream-values.js';
+import streamValues from 'stream-json/streamers/stream-values.js';
 import type { Headers, Pack, PackOptions } from 'tar-fs';
 
 import { KubePlayContext } from '/@/plugin/podman/kube.js';
@@ -288,7 +289,7 @@ export class ContainerProviderRegistry {
         errorCallback(new Error('Error in handling events', error));
       });
 
-      const pipeline = stream?.pipe(withParserAsStream());
+      const pipeline = stream?.pipe(streamValues.withParserAsStream());
       pipeline?.on('error', error => {
         console.error('Error while parsing events', error);
         pipeline.destroy();
@@ -1424,7 +1425,8 @@ export class ContainerProviderRegistry {
       images.map(async (info): Promise<ImageUpdateResult> => {
         try {
           const matchingEngine = this.getMatchingEngine(info.engineId);
-          const localDigests = info.repoDigests?.length ? info.repoDigests : [info.digest];
+          const imageInspect = await matchingEngine.getImage(info.image).inspect();
+          const localDigests = imageInspect.RepoDigests ?? [];
           const status = await this.imageRegistry.checkImageUpdateStatus(info.image, info.tag, localDigests);
 
           if (status.status === 'error') {
@@ -1989,6 +1991,20 @@ export class ContainerProviderRegistry {
     if (logsParams.since) {
       optionalParams['since'] = logsParams.since;
     }
+
+    // containers started without a TTY return their logs multiplexed: every frame is prefixed
+    // with an 8-byte header (stream type + payload size) that must be stripped, otherwise the
+    // header bytes are decoded as text and pollute the beginning of the log lines. This mirrors
+    // what the podman and docker CLIs do: they read Config.Tty from an inspect and demultiplex
+    // accordingly, rather than guessing from the stream content.
+    let multiplexed = false;
+    try {
+      multiplexed = !(await container.inspect()).Config.Tty;
+    } catch (error: unknown) {
+      // if the container cannot be inspected, fall back to forwarding the stream as-is
+      console.warn(`Unable to read the TTY mode of container ${logsParams.id}`, error);
+    }
+
     container
       .logs({
         follow: true,
@@ -2000,15 +2016,53 @@ export class ContainerProviderRegistry {
         ...optionalParams,
       })
       .then(containerStream => {
-        containerStream.on('end', () => {
-          logsParams.callback('end', '');
-        });
-        containerStream.on('data', chunk => {
+        // StringDecoder buffers incomplete multi-byte sequences across chunks. stdout and stderr are
+        // interleaved in the multiplexed stream, so each one needs its own decoder: a shared one
+        // would let a frame of one stream complete the pending character of the other.
+        const stdoutDecoder = new StringDecoder('utf-8');
+        const stderrDecoder = new StringDecoder('utf-8');
+
+        const emitData = (decoder: StringDecoder, chunk: Buffer): void => {
           if (firstMessage) {
             firstMessage = false;
             logsParams.callback('first-message', '');
           }
-          logsParams.callback('data', chunk.toString('utf-8'));
+          logsParams.callback('data', decoder.write(chunk));
+        };
+
+        // the stream is consumed through a pass-through so that a single `end` handler flushes the
+        // decoders whichever path forwards the data, including once demuxStream has drained
+        const logStream = new PassThrough();
+
+        if (multiplexed) {
+          const decodeInto = (decoder: StringDecoder): Writable =>
+            new Writable({
+              write(chunk: Buffer, _encoding, done): void {
+                emitData(decoder, chunk);
+                done();
+              },
+            });
+          container.modem.demuxStream(logStream, decodeInto(stdoutDecoder), decodeInto(stderrDecoder));
+        } else {
+          logStream.on('data', (chunk: Buffer) => emitData(stdoutDecoder, chunk));
+        }
+
+        containerStream.on('data', (chunk: Buffer | string) => {
+          logStream.write(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        });
+
+        containerStream.on('end', () => {
+          logStream.end();
+        });
+
+        logStream.on('end', () => {
+          for (const decoder of [stdoutDecoder, stderrDecoder]) {
+            const remaining = decoder.end();
+            if (remaining) {
+              logsParams.callback('data', remaining);
+            }
+          }
+          logsParams.callback('end', '');
         });
       })
       .catch((error: unknown) => {
@@ -2717,7 +2771,7 @@ export class ContainerProviderRegistry {
         stream = (await containerObject.stats({ stream: true })) as unknown as NodeJS.ReadableStream;
         this.statsConsumer.set(this.statsConsumerId, stream);
 
-        const pipeline = stream?.pipe(withParserAsStream());
+        const pipeline = stream?.pipe(streamValues.withParserAsStream());
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pipeline?.on('error', (error: any) => {
           console.error('Error while grabbing stats', error);

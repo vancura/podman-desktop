@@ -265,6 +265,7 @@ export class Updater {
         title: `Update ${product.name}?`,
         message: `A new version ${updateVersion} of ${product.name} is available. Do you want to update your current version ${this.#currentVersion}?`,
         buttons: buttons,
+        // a dropdown cannot be the cancel button, so the startup dialog is dismissed via Escape or the close button
         cancelId: context === 'startup' ? undefined : 2,
       });
       if (result.response === 'Later' && result.dropdownIndex !== undefined) {
