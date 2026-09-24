@@ -382,10 +382,23 @@ test.each(['disabled', 'inProgress'] as const)('Menu item mode click is ignored 
   expect(onclick).not.toHaveBeenCalled();
 });
 
-test.each(['Enter', ' '])('Menu item mode is keyboard activatable with %s', async key => {
+test('Menu item mode is keyboard activatable with Enter on keydown', async () => {
   const onclick = vi.fn();
   render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete', onclick });
-  await fireEvent.keyDown(screen.getByRole('button'), { key });
+  await fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
+  expect(onclick).toHaveBeenCalledOnce();
+});
+
+test('Menu item mode ignores repeated Space keydown while held, activating only once on keyup', async () => {
+  const onclick = vi.fn();
+  render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete', onclick });
+  const row = screen.getByRole('button');
+  // Simulates OS key-repeat firing multiple keydown events while Space is held
+  await fireEvent.keyDown(row, { key: ' ' });
+  await fireEvent.keyDown(row, { key: ' ' });
+  await fireEvent.keyDown(row, { key: ' ' });
+  expect(onclick).not.toHaveBeenCalled();
+  await fireEvent.keyUp(row, { key: ' ' });
   expect(onclick).toHaveBeenCalledOnce();
 });
 

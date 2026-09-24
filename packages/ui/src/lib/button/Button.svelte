@@ -60,6 +60,13 @@ function handleMenuItemClick(): void {
 function handleMenuItemKeydown(event: KeyboardEvent): void {
   if (event.key !== 'Enter' && event.key !== ' ') return;
   event.preventDefault();
+  // Space activates on keyup instead, so a held Space doesn't repeat-fire via OS key-repeat.
+  if (event.key === 'Enter') handleMenuItemClick();
+}
+
+function handleMenuItemKeyup(event: KeyboardEvent): void {
+  if (event.key !== ' ') return;
+  event.preventDefault();
   handleMenuItemClick();
 }
 
@@ -151,7 +158,8 @@ let menuItemClasses = $derived(
     aria-busy={inProgress}
     tabindex={disabled || inProgress ? -1 : 0}
     onclick={handleMenuItemClick}
-    onkeydown={handleMenuItemKeydown}>
+    onkeydown={handleMenuItemKeydown}
+    onkeyup={handleMenuItemKeyup}>
     <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -- false positive: sonarjs treats {@render} as consuming a JS return value, but Svelte snippets never return anything -->
     {@render content()}
   </div>
