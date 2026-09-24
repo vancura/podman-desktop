@@ -389,6 +389,15 @@ test('Menu item mode is keyboard activatable with Enter on keydown', async () =>
   expect(onclick).toHaveBeenCalledOnce();
 });
 
+test('Menu item mode keyboard activation dispatches a real bubbling click, so a DropdownMenu listening on window can close itself', async () => {
+  const onWindowClick = vi.fn();
+  window.addEventListener('click', onWindowClick);
+  render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete' });
+  await fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
+  window.removeEventListener('click', onWindowClick);
+  expect(onWindowClick).toHaveBeenCalledOnce();
+});
+
 test('Menu item mode ignores repeated Space keydown while held, activating only once on keyup', async () => {
   const onclick = vi.fn();
   render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete', onclick });
