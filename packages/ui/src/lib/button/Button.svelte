@@ -60,6 +60,7 @@ function handleMenuItemClick(): void {
 function handleMenuItemKeydown(event: KeyboardEvent): void {
   if (event.key !== 'Enter' && event.key !== ' ') return;
   event.preventDefault();
+  if (disabled || inProgress) return;
   // Space activates on keyup instead, so a held Space doesn't repeat-fire via OS key-repeat.
   // Dispatch a real click (like a native <button> does) rather than calling the handler
   // directly, so a click bubbles to window for DropdownMenu to close itself on selection.
@@ -69,6 +70,7 @@ function handleMenuItemKeydown(event: KeyboardEvent): void {
 function handleMenuItemKeyup(event: KeyboardEvent): void {
   if (event.key !== ' ') return;
   event.preventDefault();
+  if (disabled || inProgress) return;
   (event.currentTarget as HTMLElement).click();
 }
 

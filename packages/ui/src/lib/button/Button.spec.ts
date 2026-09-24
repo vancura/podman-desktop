@@ -400,6 +400,8 @@ test('Menu item mode keyboard activation dispatches a real bubbling click, so a 
 
 test('Menu item mode ignores repeated Space keydown while held, activating only once on keyup', async () => {
   const onclick = vi.fn();
+  const onWindowClick = vi.fn();
+  window.addEventListener('click', onWindowClick);
   render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete', onclick });
   const row = screen.getByRole('button');
   // Simulates OS key-repeat firing multiple keydown events while Space is held
@@ -407,8 +409,27 @@ test('Menu item mode ignores repeated Space keydown while held, activating only 
   await fireEvent.keyDown(row, { key: ' ' });
   await fireEvent.keyDown(row, { key: ' ' });
   expect(onclick).not.toHaveBeenCalled();
+  expect(onWindowClick).not.toHaveBeenCalled();
   await fireEvent.keyUp(row, { key: ' ' });
+  window.removeEventListener('click', onWindowClick);
   expect(onclick).toHaveBeenCalledOnce();
+  expect(onWindowClick).toHaveBeenCalledOnce();
+});
+
+test.each([
+  ['Enter', 'disabled'],
+  ['Enter', 'inProgress'],
+  ['Space', 'disabled'],
+  ['Space', 'inProgress'],
+] as const)('Menu item mode does not dispatch a bubbling click via %s when %s', async (key, prop) => {
+  const onWindowClick = vi.fn();
+  window.addEventListener('click', onWindowClick);
+  render(Button, { menuItem: true, [prop]: true, icon: faTrash, 'aria-label': 'Delete' });
+  const row = screen.getByRole('button');
+  await fireEvent.keyDown(row, { key: key === 'Enter' ? 'Enter' : ' ' });
+  if (key === 'Space') await fireEvent.keyUp(row, { key: ' ' });
+  window.removeEventListener('click', onWindowClick);
+  expect(onWindowClick).not.toHaveBeenCalled();
 });
 
 test('Menu item mode disabled row is removed from tab order', () => {
