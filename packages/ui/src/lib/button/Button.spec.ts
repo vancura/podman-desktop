@@ -348,6 +348,11 @@ test('Menu item mode reuses type-based color classes', () => {
   expect(row).toHaveClass('text-[var(--pd-button-danger-text)]');
 });
 
+test('Menu item mode exposes aria-pressed for toggle-style rows, matching the native-button branch', () => {
+  render(Button, { menuItem: true, pressed: true, icon: faTrash, 'aria-label': 'Delete' });
+  expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('Menu item mode strips border and shadow classes for a flat row look', () => {
   render(Button, { menuItem: true, type: 'danger', icon: faTrash, 'aria-label': 'Delete' });
   const row = screen.getByRole('button');
@@ -375,12 +380,19 @@ test('Menu item mode click fires onclick when enabled', async () => {
   expect(onclick).toHaveBeenCalledOnce();
 });
 
-test.each(['disabled', 'inProgress'] as const)('Menu item mode click is ignored while %s', async prop => {
-  const onclick = vi.fn();
-  render(Button, { menuItem: true, [prop]: true, icon: faTrash, 'aria-label': 'Delete', onclick });
-  await fireEvent.click(screen.getByRole('button'));
-  expect(onclick).not.toHaveBeenCalled();
-});
+test.each(['disabled', 'inProgress'] as const)(
+  'Menu item mode click is ignored and does not bubble to window while %s',
+  async prop => {
+    const onclick = vi.fn();
+    const onWindowClick = vi.fn();
+    window.addEventListener('click', onWindowClick);
+    render(Button, { menuItem: true, [prop]: true, icon: faTrash, 'aria-label': 'Delete', onclick });
+    await fireEvent.click(screen.getByRole('button'));
+    window.removeEventListener('click', onWindowClick);
+    expect(onclick).not.toHaveBeenCalled();
+    expect(onWindowClick).not.toHaveBeenCalled();
+  },
+);
 
 test('Menu item mode is keyboard activatable with Enter on keydown', async () => {
   const onclick = vi.fn();
@@ -414,6 +426,23 @@ test('Menu item mode ignores repeated Space keydown while held, activating only 
   window.removeEventListener('click', onWindowClick);
   expect(onclick).toHaveBeenCalledOnce();
   expect(onWindowClick).toHaveBeenCalledOnce();
+});
+
+test('Menu item mode ignores a bare Space keyup with no preceding keydown on the same row', async () => {
+  const onclick = vi.fn();
+  render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete', onclick });
+  await fireEvent.keyUp(screen.getByRole('button'), { key: ' ' });
+  expect(onclick).not.toHaveBeenCalled();
+});
+
+test('Menu item mode clears pending Space activation on blur, so a later keyup does not activate', async () => {
+  const onclick = vi.fn();
+  render(Button, { menuItem: true, icon: faTrash, 'aria-label': 'Delete', onclick });
+  const row = screen.getByRole('button');
+  await fireEvent.keyDown(row, { key: ' ' });
+  await fireEvent.blur(row);
+  await fireEvent.keyUp(row, { key: ' ' });
+  expect(onclick).not.toHaveBeenCalled();
 });
 
 test.each([

@@ -52,26 +52,45 @@ let actualPadding = $derived(padding ?? (menuItem ? 'p-2.5' : 'px-[16px] ' + (ty
 
 let pressedActive = $derived(pressed === true && !disabled && !inProgress);
 
-function handleMenuItemClick(): void {
-  if (disabled || inProgress) return;
+function handleMenuItemClick(event: MouseEvent): void {
+  if (disabled || inProgress) {
+    // A real mouse click (unlike our own keyboard-dispatched one, already guarded before
+    // dispatch below) would otherwise still bubble to window for DropdownMenu to react to.
+    event.stopPropagation();
+    return;
+  }
   onclick();
 }
+
+// Tracks whether this row's own keydown armed a pending Space activation, so a keyup
+// only activates when it's paired with this row's matching keydown - not a stray keyup
+// (e.g. focus moved to another row while Space was held) - matching native <button>.
+let spaceActivationPending = false;
 
 function handleMenuItemKeydown(event: KeyboardEvent): void {
   if (event.key !== 'Enter' && event.key !== ' ') return;
   event.preventDefault();
   if (disabled || inProgress) return;
-  // Space activates on keyup instead, so a held Space doesn't repeat-fire via OS key-repeat.
+  if (event.key === ' ') {
+    spaceActivationPending = true;
+    return;
+  }
   // Dispatch a real click (like a native <button> does) rather than calling the handler
   // directly, so a click bubbles to window for DropdownMenu to close itself on selection.
-  if (event.key === 'Enter') (event.currentTarget as HTMLElement).click();
+  (event.currentTarget as HTMLElement).click();
 }
 
 function handleMenuItemKeyup(event: KeyboardEvent): void {
   if (event.key !== ' ') return;
   event.preventDefault();
-  if (disabled || inProgress) return;
+  const shouldActivate = spaceActivationPending;
+  spaceActivationPending = false;
+  if (!shouldActivate || disabled || inProgress) return;
   (event.currentTarget as HTMLElement).click();
+}
+
+function handleMenuItemBlur(): void {
+  spaceActivationPending = false;
 }
 
 let classes = $derived.by(() => {
@@ -160,10 +179,12 @@ let menuItemClasses = $derived(
     aria-label={ariaLabel}
     aria-disabled={disabled || inProgress}
     aria-busy={inProgress}
+    aria-pressed={pressed}
     tabindex={disabled || inProgress ? -1 : 0}
     onclick={handleMenuItemClick}
     onkeydown={handleMenuItemKeydown}
-    onkeyup={handleMenuItemKeyup}>
+    onkeyup={handleMenuItemKeyup}
+    onblur={handleMenuItemBlur}>
     <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -- false positive: sonarjs treats {@render} as consuming a JS return value, but Svelte snippets never return anything -->
     {@render content()}
   </div>
