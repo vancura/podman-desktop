@@ -94,7 +94,7 @@ test('Expect error dialog with correct message when image deletion fails', async
     onRenameImage: vi.fn(),
     image,
   });
-  const button = screen.getByTitle('Delete Image');
+  const button = screen.getByRole('button', { name: 'Delete Image' });
   expect(button).toBeDefined();
   await fireEvent.click(button);
 
@@ -131,9 +131,8 @@ test('Expect no dropdown when one contribution and dropdownMenu off', async () =
   expect(getContributedMenusMock).toHaveBeenCalled();
 
   await waitFor(() => {
-    const div = screen.getByTitle('dummy-contrib').parentElement;
-    expect(div).toBeDefined();
-    expect(div?.classList).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'dummy-contrib' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('kebab menu')).not.toBeInTheDocument();
   });
 });
 
@@ -216,7 +215,7 @@ test('Expect Push image to be there', async () => {
     image,
   });
 
-  const button = screen.getByTitle('Push Image');
+  const button = screen.getByRole('button', { name: 'Push Image' });
   expect(button).toBeDefined();
 });
 
@@ -235,7 +234,7 @@ test('Expect Save image to be there', async () => {
     image,
   });
 
-  const button = screen.getByTitle('Save Image');
+  const button = screen.getByRole('button', { name: 'Save Image' });
   expect(button).toBeDefined();
 
   await userEvent.click(button);
@@ -257,7 +256,7 @@ test('Expect withConfirmation to indicate image name and tag', async () => {
     onRenameImage: vi.fn(),
     image,
   });
-  const button = screen.getByTitle('Delete Image');
+  const button = screen.getByRole('button', { name: 'Delete Image' });
   expect(button).toBeDefined();
   await fireEvent.click(button);
 
@@ -283,24 +282,24 @@ describe('run', () => {
   });
 
   test('Expect Run image to be there', async () => {
-    const { getByTitle } = render(ImageActions, {
+    const { getByRole } = render(ImageActions, {
       onPushImage: vi.fn(),
       onRenameImage: vi.fn(),
       image,
     });
 
-    const button = getByTitle('Run Image');
+    const button = getByRole('button', { name: 'Run Image' });
     expect(button).toBeDefined();
   });
 
   test('Expect Run image to navigate to appropriate page', async () => {
-    const { getByTitle } = render(ImageActions, {
+    const { getByRole } = render(ImageActions, {
       onPushImage: vi.fn(),
       onRenameImage: vi.fn(),
       image,
     });
 
-    const button = getByTitle('Run Image');
+    const button = getByRole('button', { name: 'Run Image' });
     expect(button).toBeDefined();
 
     await fireEvent.click(button);

@@ -20,7 +20,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
 
 import LinuxControlButton from './LinuxControlButton.svelte';
@@ -31,6 +31,8 @@ test('Check Minimize', async () => {
   const customButton = screen.getByRole('button', { name: 'Minimize' });
   expect(customButton).toBeInTheDocument();
 
-  // check the title of the button is 'Maximize'
-  expect(customButton).toHaveAttribute('title', 'Minimize');
+  // check the tooltip of the button is 'Minimize'
+  await fireEvent.mouseLeave(screen.getByTestId('tooltip-trigger'));
+  await fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+  expect(await screen.findByRole('tooltip')).toHaveTextContent('Minimize');
 });

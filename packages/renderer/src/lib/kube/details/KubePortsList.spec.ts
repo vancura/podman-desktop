@@ -121,11 +121,11 @@ test('expect only target remote port have open button', async () => {
 
   const div80 = getByLabelText('port 80');
   expect(div80).toBeDefined();
-  const open80 = within(div80).getByTitle('Open in browser');
+  const open80 = within(div80).getByRole('button', { name: 'Open' });
   expect(open80).toBeDefined();
 
   const div100 = getByLabelText('port 100');
   expect(div100).toBeDefined();
-  const open100 = within(div100).queryByTitle('Open in browser');
+  const open100 = within(div100).queryByRole('button', { name: 'Open' });
   expect(open100).toBeNull();
 });

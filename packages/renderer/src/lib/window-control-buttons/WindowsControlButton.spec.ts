@@ -33,20 +33,26 @@ test('Check Maximize/Restore', async () => {
   const customButton = screen.getByRole('button', { name: 'Maximize' });
   expect(customButton).toBeInTheDocument();
 
-  // check the title of the button is 'Maximize'
-  expect(customButton).toHaveAttribute('title', 'Maximize');
+  // check the tooltip of the button is 'Maximize'
+  await fireEvent.mouseLeave(screen.getByTestId('tooltip-trigger'));
+  await fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+  expect(await screen.findByRole('tooltip')).toHaveTextContent('Maximize');
 
   // click on the button
   await fireEvent.click(customButton);
 
-  // check the title of the button is 'Restore'
-  expect(customButton).toHaveAttribute('title', 'Restore');
+  // check the tooltip of the button is 'Restore'
+  await fireEvent.mouseLeave(screen.getByTestId('tooltip-trigger'));
+  await fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+  expect(await screen.findByRole('tooltip')).toHaveTextContent('Restore');
 
   // click on the button
   await fireEvent.click(customButton);
 
-  // check the title of the button is 'Maximize'
-  expect(customButton).toHaveAttribute('title', 'Maximize');
+  // check the tooltip of the button is 'Maximize'
+  await fireEvent.mouseLeave(screen.getByTestId('tooltip-trigger'));
+  await fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+  expect(await screen.findByRole('tooltip')).toHaveTextContent('Maximize');
 });
 
 test('Check Windows Maximize control button colors', async () => {

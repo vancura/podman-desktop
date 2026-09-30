@@ -77,7 +77,7 @@ test('Expect close link is defined', async () => {
     onclose: closeClickMock,
   });
 
-  const closeElement = screen.getByTitle('Close');
+  const closeElement = screen.getByRole('button', { name: 'Close' });
   expect(closeElement).toBeInTheDocument();
   await fireEvent.click(closeElement);
 

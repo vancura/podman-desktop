@@ -166,7 +166,7 @@ test('expect button to not have inline-flex when hidden is true', async () => {
     menu: false,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByRole('button', { name: title });
   expect(listItemSpan).toBeInTheDocument();
   expect(listItemSpan).toHaveClass('hidden');
   expect(listItemSpan).not.toHaveClass('inline-flex');
@@ -182,7 +182,7 @@ test('expect button to have inline-flex when hidden is false', async () => {
     menu: false,
   });
 
-  const listItemSpan = screen.getByTitle(title);
+  const listItemSpan = screen.getByRole('button', { name: title });
   expect(listItemSpan).toBeInTheDocument();
   expect(listItemSpan).not.toHaveClass('hidden');
   expect(listItemSpan).toHaveClass('inline-flex');

@@ -51,9 +51,9 @@ beforeEach(() => {
 });
 
 test('KubeApplyYAMLButton should redirect to', async () => {
-  const { getByTitle } = render(KubeActions);
+  const { getByRole } = render(KubeActions);
 
-  const applyYAMLBtn = getByTitle('Apply YAML');
+  const applyYAMLBtn = getByRole('button', { name: 'Apply YAML' });
   expect(applyYAMLBtn).toBeInTheDocument();
 
   await userEvent.click(applyYAMLBtn);

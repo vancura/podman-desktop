@@ -174,14 +174,14 @@ describe('PreferencesRegistriesEditing', () => {
     registriesInfos.set([registry]);
     render(PreferencesRegistriesEditing, {});
 
-    const showButton = screen.getByTitle('Show password');
+    const showButton = screen.getByRole('button', { name: 'Show password' });
     expect(showButton).toBeInTheDocument();
 
     await userEvent.click(showButton);
 
     expect(screen.getByText('mySecretPassword')).toBeInTheDocument();
 
-    const hideButton = screen.getByTitle('Hide password');
+    const hideButton = screen.getByRole('button', { name: 'Hide password' });
     expect(hideButton).toBeInTheDocument();
 
     await userEvent.click(hideButton);

@@ -1301,7 +1301,7 @@ test('Expect create container dialog opens when Create button is clicked', async
 
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-  const createButton = screen.getByTitle('Create a container');
+  const createButton = screen.getByRole('button', { name: 'Create' });
   await fireEvent.click(createButton);
 
   await waitFor(() => {
@@ -1317,7 +1317,7 @@ test('Expect create container dialog has both choice buttons styled as secondary
   await waitFor(() => expect(get(providerInfos)).not.toHaveLength(0));
   await waitRender({});
 
-  const createButton = screen.getByTitle('Create a container');
+  const createButton = screen.getByRole('button', { name: 'Create' });
   await fireEvent.click(createButton);
 
   const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));
@@ -1341,7 +1341,7 @@ test('Expect clicking Containerfile button navigates to build image page', async
   await waitFor(() => expect(get(providerInfos)).not.toHaveLength(0));
   await waitRender({});
 
-  const createButton = screen.getByTitle('Create a container');
+  const createButton = screen.getByRole('button', { name: 'Create' });
   await fireEvent.click(createButton);
 
   const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));
@@ -1360,7 +1360,7 @@ test('Expect clicking Existing image button closes dialog', async () => {
   await waitFor(() => expect(get(providerInfos)).not.toHaveLength(0));
   await waitRender({});
 
-  const createButton = screen.getByTitle('Create a container');
+  const createButton = screen.getByRole('button', { name: 'Create' });
   await fireEvent.click(createButton);
 
   const dialog = await waitFor(() => screen.getByRole('dialog', { name: 'Create a new container' }));

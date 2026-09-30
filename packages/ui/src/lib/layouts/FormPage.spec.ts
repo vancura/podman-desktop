@@ -47,7 +47,7 @@ test('Expect no backlink or close is defined', async () => {
   const backElement = screen.queryByLabelText('Back');
   expect(backElement).not.toBeInTheDocument();
 
-  const closeElement = screen.queryByTitle('Close');
+  const closeElement = screen.queryByRole('button', { name: 'Close' });
   expect(closeElement).toBeInTheDocument();
 });
 

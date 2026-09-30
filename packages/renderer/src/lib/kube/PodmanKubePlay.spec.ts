@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { fireEvent, render } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
 
@@ -31,13 +31,16 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-test('Expect button to be visible with correct text and title', () => {
+test('Expect button to be visible with correct text and tooltip', async () => {
   const { getByRole } = render(PodmanKubePlay);
 
   const button = getByRole('button', { name: 'Podman kube play' });
   expect(button).toBeInTheDocument();
   expect(button).toHaveTextContent('Podman kube play');
-  expect(button).toHaveAttribute('title', 'Create containers, pods and volumes based on Kubernetes YAML');
+  await fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+  expect(await screen.findByRole('tooltip')).toHaveTextContent(
+    'Create containers, pods and volumes based on Kubernetes YAML',
+  );
 });
 
 test('Expect click on button to navigate to kube play page', async () => {

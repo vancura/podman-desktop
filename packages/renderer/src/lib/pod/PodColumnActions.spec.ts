@@ -83,7 +83,9 @@ test('Expect error message', async () => {
 
   render(PodColumnActions, { object: pod });
 
-  const tooltipTrigger = screen.getByTestId('tooltip-trigger');
+  // the error indicator is rendered before the action buttons
+  const [tooltipTrigger] = screen.getAllByTestId('tooltip-trigger');
+  if (!tooltipTrigger) throw new Error('error tooltip trigger not found');
   await fireEvent.mouseEnter(tooltipTrigger);
 
   const error = await screen.findByText('Pod failed');

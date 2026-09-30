@@ -44,7 +44,7 @@ test('Expect trigger button is visible and has correct title', async () => {
     title,
   });
 
-  const triggerButton = screen.getByTitle(title);
+  const triggerButton = screen.getByRole('button', { name: title });
   expect(triggerButton).toBeInTheDocument();
   expect(triggerButton).toHaveAttribute('tabindex', '0');
 });
@@ -56,7 +56,7 @@ test('Expect trigger button has aria-label matching the title prop', () => {
     title,
   });
 
-  const triggerButton = screen.getByTitle(title);
+  const triggerButton = screen.getByRole('button', { name: title });
   expect(triggerButton).toHaveAttribute('aria-label', title);
 });
 
@@ -66,7 +66,7 @@ test('Expect trigger button aria-expanded reflects dropdown open state', async (
     title: 'Manage Layout',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   expect(triggerButton).toHaveAttribute('aria-expanded', 'false');
 
   await fireEvent.click(triggerButton);
@@ -82,7 +82,7 @@ test('Expect dropdown opens when trigger button is clicked', async () => {
     title: 'Manage Layout',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
 
   // Initially, dropdown should not be visible
   expect(screen.queryByText('First Item')).not.toBeInTheDocument();
@@ -103,7 +103,7 @@ test.skip('Expect dropdown closes when clicking outside', async () => {
     title: 'Manage Layout',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
 
   // Open dropdown
   await fireEvent.click(triggerButton);
@@ -123,7 +123,7 @@ test('Expect enabled items show check icon', async () => {
     enableToggle: true,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Check that enabled items have check icons
@@ -150,7 +150,7 @@ test('Expect item toggle functionality works when enableToggle is true', async (
     enableToggle: true,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Click on third item to enable it
@@ -172,7 +172,7 @@ test('Expect grip icons are visible when enableReorder is true', async () => {
     enableReorder: true,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Check for grip icons - just verify they exist
@@ -190,7 +190,7 @@ test('Expect reset button is visible when onReset is provided', async () => {
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText('Reset to default');
@@ -207,7 +207,7 @@ test('Expect reset button calls onReset when clicked', async () => {
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText('Reset to default');
@@ -229,7 +229,7 @@ test('Expect reset button is disabled when items are in default state', async ()
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText('Reset to default').closest('button');
@@ -249,7 +249,7 @@ test('Expect reset button is enabled when items are modified', async () => {
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText('Reset to default').closest('button');
@@ -291,7 +291,7 @@ test('Expect reset button is enabled when items are reordered', async () => {
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText('Reset to default').closest('button');
@@ -305,7 +305,7 @@ test('Expect drag handles are draggable when enableReorder is true', async () =>
     enableReorder: true,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Find drag handle
@@ -321,7 +321,7 @@ test('Expect mouse events work on drag handles', async () => {
     enableReorder: true,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Find drag handle
@@ -341,7 +341,7 @@ test('Expect grip handle accepts click events', async () => {
     enableReorder: true,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Find grip handle
@@ -360,7 +360,7 @@ test('Expect custom title is used', async () => {
     title: customTitle,
   });
 
-  const triggerButton = screen.getByTitle(customTitle);
+  const triggerButton = screen.getByRole('button', { name: customTitle });
   expect(triggerButton).toBeInTheDocument();
 });
 
@@ -375,7 +375,7 @@ test('Expect custom reset button label is used', async () => {
     resetButtonLabel: customLabel,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText(customLabel);
@@ -388,7 +388,7 @@ test('Expect no reset button when onReset is not provided', async () => {
     title: 'Manage Layout',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Should not find any reset button
@@ -404,7 +404,7 @@ test('Expect reset button has proper styling', async () => {
     onReset: onResetMock,
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Just check that reset button exists
@@ -431,7 +431,7 @@ test('Expect reset button disabled in default state (all enabled, original order
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   const resetButton = screen.getByText('Reset to default').closest('button');
@@ -457,7 +457,7 @@ test('Expect reset button enabled after toggling item', async () => {
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Update with toggled item
@@ -498,7 +498,7 @@ test('Expect reset button enabled after reordering items', async () => {
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Create an ordering Map that represents reordered state
@@ -544,7 +544,7 @@ test('Expect clicking reset button resets state and disables button', async () =
     resetButtonLabel: 'Reset to default',
   });
 
-  const triggerButton = screen.getByTitle('Manage Layout');
+  const triggerButton = screen.getByRole('button', { name: 'Manage Layout' });
   await fireEvent.click(triggerButton);
 
   // Initially disabled (default state)

@@ -73,7 +73,7 @@ test('click on name should redirect to pod page', async () => {
     },
   ]);
 
-  const { getByTitle } = render(PodNameColumn, {
+  const { getByRole } = render(PodNameColumn, {
     object: {
       name: 'dummy-pod-name',
       namespace: 'dummy-ns',
@@ -83,7 +83,7 @@ test('click on name should redirect to pod page', async () => {
     },
   });
 
-  const openBtn = getByTitle('Open pod details');
+  const openBtn = getByRole('button', { name: /dummy-pod-name/ });
   expect(openBtn).toBeDefined();
 
   await fireEvent.click(openBtn);

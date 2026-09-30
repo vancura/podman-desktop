@@ -444,9 +444,9 @@ describe('QuickPickInput', () => {
       },
     );
 
-    const { getByTitle } = render(QuickPickInput, {});
+    const { getByRole } = render(QuickPickInput, {});
 
-    const item1 = getByTitle('Select item1');
+    const item1 = getByRole('button', { name: /item1/ });
     expect(item1).toBeDefined();
   });
 
@@ -489,7 +489,7 @@ describe('QuickPickInput', () => {
     });
 
     // render the first quickpick
-    const { getByTitle } = render(QuickPickInput, {});
+    const { getByRole } = render(QuickPickInput, {});
 
     // wait that the event callback is set
     await vi.waitFor(() => eventCallback !== undefined);
@@ -499,7 +499,7 @@ describe('QuickPickInput', () => {
     eventCallback?.(quickPickOptions);
 
     // check the first quick pick options is displayed
-    const item1 = await vi.waitFor(() => getByTitle('Select item1'));
+    const item1 = await vi.waitFor(() => getByRole('button', { name: /item1/ }));
     expect(item1).toBeDefined();
 
     // now, press the ESC key
@@ -509,7 +509,7 @@ describe('QuickPickInput', () => {
     expect(window.sendShowQuickPickValues).toBeCalledWith(idRequest);
 
     // and the next quickpick should be displayed
-    const itemFoo = getByTitle('Select foo');
+    const itemFoo = getByRole('button', { name: /foo/ });
     expect(itemFoo).toBeDefined();
   });
 });
