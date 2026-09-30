@@ -51,7 +51,7 @@ async function handleAction(): Promise<void> {
       <Link class="flex flex-row w-fit" onclick={openLearnMore}>Learn more <Icon class="ml-1 self-center" icon={faUpRightFromSquare}/></Link>
     {/if}
     <div class="flex flex-row justify-start items-end flex-1 pt-4 gap-2">
-      <Button type="primary" icon={feature.buttonIcon} onclick={handleAction} title={feature.buttonTitle}
+      <Button type="primary" icon={feature.buttonIcon} onclick={handleAction} title={feature.buttonTitle} aria-label={feature.buttonTitle}
         >{feature.buttonTitle}</Button>
       {#if feature.tutorialLink}
         <Button type="secondary" icon={faCirclePlay} onclick={openTutorial} title="Watch Tutorial">Watch Tutorial</Button>

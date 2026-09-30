@@ -1,6 +1,6 @@
 <script lang="ts">
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@podman-desktop/ui-svelte';
+import { Button, Tooltip } from '@podman-desktop/ui-svelte';
 
 import type { EventStoreInfo } from '/@/stores/event-store';
 
@@ -28,14 +28,15 @@ let openDetails = $state(false);
 <div class="flex flex-col bg-[var(--pd-invert-content-card-bg)] p-2 items-center rounded-sm w-full" role="listitem" aria-label={eventStoreInfo.name}>
   <div><eventStoreInfo.iconComponent size="20" /></div>
   <div class="text-xl">
-    <button
-      disabled={fetchInProgress}
-      class="underline outline-hidden"
-      title="Open Details"
-      aria-label="Open Details"
-      onclick={(): boolean => (openDetails = true)}>
-      {eventStoreInfo.name}
-    </button>
+    <Tooltip tip="Open Details">
+      <button
+        disabled={fetchInProgress}
+        class="underline outline-hidden"
+        aria-label="Open Details"
+        onclick={(): boolean => (openDetails = true)}>
+        {eventStoreInfo.name}
+      </button>
+    </Tooltip>
   </div>
   <div class="text-sm">({eventStoreInfo.size} items)</div>
   <div class="">

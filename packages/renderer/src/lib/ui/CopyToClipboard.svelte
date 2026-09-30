@@ -19,7 +19,6 @@ async function copyTextToClipboard(): Promise<void> {
 <div class="float-right">
   <Tooltip bottom tip="Copy to Clipboard">
     <button
-      title="Copy To Clipboard"
       class="ml-5 {className}"
       aria-label="Copy To Clipboard"
       onclick={copyTextToClipboard}>
@@ -27,6 +26,8 @@ async function copyTextToClipboard(): Promise<void> {
     </button>
   </Tooltip>
 </div>
-<div class="mt-1 my-auto text-xs truncate {className}" aria-label="{title} copy to clipboard" title={title}>
-  {title}
-</div>
+<Tooltip bottom tip={title} containerClass="relative inline-block min-w-0 max-w-full">
+  <div class="mt-1 my-auto text-xs truncate {className}" aria-label="{title} copy to clipboard">
+    {title}
+  </div>
+</Tooltip>

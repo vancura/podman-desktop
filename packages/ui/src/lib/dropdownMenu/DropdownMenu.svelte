@@ -4,6 +4,7 @@ import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import type { Component, Snippet } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
+import Tooltip from '../tooltip/Tooltip.svelte';
 import DropDownMenuItems from './DropDownMenuItems.svelte';
 
 interface Props {
@@ -67,16 +68,17 @@ function onButtonClick(e: MouseEvent): void {
   <!-- Create a "kebab" menu for additional actions. -->
   <div class="relative inline-block text-left">
     <!-- Button for the dropdown menu -->
-    <button
-      aria-label={title.length > 0 ? title : 'kebab menu'}
-      onclick={onButtonClick}
-      title={title}
-      bind:this={outsideWindow}
-      class="text-[var(--pd-action-button-text)] {shownAsMenuActionItem
-        ? 'bg-[var(--pd-action-button-details-bg)] px-3'
-        : 'hover:bg-[var(--pd-action-button-details-bg)]'} hover:text-[var(--pd-action-button-hover-text)] font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
-        <Icon class="h-4 w-4" icon={icon}/>
-      </button>
+    <Tooltip tip={title}>
+      <button
+        aria-label={title.length > 0 ? title : 'kebab menu'}
+        onclick={onButtonClick}
+        bind:this={outsideWindow}
+        class="text-[var(--pd-action-button-text)] {shownAsMenuActionItem
+          ? 'bg-[var(--pd-action-button-details-bg)] px-3'
+          : 'hover:bg-[var(--pd-action-button-details-bg)]'} hover:text-[var(--pd-action-button-hover-text)] font-medium rounded-md inline-flex items-center px-2 py-2 text-center">
+          <Icon class="h-4 w-4" icon={icon}/>
+        </button>
+    </Tooltip>
 
     <!-- Dropdown menu for all other actions -->
     {#if showMenu}

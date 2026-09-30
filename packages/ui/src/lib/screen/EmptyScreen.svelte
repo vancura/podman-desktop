@@ -90,7 +90,7 @@ let copyTextDivElement = $state<HTMLDivElement>();
           data-testid="copyTextDivElement">
           {commandline}
         </div>
-        <Button title="Copy To Clipboard" class="ml-5" on:click={handleClick} type="link">
+        <Button title="Copy To Clipboard" aria-label="Copy To Clipboard" class="ml-5" on:click={handleClick} type="link">
           <Icon class="h-5 w-5 cursor-pointer text-xl text-(--pd-action-button-primary-text)" icon={faPaste}/>
         </Button>
       </div>

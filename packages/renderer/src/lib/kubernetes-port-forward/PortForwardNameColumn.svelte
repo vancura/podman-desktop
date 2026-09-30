@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { KubernetesObject } from '@kubernetes/client-node';
 import { type ForwardConfig, WorkloadKind } from '@podman-desktop/core-api';
+import { Tooltip } from '@podman-desktop/ui-svelte';
 import { get } from 'svelte/store';
 
 import { kubernetesCurrentContextPods } from '/@/stores/kubernetes-contexts-state';
@@ -36,13 +37,15 @@ async function openResourceDetails(): Promise<void> {
 }
 </script>
 
-<button title="Open pod details" class="hover:cursor-pointer flex flex-col max-w-full" disabled={object.kind !== WorkloadKind.POD} onclick={openResourceDetails}>
-  <div class="text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis">
-    {object.name}
-  </div>
-  <div class="flex flex-row text-sm gap-1">
-    {#if object.namespace}
-      <div class="font-extra-light text-[var(--pd-table-body-text)]">{object.namespace}</div>
-    {/if}
-  </div>
-</button>
+<Tooltip tip="Open pod details" containerClass="relative inline-block max-w-full">
+  <button class="hover:cursor-pointer flex flex-col max-w-full" disabled={object.kind !== WorkloadKind.POD} onclick={openResourceDetails}>
+    <div class="text-[var(--pd-table-body-text-highlight)] max-w-full overflow-hidden text-ellipsis">
+      {object.name}
+    </div>
+    <div class="flex flex-row text-sm gap-1">
+      {#if object.namespace}
+        <div class="font-extra-light text-[var(--pd-table-body-text)]">{object.namespace}</div>
+      {/if}
+    </div>
+  </button>
+</Tooltip>

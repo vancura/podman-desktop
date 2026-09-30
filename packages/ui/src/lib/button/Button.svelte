@@ -5,6 +5,7 @@ import { createEventDispatcher, untrack } from 'svelte';
 
 import Icon from '../icons/Icon.svelte';
 import Spinner from '../progress/Spinner.svelte';
+import Tooltip from '../tooltip/Tooltip.svelte';
 import type { ButtonType } from './Button';
 
 interface Props {
@@ -45,6 +46,13 @@ let {
 if (untrack(() => icon !== undefined && !title && !children && !ariaLabel)) {
   throw new Error('Icon-only buttons must have an aria-label for accessibility');
 }
+
+// a title is the accessible name only when the content has no text of its own (icon-only)
+let buttonRef: HTMLButtonElement | undefined = $state();
+let contentHasText = $state(!!children);
+$effect(() => {
+  if (buttonRef) contentHasText = !!buttonRef.textContent?.trim();
+});
 
 let actualPadding = $derived(padding ?? 'px-[16px] ' + (type === 'tab' ? 'pb-1' : 'py-[5px]'));
 
@@ -96,36 +104,47 @@ let classes = $derived.by(() => {
 });
 </script>
 
-<button
-  type="button"
-  class="relative {actualPadding} motion-reduce:transition-none min-h-[28px] min-w-[28px] leading-[15px] select-none {classes} {classNames}"
-  class:border-[var(--pd-button-tab-border-selected)]={(type === 'tab' && selected === true && !disabled && !inProgress) ||
-  pressedActive}
-  class:hover:border-[var(--pd-button-tab-hover-border)]={type === 'tab' && !selected && !disabled && !inProgress}
-  class:text-[var(--pd-button-tab-text-selected)]={type === 'tab' && selected && !disabled && !inProgress}
-  class:text-[var(--pd-button-tab-text)]={type === 'tab' && !selected && !disabled && !inProgress}
-  hidden={hidden}
-  title={title}
-  aria-label={ariaLabel}
-  onclick={onclick}
-  disabled={disabled || inProgress}
-  aria-disabled={disabled || inProgress}
-  aria-busy={inProgress}
-  aria-pressed={pressed}>
-  {#if icon ?? inProgress}
-    <div
-      class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
-      class:py-[3px]={!children}>
-      {#if inProgress}
-        <Spinner size="1em" />
-      {:else if icon}
-        <Icon icon={icon}/>
-      {/if}
-      {#if children}
-        <span>{@render children()}</span>
-      {/if}
-    </div>
-  {:else}
-    {@render children?.()}
-  {/if}
-</button>
+{#snippet buttonElement()}
+  <button
+    type="button"
+    class="relative {actualPadding} motion-reduce:transition-none min-h-[28px] min-w-[28px] leading-[15px] select-none {classes} {classNames}"
+    class:border-[var(--pd-button-tab-border-selected)]={(type === 'tab' && selected === true && !disabled && !inProgress) ||
+    pressedActive}
+    class:hover:border-[var(--pd-button-tab-hover-border)]={type === 'tab' && !selected && !disabled && !inProgress}
+    class:text-[var(--pd-button-tab-text-selected)]={type === 'tab' && selected && !disabled && !inProgress}
+    class:text-[var(--pd-button-tab-text)]={type === 'tab' && !selected && !disabled && !inProgress}
+    hidden={hidden}
+    aria-label={ariaLabel ?? (contentHasText ? undefined : title)}
+    onclick={onclick}
+    disabled={disabled || inProgress}
+    aria-disabled={disabled || inProgress}
+    aria-busy={inProgress}
+    aria-pressed={pressed}>
+    {#if icon ?? inProgress}
+      <div
+        class="flex flex-row p-0 m-0 bg-transparent justify-center items-center space-x-[4px]"
+        class:py-[3px]={!children}>
+        {#if inProgress}
+          <Spinner size="1em" />
+        {:else if icon}
+          <Icon icon={icon}/>
+        {/if}
+        {#if children}
+          <span>{@render children()}</span>
+        {/if}
+      </div>
+    {:else}
+      {@render children?.()}
+    {/if}
+  </button>
+{/snippet}
+
+{#if title}
+  <Tooltip tip={title} containerClass={hidden ? 'hidden' : undefined}>
+    <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
+    {@render buttonElement()}
+  </Tooltip>
+{:else}
+  <!-- eslint-disable-next-line sonarjs/no-use-of-empty-return-value -->
+  {@render buttonElement()}
+{/if}

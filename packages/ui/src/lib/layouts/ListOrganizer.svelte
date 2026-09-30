@@ -3,6 +3,7 @@ import { faCheck, faGripVertical, faPen, faUndo } from '@fortawesome/free-solid-
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 import { Icon } from '../icons';
+import Tooltip from '../tooltip/Tooltip.svelte';
 import type { ListOrganizerItem } from './ListOrganizer';
 
 /**
@@ -245,17 +246,18 @@ function handleReset(): void {
 <svelte:body class:cursor-grabbing={isDraggingActive} />
 
 <div class="relative inline-block {className}" bind:this={containerElement}>
-  <button
-    class="cursor-pointer text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)] transition-all duration-150 hover:scale-110 active:scale-95 flex items-center justify-center p-1"
-    class:text-[var(--pd-action-button-hover-text)]={isOpen}
-    onclick={toggleDropdown}
-    title={title}
-    aria-label={title}
-    aria-expanded={isOpen}
-    tabindex="0"
-  >
-    <Icon icon={faPen} />
-  </button>
+  <Tooltip tip={title}>
+    <button
+      class="cursor-pointer text-[var(--pd-action-button-text)] hover:text-[var(--pd-action-button-hover-text)] transition-all duration-150 hover:scale-110 active:scale-95 flex items-center justify-center p-1"
+      class:text-[var(--pd-action-button-hover-text)]={isOpen}
+      onclick={toggleDropdown}
+      aria-label={title}
+      aria-expanded={isOpen}
+      tabindex="0"
+    >
+      <Icon icon={faPen} />
+    </button>
+  </Tooltip>
 
   {#if isOpen}
     <div
