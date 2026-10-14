@@ -20,12 +20,16 @@ import '@testing-library/jest-dom/vitest';
 
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import MessageBox from './MessageBox.svelte';
 import type { MessageBoxOptions } from './messagebox-input';
 
 describe('MessageBox', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   test('Expect that title, message, and buttons are displayed', async () => {
     const idRequest = 123;
 
@@ -163,7 +167,7 @@ describe('MessageBox', () => {
 
     const deleteButton = await screen.findByRole('button', { name: 'Delete' });
     expect(deleteButton).not.toHaveAttribute('data-default');
-    (document.activeElement as HTMLElement | null)?.blur();
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     await userEvent.keyboard('{Enter}');
     expect(window.sendShowMessageBoxOnSelect).not.toHaveBeenCalled();
   });
